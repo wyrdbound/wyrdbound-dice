@@ -64,9 +64,9 @@ jobs:
         run: |
           isort --check-only --diff src/ tests/ tools/
 
-      - name: Lint with flake8
+      - name: Lint with Ruff
         run: |
-          flake8 src/ tests/ tools/
+          ruff check src/ tests/ tools/
 
   cli-tools:
     runs-on: ubuntu-latest

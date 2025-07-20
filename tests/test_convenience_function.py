@@ -1,6 +1,5 @@
 """Test the convenience roll function that was added to fix the CI issue."""
 
-import pytest
 
 from wyrdbound_dice import Dice, StringLogger, roll
 
@@ -28,12 +27,16 @@ def test_roll_convenience_function_with_debug_logger():
 
 
 def test_roll_function_equivalent_to_dice_roll():
-    """Test that the convenience function produces the same type of result as Dice.roll()."""
-    # They won't have same values due to randomness, but should have same structure
+    """
+    Test that the convenience function produces the same type of
+    result as Dice.roll().
+    """
+    # They won't have same values due to randomness,
+    # but should have same structure
     dice_result = Dice.roll("1d20")
     func_result = roll("1d20")
 
-    assert type(dice_result) == type(func_result)
+    assert isinstance(dice_result, type(func_result))
     assert hasattr(dice_result, "total")
     assert hasattr(func_result, "total")
     assert hasattr(dice_result, "results")

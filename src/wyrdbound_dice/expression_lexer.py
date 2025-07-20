@@ -41,7 +41,10 @@ class DiceExpressionReader:
         self.lexer = lexer
 
     def read_dice_expression(self) -> str:
-        """Read a complete dice expression like '2d6kh1r>=3e6', but not separate math operations."""
+        """
+        Read a complete dice expression like '2d6kh1r>=3e6',
+        but not separate math operations.
+        """
         start_pos = self.lexer.pos
 
         # Read the number of dice
@@ -49,7 +52,9 @@ class DiceExpressionReader:
 
         # Must have 'd'
         if self.lexer.current_char != "d":
-            raise ParseError(f"Invalid dice expression at position {self.lexer.pos}")
+            raise ParseError(
+                f"Invalid dice expression at position {self.lexer.pos}"
+            )
         self.lexer.advance()
 
         # Read sides (number or 'F' for fudge)
@@ -58,11 +63,14 @@ class DiceExpressionReader:
         # Read optional dice-specific modifiers
         self._read_dice_modifiers()
 
-        return self.lexer.expr[start_pos : self.lexer.pos]
+        return self.lexer.expr[start_pos: self.lexer.pos]
 
     def _read_dice_count(self) -> None:
         """Read the number of dice."""
-        while self.lexer.current_char is not None and self.lexer.current_char.isdigit():
+        while (
+            self.lexer.current_char is not None
+            and self.lexer.current_char.isdigit()
+        ):
             self.lexer.advance()
 
     def _read_dice_sides(self) -> None:
@@ -77,7 +85,10 @@ class DiceExpressionReader:
                 self.lexer.advance()
 
     def _read_dice_modifiers(self) -> None:
-        """Read optional dice-specific modifiers: keep (k), reroll (r), explode (e)."""
+        """
+        Read optional dice-specific modifiers:
+        keep (k), reroll (r), explode (e).
+        """
         while self.lexer.current_char is not None:
             if self.lexer.current_char == "k":
                 self._read_keep_modifier()
@@ -94,7 +105,10 @@ class DiceExpressionReader:
         self.lexer.advance()
         if self.lexer.current_char in "hl":
             self.lexer.advance()
-        while self.lexer.current_char is not None and self.lexer.current_char.isdigit():
+        while (
+            self.lexer.current_char is not None
+            and self.lexer.current_char.isdigit()
+        ):
             self.lexer.advance()
 
     def _read_reroll_modifier(self) -> None:
@@ -110,20 +124,30 @@ class DiceExpressionReader:
             while self.lexer.current_char in "=<>":
                 self.lexer.advance()
         # Read target number
-        while self.lexer.current_char is not None and self.lexer.current_char.isdigit():
+        while (
+            self.lexer.current_char is not None
+            and self.lexer.current_char.isdigit()
+        ):
             self.lexer.advance()
 
     def _read_explode_modifier(self) -> None:
         """Read exploding dice modifier: e>=8, e6, etc."""
         self.lexer.advance()
         # Read optional comparison operator
-        if self.lexer.current_char is not None and self.lexer.current_char in "=<>":
+        if (
+            self.lexer.current_char is not None
+            and self.lexer.current_char in "=<>"
+        ):
             while (
-                self.lexer.current_char is not None and self.lexer.current_char in "=<>"
+                self.lexer.current_char is not None
+                and self.lexer.current_char in "=<>"
             ):
                 self.lexer.advance()
         # Read target number
-        while self.lexer.current_char is not None and self.lexer.current_char.isdigit():
+        while (
+            self.lexer.current_char is not None
+            and self.lexer.current_char.isdigit()
+        ):
             self.lexer.advance()
 
 
@@ -137,9 +161,12 @@ class ExpressionLexer:
 
     def __init__(self, expression: str):
         normalized_expr = self.normalize_unicode_chars(expression)
-        self.expr = normalized_expr.replace(" ", "")  # Remove spaces for easier parsing
+        # Remove spaces for easier parsing
+        self.expr = normalized_expr.replace(" ", "")
         self.pos = 0
-        self.current_char = self.expr[self.pos] if self.pos < len(self.expr) else None
+        self.current_char = (
+            self.expr[self.pos] if self.pos < len(self.expr) else None
+        )
         self.dice_reader = DiceExpressionReader(self)
 
     def advance(self) -> None:
@@ -185,8 +212,8 @@ class ExpressionLexer:
                 return operator_token
 
             raise ParseError(
-                f"Invalid character '{self.current_char}' at position {self.pos}"
-            )
+                f"Invalid character '{self.current_char}' at " +
+                f"position {self.pos}")
 
         return Token(TokenType.EOF, None, self.pos)
 

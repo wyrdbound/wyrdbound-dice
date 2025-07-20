@@ -82,8 +82,25 @@ Wyrdbound Dice supports an extensive range of dice rolling mechanics used across
 
 ## Installation
 
+### For End Users
+
 ```bash
 pip install wyrdbound-dice
+```
+
+> **Note**: This package is currently in development and not yet published to PyPI. For now, please use the development installation method below.
+
+### For Development
+
+If you want to contribute to the project or use the latest development version:
+
+```bash
+# Clone the repository
+git clone https://github.com/wyrdbound/wyrdbound-dice.git
+cd wyrdbound-dice
+
+# Install in development mode
+pip install -e .
 ```
 
 ### Optional Dependencies
@@ -97,13 +114,13 @@ pip install "wyrdbound-dice[visualization]"
 For development:
 
 ```bash
-pip install "wyrdbound-dice[dev]"
+pip install -e ".[dev]"
 ```
 
 For both visualization and development:
 
 ```bash
-pip install "wyrdbound-dice[dev,visualization]"
+pip install -e ".[dev,visualization]"
 ```
 
 ## Quick Start
@@ -504,7 +521,7 @@ pip install -e ".[dev]"
 pip install -e ".[dev,visualization]"
 
 # Or install development dependencies separately
-pip install pytest pytest-cov black isort flake8
+pip install pytest pytest-cov black isort ruff
 ```
 
 ### Running Tests
@@ -533,7 +550,7 @@ black src/ tests/ tools/
 isort src/ tests/ tools/
 
 # Lint code
-flake8 src/ tests/ tools/
+ruff check src/ tests/ tools/
 ```
 
 ## Contributing
@@ -553,7 +570,7 @@ Contributions are welcome! Please feel free to submit a Pull Request. For major 
 This project uses GitHub Actions for CI/CD:
 
 - **Testing**: Automated tests across Python 3.8-3.12 on Ubuntu, Windows, and macOS
-- **Code Quality**: Black formatting, isort import sorting, and flake8 linting
+- **Code Quality**: Black formatting, isort import sorting, and Ruff linting
 - **Package Validation**: Installation testing and CLI tool verification
 
 All pull requests are automatically tested and must pass all checks before merging.

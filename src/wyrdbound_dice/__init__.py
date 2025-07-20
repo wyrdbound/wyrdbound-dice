@@ -49,7 +49,8 @@ def roll(expression, modifiers=None, debug=False, debug_logger=None):
         expression (str): The dice expression to roll
         modifiers: Optional additional modifiers as a dictionary
         debug: Enable debug logging to see detailed parsing and rolling steps
-        debug_logger: Optional debug logger instance (replaces 'logger' parameter)
+        debug_logger: Optional debug logger instance (replaces 'logger'
+            parameter)
 
     Returns:
         RollResult: The result of the dice roll

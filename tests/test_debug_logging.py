@@ -106,7 +106,7 @@ class TestDebugLogging(unittest.TestCase):
     def test_debug_complex_expression(self, mock_stdout):
         """Test debug output for complex expressions with multiple operations."""
         self.mock_randint.side_effect = [6, 8, 2, 4]
-        result = Dice.roll("2d6 + 2d8 - 3", debug=True)
+        Dice.roll("2d6 + 2d8 - 3", debug=True)
 
         output = mock_stdout.getvalue()
         # Should show all parts of the complex expression
@@ -121,7 +121,7 @@ class TestDebugLogging(unittest.TestCase):
         """Test debug output when using modifiers."""
         self.mock_randint.side_effect = [4]
         modifiers = {"strength": 3}
-        result = Dice.roll("1d6", modifiers=modifiers, debug=True)
+        Dice.roll("1d6", modifiers=modifiers, debug=True)
 
         output = mock_stdout.getvalue()
         # Should show modifier information
@@ -131,7 +131,7 @@ class TestDebugLogging(unittest.TestCase):
     def test_debug_shorthand_expansion(self, mock_stdout):
         """Test debug output shows shorthand expansion."""
         self.mock_randint.side_effect = [1, 2, 3, 4]  # For 4dF
-        result = Dice.roll("FUDGE", debug=True)
+        Dice.roll("FUDGE", debug=True)
 
         output = mock_stdout.getvalue()
         # Should show shorthand expansion
@@ -143,7 +143,7 @@ class TestDebugLogging(unittest.TestCase):
     def test_debug_keep_operations(self, mock_stdout):
         """Test debug output for keep operations."""
         self.mock_randint.side_effect = [1, 6, 3]
-        result = Dice.roll("3d6kh1", debug=True)
+        Dice.roll("3d6kh1", debug=True)
 
         output = mock_stdout.getvalue()
         # Should show keep operation information
@@ -155,7 +155,7 @@ class TestDebugLogging(unittest.TestCase):
     def test_debug_precedence_parsing(self, mock_stdout):
         """Test debug output shows precedence parsing decisions."""
         self.mock_randint.side_effect = [3, 4]
-        result = Dice.roll("2d6 * 2 + 5", debug=True)
+        Dice.roll("2d6 * 2 + 5", debug=True)
 
         output = mock_stdout.getvalue()
         # Should show precedence information

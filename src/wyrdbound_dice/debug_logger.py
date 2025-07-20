@@ -8,7 +8,9 @@ from typing import Any, Optional
 class DebugLogger:
     """A debug logger that can use Python's standard logging interface."""
 
-    def __init__(self, enabled: bool = False, logger: Optional[logging.Logger] = None):
+    def __init__(
+        self, enabled: bool = False, logger: Optional[logging.Logger] = None
+    ):
         self.enabled = enabled
         if logger is None:
             # Create a default logger that outputs to stdout
@@ -55,15 +57,21 @@ class DebugLogger:
         if self.enabled:
             self.logger.debug(f"DEBUG: Rolling {dice_type}: {result}")
 
-    def log_calculation(self, operation: str, operands: list, result: Any) -> None:
+    def log_calculation(
+        self, operation: str, operands: list, result: Any
+    ) -> None:
         """Log calculation steps."""
         if self.enabled:
             operand_strs = [str(op) for op in operands]
-            self.logger.debug(f"DEBUG: {operation} {' '.join(operand_strs)} = {result}")
+            self.logger.debug(
+                f"DEBUG: {operation} {' '.join(operand_strs)} = {result}"
+            )
 
 
 class StringLogger:
-    """A logger that captures messages to a string buffer for testing/API purposes."""
+    """A logger that captures messages to a string buffer for
+    testing/API purposes.
+    """
 
     def __init__(self):
         self.messages = []
@@ -105,8 +113,12 @@ def get_debug_logger() -> DebugLogger:
     return _debug_logger
 
 
-def set_debug_mode(enabled: bool, logger: Optional[logging.Logger] = None) -> None:
-    """Enable or disable debug mode globally, optionally with a custom logger."""
+def set_debug_mode(
+    enabled: bool, logger: Optional[logging.Logger] = None
+) -> None:
+    """Enable or disable debug mode globally, optionally with a
+    custom logger.
+    """
     global _debug_logger
     _debug_logger = DebugLogger(enabled, logger)
 
