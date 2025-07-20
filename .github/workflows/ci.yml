@@ -38,7 +38,7 @@ jobs:
           result = roll('2d6+3')
           print(f'Test roll result: {result.total}')
           assert 5 <= result.total <= 15
-          print('✓ Basic functionality test passed')
+          print('Basic functionality test passed')
           "
 
   code-quality:
@@ -89,18 +89,18 @@ jobs:
           python tools/roll.py "2d6"
           python tools/roll.py "3d8+2"
           python tools/roll.py "1d20"
-          echo "✓ Roll tool works"
+          echo "Roll tool works"
 
           echo "Testing graph tool..."
           # Test that graph tool shows help (basic functionality)
           python tools/graph.py --help > /dev/null
-          echo "✓ Graph tool help works"
+          echo "Graph tool help works"
 
           # Test actual graph generation
           python tools/graph.py "2d6" -o test_output.html -n 100
           if [ -f test_output.html ]; then
-            echo "✓ Graph tool works - output file created"
+            echo "Graph tool works - output file created"
           else
-            echo "❌ Graph tool failed - no output file"
+            echo "Graph tool failed - no output file"
             exit 1
           fi
