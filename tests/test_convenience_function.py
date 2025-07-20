@@ -1,7 +1,8 @@
 """Test the convenience roll function that was added to fix the CI issue."""
 
 import pytest
-from wyrdbound_dice import roll, Dice, StringLogger
+
+from wyrdbound_dice import Dice, StringLogger, roll
 
 
 def test_roll_convenience_function_basic():
