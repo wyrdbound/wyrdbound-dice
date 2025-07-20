@@ -33,7 +33,9 @@ parser.add_argument(
 parser.add_argument("-n", "--count", type=int, default=1, help="Number of rolls")
 parser.add_argument("--json", action="store_true", help="Output results as JSON")
 parser.add_argument(
-    "--debug", action="store_true", help="Enable debug logging to see detailed parsing and rolling steps"
+    "--debug",
+    action="store_true",
+    help="Enable debug logging to see detailed parsing and rolling steps",
 )
 
 args = parser.parse_args()

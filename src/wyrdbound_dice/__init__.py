@@ -29,11 +29,11 @@ Example usage:
     >>> result = Dice.roll("2d6 + 1d4 x 2 - 1")
 """
 
+from .debug_logger import DebugLogger, StringLogger
 from .dice import Dice, RollModifier, RollResultSet
 from .errors import DivisionByZeroError, InfiniteConditionError, ParseError
 from .expression_token import TokenType
 from .roll_result import RollResult
-from .debug_logger import StringLogger, DebugLogger
 
 __version__ = "1.0.0"
 __author__ = "TheWyrdOne"

@@ -176,3 +176,7 @@ cython_debug/
 *.html
 !docs/*.png
 !docs/*.svg
+
+# Test artifacts
+test_output.png
+dice_debug.log

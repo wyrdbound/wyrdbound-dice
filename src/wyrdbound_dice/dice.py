@@ -203,10 +203,11 @@ class Dice:
     ) -> RollResultSet:
         """Roll dice using the original parsing method for backward compatibility."""
         from .debug_logger import get_debug_logger
+
         logger = get_debug_logger()
-        
+
         logger.log_step("ORIGINAL_PARSER", "Using original parsing method")
-        
+
         # Input validation
         DiceExpressionValidator.validate_expression_input(expr)
 
@@ -230,7 +231,7 @@ class Dice:
         results: List[RollResult] = []
 
         logger.log_step("DICE_MATCHING", f"Finding dice expressions in: '{expr}'")
-        
+
         # Find all dice expressions and their positions
         dice_matches = list(cls._dice_re.finditer(expr))
 
@@ -257,7 +258,9 @@ class Dice:
                     break
 
         if cross_dice_op and len(dice_matches) >= 2:
-            logger.log_step("CROSS_DICE", f"Detected cross-dice operations with '{cross_dice_op}'")
+            logger.log_step(
+                "CROSS_DICE", f"Detected cross-dice operations with '{cross_dice_op}'"
+            )
             # Handle cross-dice operations (e.g., "1d6 + 2d8")
             for match in dice_matches:
                 dice_result = cls._roll_single_dice_expression(expr, match)
@@ -404,11 +407,16 @@ class Dice:
 
         # Debug logging for keep/drop operations
         from .debug_logger import get_debug_logger
+
         logger = get_debug_logger()
         if keep_operations:
-            logger.log_step("KEEP_OPERATIONS", f"Parsed keep operations: {keep_operations}")
+            logger.log_step(
+                "KEEP_OPERATIONS", f"Parsed keep operations: {keep_operations}"
+            )
         if drop_operations:
-            logger.log_step("DROP_OPERATIONS", f"Parsed drop operations: {drop_operations}")
+            logger.log_step(
+                "DROP_OPERATIONS", f"Parsed drop operations: {drop_operations}"
+            )
 
         # For backward compatibility, still set legacy keep_type and keep_n
         if keep_operations:
@@ -463,10 +471,11 @@ class Dice:
         or fall back to the original method based on expression complexity.
         """
         from .debug_logger import get_debug_logger
+
         logger = get_debug_logger()
-        
+
         logger.log_step("PROCESSING", "Starting expression processing")
-        
+
         # Normalize Unicode characters first
         expr = ExpressionProcessor.normalize_unicode(expr)
         logger.log_expression("NORMALIZED", expr)
@@ -489,7 +498,7 @@ class Dice:
         needs_precedence_parsing = ExpressionProcessor.should_use_precedence_parsing(
             expr
         )
-        
+
         parser_type = "precedence" if needs_precedence_parsing else "original"
         logger.log_step("PARSER_SELECTION", f"Using {parser_type} parser")
 
@@ -506,13 +515,19 @@ class Dice:
         try:
             return cls._parse_with_precedence(expr, modifiers)
         except (SyntaxError, AttributeError, TypeError, ParseError) as e:
-            logger.log_step("FALLBACK", f"Parser error: {e}, falling back to original method")
+            logger.log_step(
+                "FALLBACK", f"Parser error: {e}, falling back to original method"
+            )
             # Fall back to the original parsing method only for parsing errors
             return cls._roll_original_method(expr, modifiers)
 
     @classmethod
     def roll(
-        cls, expr: str, modifiers: Optional[Dict[str, Union[int, str]]] = None, debug: bool = False, logger=None
+        cls,
+        expr: str,
+        modifiers: Optional[Dict[str, Union[int, str]]] = None,
+        debug: bool = False,
+        logger=None,
     ) -> "RollResultSet":
         """Roll dice expressions with proper mathematical precedence.
 
@@ -533,35 +548,35 @@ class Dice:
             >>> Dice.roll("2d6 + 7 x 4 x 2")  # Complex mathematical expression
             >>> Dice.roll("1d10 / 2 x 2 + 5")  # Proper precedence handling
             >>> Dice.roll("2d6", debug=True)  # With debug logging
-            
+
             # With custom logger
             >>> import logging
             >>> logger = logging.getLogger('my_app')
             >>> Dice.roll("2d6", debug=True, logger=logger)
-            
+
             # With string logger for testing/APIs
             >>> from wyrdbound_dice.debug_logger import StringLogger
             >>> string_logger = StringLogger()
             >>> Dice.roll("2d6", debug=True, logger=string_logger)
             >>> print(string_logger.get_logs())
         """
-        from .debug_logger import set_debug_mode, get_debug_logger
-        
+        from .debug_logger import get_debug_logger, set_debug_mode
+
         # Set debug mode for this roll
         set_debug_mode(debug, logger)
         debug_logger = get_debug_logger()
-        
+
         debug_logger.log_step("START", f"Rolling expression: '{expr}'")
         if modifiers:
             debug_logger.log_step("MODIFIERS", f"Using modifiers: {modifiers}")
-        
+
         result = cls.roll_with_precedence(expr, modifiers)
-        
+
         debug_logger.log_step("COMPLETE", f"Final result: {result.total}")
-        
+
         # Reset debug mode
         set_debug_mode(False)
-        
+
         return result
 
     @classmethod
@@ -592,10 +607,11 @@ class Dice:
     ) -> "RollResultSet":
         """Parse expression using the precedence parser."""
         from .debug_logger import get_debug_logger
+
         logger = get_debug_logger()
-        
+
         logger.log_step("TOKENIZING", f"Tokenizing expression: '{expr}'")
-        
+
         # Tokenize the expression
         lexer = ExpressionLexer(expr)
         tokens = []
@@ -608,13 +624,13 @@ class Dice:
         logger.log_tokens(tokens[:-1])  # Exclude EOF token for cleaner output
 
         logger.log_step("PARSING", "Parsing tokens with precedence rules")
-        
+
         # Parse with proper precedence
         parser = ExpressionParser(tokens)
         parsed_expr = parser.parse()
 
         logger.log_step("EVALUATING", "Evaluating parsed expression")
-        
+
         # Evaluate the expression
         result = parsed_expr.evaluate(cls)
 
@@ -637,7 +653,9 @@ class Dice:
         final_total = result.value + modifier_total
         result_set._override_total = final_total
 
-        logger.log_calculation("TOTAL", [result.value, f"modifiers({modifier_total})"], final_total)
+        logger.log_calculation(
+            "TOTAL", [result.value, f"modifiers({modifier_total})"], final_total
+        )
 
         # Build description that includes modifiers
         if mods:
@@ -874,6 +892,7 @@ class DiceRoller:
     def roll_fudge_die() -> tuple[int, int]:
         """Roll a fudge die and return (display_value, effective_value)."""
         from .debug_logger import get_debug_logger
+
         raw_value = random.randint(1, 6)
         if raw_value <= FUDGE_NEGATIVE_MAX:
             effective_value = -1
@@ -881,16 +900,17 @@ class DiceRoller:
             effective_value = 0
         else:
             effective_value = 1
-        
+
         logger = get_debug_logger()
         logger.log_roll("1dF", f"{effective_value} (raw: {raw_value})")
-        
+
         return raw_value, effective_value
 
     @staticmethod
     def roll_standard_die(sides: int) -> int:
         """Roll a standard die with given number of sides."""
         from .debug_logger import get_debug_logger
+
         result = random.randint(1, sides)
         logger = get_debug_logger()
         logger.log_roll(f"1d{sides}", result)
@@ -900,6 +920,7 @@ class DiceRoller:
     def roll_percentile_die() -> tuple[int, int, int]:
         """Roll percentile dice and return (total_value, tens_die, ones_die)."""
         from .debug_logger import get_debug_logger
+
         tens_die = random.randint(0, 9) * 10  # 0, 10, 20, ..., 90
         ones_die = random.randint(0, 9)  # 0, 1, 2, ..., 9
         total = tens_die + ones_die
