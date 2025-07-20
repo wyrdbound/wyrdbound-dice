@@ -1,6 +1,6 @@
 import random
 import re
-from typing import Callable, Dict, List, Optional, Union
+from typing import Callable, Dict, List, Optional, Tuple, Union
 
 from .errors import DivisionByZeroError, InfiniteConditionError, ParseError
 from .expression_lexer import ExpressionLexer
@@ -673,7 +673,7 @@ class KeepOperationsParser:
     """Handles parsing of keep operations from dice expressions."""
 
     @staticmethod
-    def parse_keep_operations(keep_ops_str: str) -> List[tuple]:
+    def parse_keep_operations(keep_ops_str: str) -> List[Tuple[str, int]]:
         """Parse multiple keep operations from a string like 'kh2kl1'.
 
         Args:
@@ -707,7 +707,7 @@ class DropOperationsParser:
     """Handles parsing of drop operations from dice expressions."""
 
     @staticmethod
-    def parse_drop_operations(drop_ops_str: str) -> List[tuple]:
+    def parse_drop_operations(drop_ops_str: str) -> List[Tuple[str, int]]:
         """Parse multiple drop operations from a string like 'dh2dl1'.
 
         Args:
@@ -889,7 +889,7 @@ class DiceRoller:
     """Handles the actual rolling of individual dice."""
 
     @staticmethod
-    def roll_fudge_die() -> tuple[int, int]:
+    def roll_fudge_die() -> Tuple[int, int]:
         """Roll a fudge die and return (display_value, effective_value)."""
         from .debug_logger import get_debug_logger
 
@@ -917,7 +917,7 @@ class DiceRoller:
         return result
 
     @staticmethod
-    def roll_percentile_die() -> tuple[int, int, int]:
+    def roll_percentile_die() -> Tuple[int, int, int]:
         """Roll percentile dice and return (total_value, tens_die, ones_die)."""
         from .debug_logger import get_debug_logger
 

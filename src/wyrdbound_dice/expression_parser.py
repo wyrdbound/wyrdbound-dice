@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import List
+from typing import List, Tuple
 
 from .errors import DivisionByZeroError, ParseError
 from .expression_token import Token, TokenType
@@ -21,7 +21,7 @@ class OperatorHandler:
     @staticmethod
     def evaluate_binary_operation(
         left_val: int, right_val: int, operator: TokenType
-    ) -> tuple[int, str]:
+    ) -> Tuple[int, str]:
         """Evaluate a binary operation and return (result, symbol)."""
         if operator == TokenType.PLUS:
             return left_val + right_val, "+"

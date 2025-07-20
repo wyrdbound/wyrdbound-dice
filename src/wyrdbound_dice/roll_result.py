@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List, Optional, Tuple
 
 from .errors import DivisionByZeroError
 
@@ -8,8 +8,8 @@ class KeepOperationProcessor:
 
     @staticmethod
     def apply_keep_operations(
-        rolls: List[int], keep_operations: List[tuple]
-    ) -> tuple[List[int], List[int]]:
+        rolls: List[int], keep_operations: List[Tuple]
+    ) -> Tuple[List[int], List[int]]:
         """Apply multiple keep operations sequentially and return (kept, dropped)."""
         current_rolls = sorted(rolls)
         dropped = []
@@ -35,7 +35,7 @@ class KeepOperationProcessor:
         return current_rolls, dropped
 
     @staticmethod
-    def _keep_highest(rolls: List[int], keep_n: int) -> tuple[List[int], List[int]]:
+    def _keep_highest(rolls: List[int], keep_n: int) -> Tuple[List[int], List[int]]:
         """Keep the highest N dice from sorted rolls."""
         if keep_n >= len(rolls):
             return rolls, []
@@ -45,7 +45,7 @@ class KeepOperationProcessor:
         return to_keep, to_drop
 
     @staticmethod
-    def _keep_lowest(rolls: List[int], keep_n: int) -> tuple[List[int], List[int]]:
+    def _keep_lowest(rolls: List[int], keep_n: int) -> Tuple[List[int], List[int]]:
         """Keep the lowest N dice from sorted rolls."""
         if keep_n >= len(rolls):
             return rolls, []
@@ -57,7 +57,7 @@ class KeepOperationProcessor:
     @staticmethod
     def apply_legacy_keep(
         rolls: List[int], keep_type: str, keep_n: int
-    ) -> tuple[List[int], List[int]]:
+    ) -> Tuple[List[int], List[int]]:
         """Apply a single legacy keep operation."""
         sorted_rolls = sorted(rolls)
 
@@ -70,8 +70,8 @@ class KeepOperationProcessor:
 
     @staticmethod
     def apply_drop_operations(
-        rolls: List[int], drop_operations: List[tuple]
-    ) -> tuple[List[int], List[int]]:
+        rolls: List[int], drop_operations: List[Tuple]
+    ) -> Tuple[List[int], List[int]]:
         """Apply multiple drop operations sequentially and return (kept, dropped)."""
         current_rolls = sorted(rolls)
         dropped = []
@@ -95,7 +95,7 @@ class KeepOperationProcessor:
         return current_rolls, dropped
 
     @staticmethod
-    def _drop_highest(rolls: List[int], drop_n: int) -> tuple[List[int], List[int]]:
+    def _drop_highest(rolls: List[int], drop_n: int) -> Tuple[List[int], List[int]]:
         """Drop the highest N dice from sorted rolls."""
         if drop_n >= len(rolls):
             return [], rolls
@@ -105,7 +105,7 @@ class KeepOperationProcessor:
         return to_keep, to_drop
 
     @staticmethod
-    def _drop_lowest(rolls: List[int], drop_n: int) -> tuple[List[int], List[int]]:
+    def _drop_lowest(rolls: List[int], drop_n: int) -> Tuple[List[int], List[int]]:
         """Drop the lowest N dice from sorted rolls."""
         if drop_n >= len(rolls):
             return [], rolls
@@ -150,8 +150,8 @@ class RollResult:
         explode_cmp: Optional[str] = None,
         is_fudge: bool = False,
         is_percentile: bool = False,
-        keep_operations: Optional[List[tuple]] = None,
-        drop_operations: Optional[List[tuple]] = None,
+        keep_operations: Optional[List[Tuple]] = None,
+        drop_operations: Optional[List[Tuple]] = None,
     ):
         # Basic attributes
         self.num = num
