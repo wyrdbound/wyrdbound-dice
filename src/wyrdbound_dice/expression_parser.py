@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import List
+from typing import List, Tuple
 
 from .errors import DivisionByZeroError, ParseError
 from .expression_token import Token, TokenType
@@ -21,7 +21,7 @@ class OperatorHandler:
     @staticmethod
     def evaluate_binary_operation(
         left_val: int, right_val: int, operator: TokenType
-    ) -> tuple[int, str]:
+    ) -> Tuple[int, str]:
         """Evaluate a binary operation and return (result, symbol)."""
         if operator == TokenType.PLUS:
             return left_val + right_val, "+"
@@ -50,10 +50,12 @@ class DescriptionBuilder:
         """Build description for binary operations with proper formatting."""
         # Handle simple number calculations
         if not left_result.dice_results and not right_result.dice_results:
-            # For multiplication and division, preserve the chain structure by showing original expressions
-            # unless we need parentheses for clarity
+            # For multiplication and division, preserve the chain structure by
+            # showing original expressions unless we need parentheses for
+            # clarity
             if operator in [TokenType.MULTIPLY, TokenType.DIVIDE]:
-                # If both operands are simple numbers (not expressions), add parentheses
+                # If both operands are simple numbers (not expressions), add
+                # parentheses
                 if (
                     left_result.description.isdigit()
                     or (
@@ -67,13 +69,20 @@ class DescriptionBuilder:
                         and right_result.description[1:].isdigit()
                     )
                 ):
-                    return f"({left_result.description} {op_symbol} {right_result.description})"
+                    return (
+                        f"({left_result.description} {op_symbol} "
+                        + f"{right_result.description})"
+                    )
                 else:
                     # Preserve the chain structure without extra parentheses
-                    return f"{left_result.description} {op_symbol} {right_result.description}"
+                    return (
+                        f"{left_result.description} {op_symbol} "
+                        + f"{right_result.description}"
+                    )
             else:
                 return (
-                    f"{left_result.description} {op_symbol} {right_result.description}"
+                    f"{left_result.description} {op_symbol} "
+                    + f"{right_result.description}"
                 )
 
         # Handle negative values in addition/subtraction
@@ -90,7 +99,10 @@ class DescriptionBuilder:
             )
             return f"{left_result.description} + {positive_right_desc}"
         else:
-            return f"{left_result.description} {op_symbol} {right_result.description}"
+            return (
+                f"{left_result.description} {op_symbol} "
+                + f"{right_result.description}"
+            )
 
     @staticmethod
     def _remove_leading_minus(description: str) -> str:
@@ -99,7 +111,10 @@ class DescriptionBuilder:
 
 
 class ExpressionParser:
-    """Parses tokenized dice expressions with proper mathematical precedence."""
+    """
+    Parses tokenized dice expressions with proper mathematical
+    precedence.
+    """
 
     def __init__(self, tokens: List[Token]):
         self.tokens = tokens
@@ -137,7 +152,10 @@ class ExpressionParser:
         """Parse multiplication and division (higher precedence)."""
         left = self.parse_factor()
 
-        while self.current_token.type in [TokenType.MULTIPLY, TokenType.DIVIDE]:
+        while self.current_token.type in [
+            TokenType.MULTIPLY,
+            TokenType.DIVIDE,
+        ]:
             op = self.current_token.type
             self.advance()
             right = self.parse_factor()
@@ -209,15 +227,23 @@ class DiceExpression(ParsedExpression):
         # Use the existing dice rolling logic
         result = dice_class._roll_single_dice_expression_from_string(self.dice_expr)
         return EvaluationResult(
-            value=result.subtotal, description=str(result), dice_results=[result]
+            value=result.subtotal,
+            description=str(result),
+            dice_results=[result],
         )
 
 
 class BinaryOperation(ParsedExpression):
-    """A binary operation like addition, subtraction, multiplication, or division."""
+    """
+    A binary operation like addition, subtraction, multiplication,
+    or division.
+    """
 
     def __init__(
-        self, left: ParsedExpression, operator: TokenType, right: ParsedExpression
+        self,
+        left: ParsedExpression,
+        operator: TokenType,
+        right: ParsedExpression,
     ):
         self.left = left
         self.operator = operator

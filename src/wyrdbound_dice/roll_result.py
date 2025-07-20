@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List, Optional, Tuple
 
 from .errors import DivisionByZeroError
 
@@ -8,9 +8,12 @@ class KeepOperationProcessor:
 
     @staticmethod
     def apply_keep_operations(
-        rolls: List[int], keep_operations: List[tuple]
-    ) -> tuple[List[int], List[int]]:
-        """Apply multiple keep operations sequentially and return (kept, dropped)."""
+        rolls: List[int], keep_operations: List[Tuple]
+    ) -> Tuple[List[int], List[int]]:
+        """
+        Apply multiple keep operations sequentially and return
+        (kept, dropped).
+        """
         current_rolls = sorted(rolls)
         dropped = []
 
@@ -35,7 +38,7 @@ class KeepOperationProcessor:
         return current_rolls, dropped
 
     @staticmethod
-    def _keep_highest(rolls: List[int], keep_n: int) -> tuple[List[int], List[int]]:
+    def _keep_highest(rolls: List[int], keep_n: int) -> Tuple[List[int], List[int]]:
         """Keep the highest N dice from sorted rolls."""
         if keep_n >= len(rolls):
             return rolls, []
@@ -45,7 +48,7 @@ class KeepOperationProcessor:
         return to_keep, to_drop
 
     @staticmethod
-    def _keep_lowest(rolls: List[int], keep_n: int) -> tuple[List[int], List[int]]:
+    def _keep_lowest(rolls: List[int], keep_n: int) -> Tuple[List[int], List[int]]:
         """Keep the lowest N dice from sorted rolls."""
         if keep_n >= len(rolls):
             return rolls, []
@@ -57,7 +60,7 @@ class KeepOperationProcessor:
     @staticmethod
     def apply_legacy_keep(
         rolls: List[int], keep_type: str, keep_n: int
-    ) -> tuple[List[int], List[int]]:
+    ) -> Tuple[List[int], List[int]]:
         """Apply a single legacy keep operation."""
         sorted_rolls = sorted(rolls)
 
@@ -70,9 +73,12 @@ class KeepOperationProcessor:
 
     @staticmethod
     def apply_drop_operations(
-        rolls: List[int], drop_operations: List[tuple]
-    ) -> tuple[List[int], List[int]]:
-        """Apply multiple drop operations sequentially and return (kept, dropped)."""
+        rolls: List[int], drop_operations: List[Tuple]
+    ) -> Tuple[List[int], List[int]]:
+        """
+        Apply multiple drop operations sequentially and
+        return (kept, dropped).
+        """
         current_rolls = sorted(rolls)
         dropped = []
 
@@ -95,7 +101,7 @@ class KeepOperationProcessor:
         return current_rolls, dropped
 
     @staticmethod
-    def _drop_highest(rolls: List[int], drop_n: int) -> tuple[List[int], List[int]]:
+    def _drop_highest(rolls: List[int], drop_n: int) -> Tuple[List[int], List[int]]:
         """Drop the highest N dice from sorted rolls."""
         if drop_n >= len(rolls):
             return [], rolls
@@ -105,7 +111,7 @@ class KeepOperationProcessor:
         return to_keep, to_drop
 
     @staticmethod
-    def _drop_lowest(rolls: List[int], drop_n: int) -> tuple[List[int], List[int]]:
+    def _drop_lowest(rolls: List[int], drop_n: int) -> Tuple[List[int], List[int]]:
         """Drop the lowest N dice from sorted rolls."""
         if drop_n >= len(rolls):
             return [], rolls
@@ -150,8 +156,8 @@ class RollResult:
         explode_cmp: Optional[str] = None,
         is_fudge: bool = False,
         is_percentile: bool = False,
-        keep_operations: Optional[List[tuple]] = None,
-        drop_operations: Optional[List[tuple]] = None,
+        keep_operations: Optional[List[Tuple]] = None,
+        drop_operations: Optional[List[Tuple]] = None,
     ):
         # Basic attributes
         self.num = num
@@ -222,9 +228,15 @@ class RollResult:
 
         # Default format
         if rolls_str:
-            return f"{total_with_math} ({self.num}d{self.sides}{keep_str}{drop_str}{reroll_str}{explode_str}: {rolls_str})"
+            return (
+                f"{total_with_math} ({self.num}d{self.sides}{keep_str}"
+                + f"{drop_str}{reroll_str}{explode_str}: {rolls_str})"
+            )
         else:
-            return f"{total_with_math} ({self.num}d{self.sides}{keep_str}{drop_str}{reroll_str}{explode_str})"
+            return (
+                f"{total_with_math} ({self.num}d{self.sides}{keep_str}"
+                + f"{drop_str}{reroll_str}{explode_str})"
+            )
 
     def _build_keep_string(self) -> str:
         """Build the keep operations string for display."""
@@ -256,7 +268,10 @@ class RollResult:
         return ""
 
     def _format_rolls_display(self) -> str:
-        """Format the rolls for display, handling Fudge dice and percentile dice specially."""
+        """
+        Format the rolls for display, handling Fudge dice and
+        percentile dice specially.
+        """
         if self.is_fudge:
             fudge_values = FudgeDiceFormatter.format_fudge_values(self.all_rolls)
             return ", ".join(fudge_values)
@@ -270,7 +285,8 @@ class RollResult:
                     ones_str = f"{ones}"
                     percentile_values.append(f"[{tens_str}, {ones_str}]")
                 else:
-                    # Fallback for non-tuple values (shouldn't happen with percentile)
+                    # Fallback for non-tuple values (shouldn't happen with
+                    # percentile)
                     percentile_values.append(str(roll))
             return ", ".join(percentile_values)
         else:
@@ -291,8 +307,14 @@ class RollResult:
 
         cross_dice_rolls = ", ".join(str(r) for r in self._cross_dice_result.all_rolls)
         cross_dice_total = self._cross_dice_result.subtotal
-        dice_part = f"{self.num}d{self.sides}{keep_str}{drop_str}{reroll_str}{explode_str}: {rolls_str}"
-        cross_part = f"{self._cross_dice_result.num}d{self._cross_dice_result.sides}: {cross_dice_rolls}"
+        dice_part = (
+            f"{self.num}d{self.sides}{keep_str}{drop_str}"
+            + f"{reroll_str}{explode_str}: {rolls_str}"
+        )
+        cross_part = (
+            f"{self._cross_dice_result.num}d"
+            + f"{self._cross_dice_result.sides}: {cross_dice_rolls}"
+        )
 
         if self._cross_dice_op == "multiply":
             return f"{kept_sum} ({dice_part}) x {cross_dice_total} ({cross_part})"
@@ -312,16 +334,25 @@ class RollResult:
     ) -> Optional[str]:
         """Build string for math operations with static values."""
         if self.multiply > 1:
-            dice_part = f"{self.num}d{self.sides}{keep_str}{drop_str}{reroll_str}{explode_str}: {rolls_str}"
+            dice_part = (
+                f"{self.num}d{self.sides}{keep_str}{drop_str}"
+                + f"{reroll_str}{explode_str}: {rolls_str}"
+            )
             return f"{kept_sum} ({dice_part}) x {self.multiply}"
         elif self.divide > 1:
-            dice_part = f"{self.num}d{self.sides}{keep_str}{drop_str}{reroll_str}{explode_str}: {rolls_str}"
+            dice_part = (
+                f"{self.num}d{self.sides}{keep_str}{drop_str}"
+                + f"{reroll_str}{explode_str}: {rolls_str}"
+            )
             return f"{kept_sum} ({dice_part}) / {self.divide}"
 
         return None
 
     def _calculate_kept_and_dropped(self) -> None:
-        """Calculate which dice are kept and which are dropped based on keep/drop operations."""
+        """
+        Calculate which dice are kept and which are dropped based
+        on keep/drop operations.
+        """
         if self.drop_operations:
             # Apply drop operations
             self.kept, self.dropped = KeepOperationProcessor.apply_drop_operations(

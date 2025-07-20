@@ -1,3 +1,6 @@
+# ASDF version
+.tool-versions
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -176,3 +179,7 @@ cython_debug/
 *.html
 !docs/*.png
 !docs/*.svg
+
+# Test artifacts
+test_output.*
+dice_debug.log

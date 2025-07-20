@@ -41,7 +41,10 @@ class DiceExpressionReader:
         self.lexer = lexer
 
     def read_dice_expression(self) -> str:
-        """Read a complete dice expression like '2d6kh1r>=3e6', but not separate math operations."""
+        """
+        Read a complete dice expression like '2d6kh1r>=3e6',
+        but not separate math operations.
+        """
         start_pos = self.lexer.pos
 
         # Read the number of dice
@@ -77,7 +80,10 @@ class DiceExpressionReader:
                 self.lexer.advance()
 
     def _read_dice_modifiers(self) -> None:
-        """Read optional dice-specific modifiers: keep (k), reroll (r), explode (e)."""
+        """
+        Read optional dice-specific modifiers:
+        keep (k), reroll (r), explode (e).
+        """
         while self.lexer.current_char is not None:
             if self.lexer.current_char == "k":
                 self._read_keep_modifier()
@@ -137,7 +143,8 @@ class ExpressionLexer:
 
     def __init__(self, expression: str):
         normalized_expr = self.normalize_unicode_chars(expression)
-        self.expr = normalized_expr.replace(" ", "")  # Remove spaces for easier parsing
+        # Remove spaces for easier parsing
+        self.expr = normalized_expr.replace(" ", "")
         self.pos = 0
         self.current_char = self.expr[self.pos] if self.pos < len(self.expr) else None
         self.dice_reader = DiceExpressionReader(self)
@@ -185,7 +192,7 @@ class ExpressionLexer:
                 return operator_token
 
             raise ParseError(
-                f"Invalid character '{self.current_char}' at position {self.pos}"
+                f"Invalid character '{self.current_char}' at " + f"position {self.pos}"
             )
 
         return Token(TokenType.EOF, None, self.pos)

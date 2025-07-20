@@ -4,8 +4,10 @@ A comprehensive dice rolling library for tabletop RPGs, designed to handle compl
 
 This library is designed for use in [wyrdbound](https://github.com/wyrdbound), a text-based RPG system that emphasizes narrative and player choice.
 
+[![CI](https://github.com/wyrdbound/wyrdbound-dice/actions/workflows/ci.yml/badge.svg)](https://github.com/wyrdbound/wyrdbound-dice/actions/workflows/ci.yml)
 [![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
 > 📣 This library is experimental and was built with much :heart: and [vibe coding](https://en.wikipedia.org/wiki/Vibe_coding). Please do not launch :rocket: or perform :brain: surgery using it. (Should be :a:-:ok: for your Table-Top application though!)
 
@@ -80,8 +82,45 @@ Wyrdbound Dice supports an extensive range of dice rolling mechanics used across
 
 ## Installation
 
+### For End Users
+
 ```bash
 pip install wyrdbound-dice
+```
+
+> **Note**: This package is currently in development and not yet published to PyPI. For now, please use the development installation method below.
+
+### For Development
+
+If you want to contribute to the project or use the latest development version:
+
+```bash
+# Clone the repository
+git clone https://github.com/wyrdbound/wyrdbound-dice.git
+cd wyrdbound-dice
+
+# Install in development mode
+pip install -e .
+```
+
+### Optional Dependencies
+
+For visualization features (graph tool):
+
+```bash
+pip install "wyrdbound-dice[visualization]"
+```
+
+For development:
+
+```bash
+pip install -e ".[dev]"
+```
+
+For both visualization and development:
+
+```bash
+pip install -e ".[dev,visualization]"
 ```
 
 ## Quick Start
@@ -289,6 +328,187 @@ sneak = Dice.roll("1d8 + 3d6")  # Rapier + sneak attack
 complex_formula = Dice.roll("(2d6 + 3) × 2 + 1d4 - 1")
 ```
 
+## Debug Logging
+
+WyrdBound Dice includes comprehensive debug logging to help troubleshoot dice rolling issues and understand how expressions are parsed and evaluated.
+
+### Enabling Debug Mode
+
+```python
+from wyrdbound_dice import Dice
+
+# Enable debug logging for a roll
+result = Dice.roll("2d6 + 3", debug=True)
+```
+
+### Debug Output Example
+
+When debug mode is enabled, you'll see detailed step-by-step information:
+
+```
+DEBUG: [START] Rolling expression: '2d6 + 3'
+DEBUG: [PROCESSING] Starting expression processing
+DEBUG: NORMALIZED: '2d6 + 3'
+DEBUG: [PARSER_SELECTION] Using precedence parser
+DEBUG: [TOKENIZING] Tokenizing expression: '2d6 + 3'
+DEBUG: Tokens: ['DICE(2d6)@0', 'PLUS(+)@3', 'NUMBER(3)@4']
+DEBUG: [PARSING] Parsing tokens with precedence rules
+DEBUG: [EVALUATING] Evaluating parsed expression
+DEBUG: Rolling 1d6: 5
+DEBUG: Rolling 1d6: 4
+DEBUG: [RESULT] Expression evaluated to: 12
+DEBUG: TOTAL 12 modifiers(0) = 12
+DEBUG: [COMPLETE] Final result: 12
+```
+
+### What Debug Mode Shows
+
+Debug logging provides insights into:
+
+- **Expression normalization**: How input expressions are cleaned and processed
+- **Shorthand expansion**: When shortcuts like "FUDGE" are expanded to "4dF"
+- **Parser selection**: Whether the precedence parser or original parser is used
+- **Tokenization**: How complex expressions are broken into tokens
+- **Individual dice rolls**: Each die roll with specific results
+- **Keep/drop operations**: Parsed keep/drop operations like "kh2"
+- **Mathematical evaluation**: Step-by-step calculation of complex expressions
+- **Modifier processing**: How modifiers are applied to results
+- **Error handling**: Debug information even when errors occur
+
+### Debug Examples
+
+```python
+# Simple dice with debug
+result = Dice.roll("1d20", debug=True)
+
+# Complex expression with debug
+result = Dice.roll("2d6 * 2 + 1d4", debug=True)
+
+# Keep operations with debug
+result = Dice.roll("4d6kh3", debug=True)
+
+# Shorthand expansion with debug
+result = Dice.roll("FUDGE", debug=True)
+
+# With modifiers and debug
+modifiers = {"strength": 3, "magic_bonus": 2}
+result = Dice.roll("1d20", modifiers=modifiers, debug=True)
+```
+
+### Custom Debug Loggers
+
+You can inject your own logger to capture debug output using Python's standard logging interface:
+
+```python
+import logging
+from wyrdbound_dice import Dice
+from wyrdbound_dice.debug_logger import StringLogger
+
+# Method 1: Use the built-in StringLogger for testing/API purposes
+string_logger = StringLogger()
+result = Dice.roll("2d6 + 3", debug=True, logger=string_logger)
+
+# Get all the debug output as a string
+debug_output = string_logger.get_logs()
+print(debug_output)
+
+# Clear the logger for reuse
+string_logger.clear()
+
+# Method 2: Use Python's standard logging module
+# Create a custom logger with your preferred configuration
+logger = logging.getLogger('my_dice_app')
+logger.setLevel(logging.DEBUG)
+
+# Add your own handler (file, web service, etc.)
+handler = logging.FileHandler('dice_debug.log')
+handler.setFormatter(logging.Formatter('%(asctime)s %(message)s'))
+logger.addHandler(handler)
+
+# Use with dice rolling
+result = Dice.roll("1d20", debug=True, logger=logger)
+
+# Method 3: Create a custom logger class
+class WebAppLogger:
+    def debug(self, message):
+        # Send to your web app's logging system
+        app.logger.debug(message)
+
+    def info(self, message):
+        app.logger.info(message)
+
+    def warning(self, message):
+        app.logger.warning(message)
+
+    def error(self, message):
+        app.logger.error(message)
+
+web_logger = WebAppLogger()
+result = Dice.roll("1d20", debug=True, logger=web_logger)
+```
+
+### Logger Interface
+
+Custom loggers should implement Python's standard logging interface methods:
+
+```python
+class MyCustomLogger:
+    def debug(self, message: str) -> None:
+        """Log a debug message."""
+        ...
+
+    def info(self, message: str) -> None:
+        """Log an info message."""
+        ...
+
+    def warning(self, message: str) -> None:
+        """Log a warning message."""
+        ...
+
+    def error(self, message: str) -> None:
+        """Log an error message."""
+        ...
+class MyLogger:
+    def log(self, message: str) -> None:
+        # Your custom logging implementation
+        pass
+```
+
+### Command Line Debug
+
+The `tools/roll.py` script also supports debug mode:
+
+```bash
+# Basic roll with debug
+python tools/roll.py "2d6 + 3" --debug
+
+# Complex expression with debug
+python tools/roll.py "4d6kh3" --debug
+
+# Multiple rolls with debug
+python tools/roll.py "1d6" -n 3 --debug
+
+# JSON output with debug information included
+python tools/roll.py "2d6 + 3" --json --debug
+
+# Help shows all options including debug
+python tools/roll.py --help
+```
+
+When using `--json --debug`, the debug output is captured and included in the JSON response under a "debug" key:
+
+```json
+{
+  "result": 11,
+  "description": "11 = 8 (2d6: 4, 4) + 3",
+  "debug": "DEBUG: [START] Rolling expression: '2d6 + 3'\nDEBUG: [PROCESSING] Starting expression processing\n..."
+}
+```
+
+### Debug Output Format
+
+Debug messages are prefixed with `DEBUG:` and use structured labels like `[START]`, `[TOKENIZING]`, `[PARSING]`, etc. This makes it easy to follow the progression through the dice rolling engine and identify where issues might occur.
+
 ## Development
 
 ### Setting Up Development Environment
@@ -297,8 +517,11 @@ complex_formula = Dice.roll("(2d6 + 3) × 2 + 1d4 - 1")
 # Install the package with development dependencies
 pip install -e ".[dev]"
 
+# Install with both development and visualization dependencies
+pip install -e ".[dev,visualization]"
+
 # Or install development dependencies separately
-pip install pytest pytest-cov black isort flake8
+pip install pytest pytest-cov black isort ruff
 ```
 
 ### Running Tests
@@ -327,7 +550,7 @@ black src/ tests/ tools/
 isort src/ tests/ tools/
 
 # Lint code
-flake8 src/ tests/ tools/
+ruff check src/ tests/ tools/
 ```
 
 ## Contributing
@@ -342,6 +565,16 @@ Contributions are welcome! Please feel free to submit a Pull Request. For major 
 - Documentation improvements
 - Bug fixes and testing
 
+### Continuous Integration
+
+This project uses GitHub Actions for CI/CD:
+
+- **Testing**: Automated tests across Python 3.8-3.12 on Ubuntu, Windows, and macOS
+- **Code Quality**: Black formatting, isort import sorting, and Ruff linting
+- **Package Validation**: Installation testing and CLI tool verification
+
+All pull requests are automatically tested and must pass all checks before merging.
+
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
@@ -351,15 +584,3 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - Inspired by the diverse mechanics of tabletop RPG systems
 - Thanks to the RPG community for feedback and feature requests
 - Built with mathematical precision and gaming passion
-
-## Changelog
-
-### v1.0.0 (2025-01-XX)
-
-- Initial release
-- Complete dice expression parser with mathematical precedence
-- Support for all major RPG dice mechanics
-- Comprehensive test suite with 100% coverage
-- CLI tools for rolling and visualization
-- Thread-safe operation
-- Unicode support

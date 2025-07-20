@@ -29,6 +29,7 @@ Example usage:
     >>> result = Dice.roll("2d6 + 1d4 x 2 - 1")
 """
 
+from .debug_logger import DebugLogger, StringLogger
 from .dice import Dice, RollModifier, RollResultSet
 from .errors import DivisionByZeroError, InfiniteConditionError, ParseError
 from .expression_token import TokenType
@@ -39,6 +40,24 @@ __author__ = "TheWyrdOne"
 __email__ = "wyrdbound@proton.me"
 __description__ = "A comprehensive dice rolling library for tabletop RPGs"
 
+
+# Convenience function for easier access
+def roll(expression, modifiers=None, debug=False, debug_logger=None):
+    """Convenience function for rolling dice.
+
+    Args:
+        expression (str): The dice expression to roll
+        modifiers: Optional additional modifiers as a dictionary
+        debug: Enable debug logging to see detailed parsing and rolling steps
+        debug_logger: Optional debug logger instance (replaces 'logger'
+            parameter)
+
+    Returns:
+        RollResult: The result of the dice roll
+    """
+    return Dice.roll(expression, modifiers, debug, debug_logger)
+
+
 __all__ = [
     "Dice",
     "RollResult",
@@ -48,4 +67,7 @@ __all__ = [
     "DivisionByZeroError",
     "InfiniteConditionError",
     "TokenType",
+    "StringLogger",
+    "DebugLogger",
+    "roll",
 ]
