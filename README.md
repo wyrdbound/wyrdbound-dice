@@ -86,6 +86,26 @@ Wyrdbound Dice supports an extensive range of dice rolling mechanics used across
 pip install wyrdbound-dice
 ```
 
+### Optional Dependencies
+
+For visualization features (graph tool):
+
+```bash
+pip install "wyrdbound-dice[visualization]"
+```
+
+For development:
+
+```bash
+pip install "wyrdbound-dice[dev]"
+```
+
+For both visualization and development:
+
+```bash
+pip install "wyrdbound-dice[dev,visualization]"
+```
+
 ## Quick Start
 
 ```python
@@ -479,6 +499,9 @@ Debug messages are prefixed with `DEBUG:` and use structured labels like `[START
 ```bash
 # Install the package with development dependencies
 pip install -e ".[dev]"
+
+# Install with both development and visualization dependencies
+pip install -e ".[dev,visualization]"
 
 # Or install development dependencies separately
 pip install pytest pytest-cov black isort flake8

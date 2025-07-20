@@ -92,8 +92,13 @@ jobs:
           echo "✓ Roll tool works"
 
           echo "Testing graph tool..."
-          python tools/graph.py "2d6" -o test_output.png -r 100
-          if [ -f test_output.png ]; then
+          # Test that graph tool shows help (basic functionality)
+          python tools/graph.py --help > /dev/null
+          echo "✓ Graph tool help works"
+
+          # Test actual graph generation
+          python tools/graph.py "2d6" -o test_output.html -n 100
+          if [ -f test_output.html ]; then
             echo "✓ Graph tool works - output file created"
           else
             echo "❌ Graph tool failed - no output file"
