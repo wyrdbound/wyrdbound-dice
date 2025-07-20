@@ -289,6 +289,187 @@ sneak = Dice.roll("1d8 + 3d6")  # Rapier + sneak attack
 complex_formula = Dice.roll("(2d6 + 3) × 2 + 1d4 - 1")
 ```
 
+## Debug Logging
+
+WyrdBound Dice includes comprehensive debug logging to help troubleshoot dice rolling issues and understand how expressions are parsed and evaluated.
+
+### Enabling Debug Mode
+
+```python
+from wyrdbound_dice import Dice
+
+# Enable debug logging for a roll
+result = Dice.roll("2d6 + 3", debug=True)
+```
+
+### Debug Output Example
+
+When debug mode is enabled, you'll see detailed step-by-step information:
+
+```
+DEBUG: [START] Rolling expression: '2d6 + 3'
+DEBUG: [PROCESSING] Starting expression processing
+DEBUG: NORMALIZED: '2d6 + 3'
+DEBUG: [PARSER_SELECTION] Using precedence parser
+DEBUG: [TOKENIZING] Tokenizing expression: '2d6 + 3'
+DEBUG: Tokens: ['DICE(2d6)@0', 'PLUS(+)@3', 'NUMBER(3)@4']
+DEBUG: [PARSING] Parsing tokens with precedence rules
+DEBUG: [EVALUATING] Evaluating parsed expression
+DEBUG: Rolling 1d6: 5
+DEBUG: Rolling 1d6: 4
+DEBUG: [RESULT] Expression evaluated to: 12
+DEBUG: TOTAL 12 modifiers(0) = 12
+DEBUG: [COMPLETE] Final result: 12
+```
+
+### What Debug Mode Shows
+
+Debug logging provides insights into:
+
+- **Expression normalization**: How input expressions are cleaned and processed
+- **Shorthand expansion**: When shortcuts like "FUDGE" are expanded to "4dF"
+- **Parser selection**: Whether the precedence parser or original parser is used
+- **Tokenization**: How complex expressions are broken into tokens
+- **Individual dice rolls**: Each die roll with specific results
+- **Keep/drop operations**: Parsed keep/drop operations like "kh2"
+- **Mathematical evaluation**: Step-by-step calculation of complex expressions
+- **Modifier processing**: How modifiers are applied to results
+- **Error handling**: Debug information even when errors occur
+
+### Debug Examples
+
+```python
+# Simple dice with debug
+result = Dice.roll("1d20", debug=True)
+
+# Complex expression with debug
+result = Dice.roll("2d6 * 2 + 1d4", debug=True)
+
+# Keep operations with debug
+result = Dice.roll("4d6kh3", debug=True)
+
+# Shorthand expansion with debug
+result = Dice.roll("FUDGE", debug=True)
+
+# With modifiers and debug
+modifiers = {"strength": 3, "magic_bonus": 2}
+result = Dice.roll("1d20", modifiers=modifiers, debug=True)
+```
+
+### Custom Debug Loggers
+
+You can inject your own logger to capture debug output using Python's standard logging interface:
+
+```python
+import logging
+from wyrdbound_dice import Dice
+from wyrdbound_dice.debug_logger import StringLogger
+
+# Method 1: Use the built-in StringLogger for testing/API purposes
+string_logger = StringLogger()
+result = Dice.roll("2d6 + 3", debug=True, logger=string_logger)
+
+# Get all the debug output as a string
+debug_output = string_logger.get_logs()
+print(debug_output)
+
+# Clear the logger for reuse
+string_logger.clear()
+
+# Method 2: Use Python's standard logging module
+# Create a custom logger with your preferred configuration
+logger = logging.getLogger('my_dice_app')
+logger.setLevel(logging.DEBUG)
+
+# Add your own handler (file, web service, etc.)
+handler = logging.FileHandler('dice_debug.log')
+handler.setFormatter(logging.Formatter('%(asctime)s %(message)s'))
+logger.addHandler(handler)
+
+# Use with dice rolling
+result = Dice.roll("1d20", debug=True, logger=logger)
+
+# Method 3: Create a custom logger class
+class WebAppLogger:
+    def debug(self, message):
+        # Send to your web app's logging system
+        app.logger.debug(message)
+
+    def info(self, message):
+        app.logger.info(message)
+
+    def warning(self, message):
+        app.logger.warning(message)
+
+    def error(self, message):
+        app.logger.error(message)
+
+web_logger = WebAppLogger()
+result = Dice.roll("1d20", debug=True, logger=web_logger)
+```
+
+### Logger Interface
+
+Custom loggers should implement Python's standard logging interface methods:
+
+```python
+class MyCustomLogger:
+    def debug(self, message: str) -> None:
+        """Log a debug message."""
+        ...
+
+    def info(self, message: str) -> None:
+        """Log an info message."""
+        ...
+
+    def warning(self, message: str) -> None:
+        """Log a warning message."""
+        ...
+
+    def error(self, message: str) -> None:
+        """Log an error message."""
+        ...
+class MyLogger:
+    def log(self, message: str) -> None:
+        # Your custom logging implementation
+        pass
+```
+
+### Command Line Debug
+
+The `tools/roll.py` script also supports debug mode:
+
+```bash
+# Basic roll with debug
+python tools/roll.py "2d6 + 3" --debug
+
+# Complex expression with debug
+python tools/roll.py "4d6kh3" --debug
+
+# Multiple rolls with debug
+python tools/roll.py "1d6" -n 3 --debug
+
+# JSON output with debug information included
+python tools/roll.py "2d6 + 3" --json --debug
+
+# Help shows all options including debug
+python tools/roll.py --help
+```
+
+When using `--json --debug`, the debug output is captured and included in the JSON response under a "debug" key:
+
+```json
+{
+  "result": 11,
+  "description": "11 = 8 (2d6: 4, 4) + 3",
+  "debug": "DEBUG: [START] Rolling expression: '2d6 + 3'\nDEBUG: [PROCESSING] Starting expression processing\n..."
+}
+```
+
+### Debug Output Format
+
+Debug messages are prefixed with `DEBUG:` and use structured labels like `[START]`, `[TOKENIZING]`, `[PARSING]`, etc. This makes it easy to follow the progression through the dice rolling engine and identify where issues might occur.
+
 ## Development
 
 ### Setting Up Development Environment
@@ -351,15 +532,3 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - Inspired by the diverse mechanics of tabletop RPG systems
 - Thanks to the RPG community for feedback and feature requests
 - Built with mathematical precision and gaming passion
-
-## Changelog
-
-### v1.0.0 (2025-01-XX)
-
-- Initial release
-- Complete dice expression parser with mathematical precedence
-- Support for all major RPG dice mechanics
-- Comprehensive test suite with 100% coverage
-- CLI tools for rolling and visualization
-- Thread-safe operation
-- Unicode support

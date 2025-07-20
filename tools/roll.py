@@ -8,6 +8,7 @@ Examples:
   roll.py "2d20kh1"              # Advantage (keep highest)
   roll.py "1d20" --json          # Output as JSON
   roll.py "1d6" -n 5 --json      # Multiple rolls as JSON array
+  roll.py "2d6 + 3" --debug      # Show debug logging
 """
 
 import argparse
@@ -19,6 +20,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
 from wyrdbound_dice import Dice, DivisionByZeroError, InfiniteConditionError, ParseError
+from wyrdbound_dice.debug_logger import StringLogger
 
 parser = argparse.ArgumentParser(
     description="Roll dice expressions using WyrdBound Dice"
@@ -30,6 +32,9 @@ parser.add_argument(
 )
 parser.add_argument("-n", "--count", type=int, default=1, help="Number of rolls")
 parser.add_argument("--json", action="store_true", help="Output results as JSON")
+parser.add_argument(
+    "--debug", action="store_true", help="Enable debug logging to see detailed parsing and rolling steps"
+)
 
 args = parser.parse_args()
 
@@ -37,11 +42,20 @@ try:
     results = []
 
     for i in range(args.count):
-        result = Dice.roll(args.expression)
+        # For JSON output with debug, use StringLogger to capture debug info
+        if args.json and args.debug:
+            string_logger = StringLogger()
+            result = Dice.roll(args.expression, debug=args.debug, logger=string_logger)
+            debug_output = string_logger.get_logs()
+        else:
+            result = Dice.roll(args.expression, debug=args.debug)
+            debug_output = None
 
         if args.json:
             # Collect results for JSON output
             roll_data = {"result": result.total, "description": str(result)}
+            if debug_output:
+                roll_data["debug"] = debug_output
             results.append(roll_data)
         else:
             # Regular text output

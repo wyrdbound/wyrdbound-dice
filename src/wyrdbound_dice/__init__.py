@@ -33,6 +33,7 @@ from .dice import Dice, RollModifier, RollResultSet
 from .errors import DivisionByZeroError, InfiniteConditionError, ParseError
 from .expression_token import TokenType
 from .roll_result import RollResult
+from .debug_logger import StringLogger, DebugLogger
 
 __version__ = "1.0.0"
 __author__ = "TheWyrdOne"
@@ -48,4 +49,6 @@ __all__ = [
     "DivisionByZeroError",
     "InfiniteConditionError",
     "TokenType",
+    "StringLogger",
+    "DebugLogger",
 ]
