@@ -38,9 +38,7 @@ class RollModifier:
     """Represents a modifier that can be either a static value or a dice
     expression."""
 
-    def __init__(
-        self, value: Union[int, str], description: Optional[str] = None
-    ):
+    def __init__(self, value: Union[int, str], description: Optional[str] = None):
         self.raw_value = value
         self.description = description or ""
         self.dice_result: Optional["RollResultSet"] = None
@@ -67,9 +65,7 @@ class RollModifier:
             self.dice_expression = value_str[1:]  # Remove the minus
         else:
             self.sign = "+"
-            self.dice_expression = value_str.lstrip(
-                "+"
-            )  # Remove optional plus
+            self.dice_expression = value_str.lstrip("+")  # Remove optional plus
 
     def roll(self, dice_class=None) -> None:
         """Roll the modifier if it's a dice expression."""
@@ -77,9 +73,7 @@ class RollModifier:
             return
 
         if dice_class is None:
-            raise ValueError(
-                "Dice class must be provided to roll dice modifiers"
-            )
+            raise ValueError("Dice class must be provided to roll dice modifiers")
 
         self.dice_result = dice_class.roll(self.dice_expression)
         self.value = self.dice_result.total
@@ -98,11 +92,7 @@ class RollModifier:
             return f"{result} ({dice_info})"
         else:
             result = f"{self.sign} {abs(self.value)}"
-            return (
-                f"{result} ({self.description})"
-                if self.description
-                else result
-            )
+            return f"{result} ({self.description})" if self.description else result
 
 
 class RollResultSet:
@@ -139,9 +129,7 @@ class RollResultSet:
         """Calculate the final total including modifiers."""
         if self._override_total is not None:
             return self._override_total
-        return self.subtotal + sum(
-            modifier.value for modifier in self.modifiers
-        )
+        return self.subtotal + sum(modifier.value for modifier in self.modifiers)
 
     def __str__(self) -> str:
         """Return a formatted string representation of the roll result."""
@@ -159,9 +147,7 @@ class RollResultSet:
         # Add dice results
         for i, result in enumerate(self.results):
             result_str = str(result)
-            result_total = (
-                sum(result.kept) * result.multiply
-            ) // result.divide
+            result_total = (sum(result.kept) * result.multiply) // result.divide
 
             if i == 0:
                 # Handle special negative dice formatting
@@ -249,9 +235,7 @@ class Dice:
 
         results: List[RollResult] = []
 
-        logger.log_step(
-            "DICE_MATCHING", f"Finding dice expressions in: '{expr}'"
-        )
+        logger.log_step("DICE_MATCHING", f"Finding dice expressions in: '{expr}'")
 
         # Find all dice expressions and their positions
         dice_matches = list(cls._dice_re.finditer(expr))
@@ -322,25 +306,17 @@ class Dice:
         sides_str = match.group("sides")
 
         # Normalize Unicode characters in sides string for display
-        normalized_sides_str = ExpressionLexer.normalize_unicode_chars(
-            sides_str
-        )
+        normalized_sides_str = ExpressionLexer.normalize_unicode_chars(sides_str)
 
         is_fudge = sides_str.upper() == "F"
         is_percentile = sides_str == "%"
-        sides = (
-            6
-            if is_fudge
-            else (100 if is_percentile else int(normalized_sides_str))
-        )
+        sides = 6 if is_fudge else (100 if is_percentile else int(normalized_sides_str))
 
         # reroll parameters
         rc_str = match.group("reroll_count")
         reroll_cmp = match.group("reroll_cmp")
         target = (
-            int(match.group("reroll_target"))
-            if match.group("reroll_target")
-            else None
+            int(match.group("reroll_target")) if match.group("reroll_target") else None
         )
         max_rerolls = (
             None
@@ -370,12 +346,7 @@ class Dice:
             raise error
 
         # Validate infinite conditions before rolling
-        if (
-            not is_fudge
-            and not is_percentile
-            and reroll_cmp
-            and target is not None
-        ):
+        if not is_fudge and not is_percentile and reroll_cmp and target is not None:
             DiceExpressionValidator.validate_reroll_condition(
                 sides, reroll_cmp, target, expr
             )
@@ -406,12 +377,7 @@ class Dice:
                 all_rolls.append(value)
 
             # apply rerolls (not applicable to fudge or percentile dice)
-            if (
-                not is_fudge
-                and not is_percentile
-                and reroll_cmp
-                and target is not None
-            ):
+            if not is_fudge and not is_percentile and reroll_cmp and target is not None:
                 while DiceRoller.should_reroll(
                     value, reroll_cmp, target, cls._cmp_funcs
                 ) and (max_rerolls is None or count < max_rerolls):
@@ -423,19 +389,13 @@ class Dice:
                     value, reroll_cmp, target, cls._cmp_funcs
                 ) and (max_rerolls is None or count < max_rerolls):
                     count += 1
-                    value, tens_roll, ones_roll = (
-                        DiceRoller.roll_percentile_die()
-                    )
+                    value, tens_roll, ones_roll = DiceRoller.roll_percentile_die()
                     all_rolls.append((tens_roll, ones_roll))
 
             # Handle exploding dice (not applicable to fudge or percentile
             # dice)
             current_total = value
-            if (
-                not is_fudge
-                and not is_percentile
-                and explode_target is not None
-            ):
+            if not is_fudge and not is_percentile and explode_target is not None:
                 while True:
                     if DiceRoller.should_explode(
                         value, explode_cmp, explode_target, cls._cmp_funcs
@@ -450,15 +410,11 @@ class Dice:
 
         # Parse multiple keep operations
         keep_ops_str = match.group("keep_ops") or ""
-        keep_operations = KeepOperationsParser.parse_keep_operations(
-            keep_ops_str
-        )
+        keep_operations = KeepOperationsParser.parse_keep_operations(keep_ops_str)
 
         # Parse multiple drop operations
         drop_ops_str = match.group("drop_ops") or ""
-        drop_operations = DropOperationsParser.parse_drop_operations(
-            drop_ops_str
-        )
+        drop_operations = DropOperationsParser.parse_drop_operations(drop_ops_str)
 
         # Debug logging for keep/drop operations
         from .debug_logger import get_debug_logger
@@ -481,9 +437,7 @@ class Dice:
             keep_type = None
             keep_n = None
 
-        multiply = (
-            int(match.group("multiply")) if match.group("multiply") else 1
-        )
+        multiply = int(match.group("multiply")) if match.group("multiply") else 1
         divide = int(match.group("divide")) if match.group("divide") else 1
 
         return RollResult(
@@ -507,9 +461,7 @@ class Dice:
         )
 
     @classmethod
-    def _roll_single_dice_expression_from_string(
-        cls, dice_expr: str
-    ) -> RollResult:
+    def _roll_single_dice_expression_from_string(cls, dice_expr: str) -> RollResult:
         """Roll a single dice expression from a string like '2d6kh1'."""
         # Validate the dice expression for common issues
         DiceExpressionValidator.validate_expression_input(dice_expr)
@@ -522,9 +474,7 @@ class Dice:
 
     @classmethod
     def roll_with_precedence(
-        cls,
-        expr: str,
-        modifiers: Optional[Dict[str, Union[int, str]]] = None
+        cls, expr: str, modifiers: Optional[Dict[str, Union[int, str]]] = None
     ) -> "RollResultSet":
         """Roll dice with proper mathematical precedence parsing.
 
@@ -546,9 +496,7 @@ class Dice:
         original_expr = expr
         expr = ExpressionProcessor.process_shorthands(expr)
         if expr != original_expr:
-            logger.log_step(
-                "SHORTHAND_EXPANSION", f"'{original_expr}' -> '{expr}'"
-            )
+            logger.log_step("SHORTHAND_EXPANSION", f"'{original_expr}' -> '{expr}'")
 
         # Handle special flux cases
         if "GOODFLUX_SPECIAL" in expr:
@@ -559,8 +507,8 @@ class Dice:
             return cls._handle_badflux_roll()
 
         # Check if we should use the new parser or fall back to original
-        needs_precedence_parsing = (
-            ExpressionProcessor.should_use_precedence_parsing(expr)
+        needs_precedence_parsing = ExpressionProcessor.should_use_precedence_parsing(
+            expr
         )
 
         parser_type = "precedence" if needs_precedence_parsing else "original"
@@ -706,9 +654,7 @@ class Dice:
         # Create modifiers list
         mods = []
         if modifiers:
-            logger.log_step(
-                "MODIFIERS", f"Processing {len(modifiers)} modifiers"
-            )
+            logger.log_step("MODIFIERS", f"Processing {len(modifiers)} modifiers")
             for name, value in modifiers.items():
                 mod = RollModifier(value, name)
                 mods.append(mod)
@@ -771,9 +717,7 @@ class KeepOperationsParser:
 
             # Validate keep_n is not negative
             if keep_n < 0:
-                raise ValueError(
-                    f"Keep count cannot be negative: k{keep_type}{keep_n}"
-                )
+                raise ValueError(f"Keep count cannot be negative: k{keep_type}{keep_n}")
 
             operations.append((keep_type, keep_n))
 
@@ -809,9 +753,7 @@ class DropOperationsParser:
 
             # Validate drop_n is not negative
             if drop_n < 0:
-                raise ValueError(
-                    f"Drop count cannot be negative: d{drop_type}{drop_n}"
-                )
+                raise ValueError(f"Drop count cannot be negative: d{drop_type}{drop_n}")
 
             operations.append((drop_type, drop_n))
 
@@ -833,8 +775,10 @@ class GoodFluxResult(RollResult):
         self.lower = lower
 
     def __str__(self):
-        return f"{self.higher} (1d6: {self.higher}) - " + \
-               f"{self.lower} (1d6: {self.lower})"
+        return (
+            f"{self.higher} (1d6: {self.higher}) - "
+            + f"{self.lower} (1d6: {self.lower})"
+        )
 
 
 class BadFluxResult(RollResult):
@@ -852,8 +796,10 @@ class BadFluxResult(RollResult):
         self.lower = lower
 
     def __str__(self):
-        return f"{self.lower} (1d6: {self.lower}) - " + \
-               f"{self.higher} (1d6: {self.higher})"
+        return (
+            f"{self.lower} (1d6: {self.lower}) - "
+            + f"{self.higher} (1d6: {self.higher})"
+        )
 
 
 class FluxDiceHandler:
@@ -892,9 +838,7 @@ class DiceExpressionValidator:
         invalid syntax.
         """
         if not expr or expr.isspace():
-            raise ParseError(
-                f"Empty or whitespace-only expression: {repr(expr)}"
-            )
+            raise ParseError(f"Empty or whitespace-only expression: {repr(expr)}")
 
         # Check for any dice-like patterns
         if not re.search(r"\d*d\d*[fF%]?", expr):
@@ -925,9 +869,7 @@ class DiceExpressionValidator:
         for pattern, required_pattern, error_msg in validation_patterns:
             if re.search(pattern, expr):
                 if required_pattern and not re.search(required_pattern, expr):
-                    raise ParseError(
-                        f"Malformed dice expression - {error_msg}: {expr}"
-                    )
+                    raise ParseError(f"Malformed dice expression - {error_msg}: {expr}")
                 elif not required_pattern:
                     raise ParseError(f"{error_msg.capitalize()}: {expr}")
 
@@ -936,8 +878,8 @@ class DiceExpressionValidator:
         for dice_pattern in dice_patterns:
             if dice_pattern.count("e") > 1:
                 raise ParseError(
-                    "Multiple explode conditions not allowed in dice " +
-                    f"expression: {dice_pattern}"
+                    "Multiple explode conditions not allowed in dice "
+                    + f"expression: {dice_pattern}"
                 )
 
     @staticmethod
@@ -961,8 +903,8 @@ class DiceExpressionValidator:
             raise InfiniteConditionError(
                 condition_type,
                 expression,
-                f"condition '{cmp} {target}' matches all " +
-                f"possible rolls ({range_desc})",
+                f"condition '{cmp} {target}' matches all "
+                + f"possible rolls ({range_desc})",
             )
 
     @staticmethod
@@ -1033,10 +975,7 @@ class DiceRoller:
         if total == 0:
             total = 100
         logger = get_debug_logger()
-        logger.log_roll(
-            "1d%",
-            f"{total} (tens: {tens_die}, ones: {ones_die})"
-        )
+        logger.log_roll("1d%", f"{total} (tens: {tens_die}, ones: {ones_die})")
         return total, tens_die, ones_die
 
     @staticmethod
@@ -1131,7 +1070,7 @@ class ExpressionProcessor:
     def should_use_precedence_parsing(expr: str) -> bool:
         """Determine if expression needs precedence parsing."""
         has_mult_div = any(op in expr for op in ["x", "*", "×", "/"])
-        has_add_sub_with_numbers = any(
-            op in expr for op in ["+", "-"]
-        ) and any(char.isdigit() for char in expr.replace("d", ""))
+        has_add_sub_with_numbers = any(op in expr for op in ["+", "-"]) and any(
+            char.isdigit() for char in expr.replace("d", "")
+        )
         return has_mult_div or has_add_sub_with_numbers

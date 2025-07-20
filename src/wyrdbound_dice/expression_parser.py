@@ -69,15 +69,21 @@ class DescriptionBuilder:
                         and right_result.description[1:].isdigit()
                     )
                 ):
-                    return f"({left_result.description} {op_symbol} " + \
-                           f"{right_result.description})"
+                    return (
+                        f"({left_result.description} {op_symbol} "
+                        + f"{right_result.description})"
+                    )
                 else:
                     # Preserve the chain structure without extra parentheses
-                    return f"{left_result.description} {op_symbol} " + \
-                           f"{right_result.description}"
+                    return (
+                        f"{left_result.description} {op_symbol} "
+                        + f"{right_result.description}"
+                    )
             else:
-                return f"{left_result.description} {op_symbol} " + \
-                       f"{right_result.description}"
+                return (
+                    f"{left_result.description} {op_symbol} "
+                    + f"{right_result.description}"
+                )
 
         # Handle negative values in addition/subtraction
         if operator == TokenType.PLUS and right_result.value < 0:
@@ -93,8 +99,10 @@ class DescriptionBuilder:
             )
             return f"{left_result.description} + {positive_right_desc}"
         else:
-            return f"{left_result.description} {op_symbol} " + \
-                   f"{right_result.description}"
+            return (
+                f"{left_result.description} {op_symbol} "
+                + f"{right_result.description}"
+            )
 
     @staticmethod
     def _remove_leading_minus(description: str) -> str:
@@ -111,9 +119,7 @@ class ExpressionParser:
     def __init__(self, tokens: List[Token]):
         self.tokens = tokens
         self.pos = 0
-        self.current_token = (
-            self.tokens[0] if tokens else Token(TokenType.EOF, None)
-        )
+        self.current_token = self.tokens[0] if tokens else Token(TokenType.EOF, None)
 
     def advance(self) -> None:
         """Move to the next token."""
@@ -219,9 +225,7 @@ class DiceExpression(ParsedExpression):
 
     def evaluate(self, dice_class) -> EvaluationResult:
         # Use the existing dice rolling logic
-        result = dice_class._roll_single_dice_expression_from_string(
-            self.dice_expr
-        )
+        result = dice_class._roll_single_dice_expression_from_string(self.dice_expr)
         return EvaluationResult(
             value=result.subtotal,
             description=str(result),

@@ -1,6 +1,5 @@
 """Test the convenience roll function that was added to fix the CI issue."""
 
-
 from wyrdbound_dice import Dice, StringLogger, roll
 
 
