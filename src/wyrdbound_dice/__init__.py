@@ -35,8 +35,8 @@ from .errors import DivisionByZeroError, InfiniteConditionError, ParseError
 from .expression_token import TokenType
 from .roll_result import RollResult
 
-__version__ = "1.0.0"
-__author__ = "TheWyrdOne"
+__version__ = "0.0.1"
+__author__ = "The Wyrd One"
 __email__ = "wyrdbound@proton.me"
 __description__ = "A comprehensive dice rolling library for tabletop RPGs"
 

@@ -36,7 +36,7 @@ result = Dice.roll("...")
 
 - OS: [e.g. Windows 11, macOS 13, Ubuntu 22.04]
 - Python version: [e.g. 3.11.2]
-- wyrdbound-dice version: [e.g. 1.0.0]
+- wyrdbound-dice version: [e.g. 0.0.1]
 - Installation method: [e.g. pip, source]
 
 **Additional context**
