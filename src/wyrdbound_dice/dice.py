@@ -184,8 +184,8 @@ class Dice:
 
     _dice_re = re.compile(
         r"""(?P<num>\d+)d(?P<sides>\d+|F|%)              # NdM or NdF
-            (?P<keep_ops>(?:\s*k[hl]\s*\d*)*)?           # optional multiple
-            (?P<drop_ops>(?:\s*d[hl]\s*\d*)*)?           # optional multiple
+            (?P<keep_ops_1>(?:\s*k[hl]\s*\d*)*)?         # optional keep before
+            (?P<drop_ops_1>(?:\s*d[hl]\s*\d*)*)?         # optional drop before
             (?:\s*x\s*(?P<multiply>\d+)(?!d))?           # optional xN
             (?:\s*/\s*(?P<divide>\d+)(?!d))?             # optional /N
             (?:r(?P<reroll_count>\d*|o)                  # optional rN or r
@@ -193,7 +193,9 @@ class Dice:
                (?P<reroll_target>\d+)                   # target
             )?
             (?:e(?:(?P<explode_cmp><=|>=|<|>|=)(?P<explode_target>\d+)|
-               (?P<explode_simple>\d+))?)?  # optional exploding dice
+               (?P<explode_simple>\d+))?)?               # optional exploding dice
+            (?P<keep_ops_2>(?:\s*k[hl]\s*\d*)*)?         # optional keep after
+            (?P<drop_ops_2>(?:\s*d[hl]\s*\d*)*)?         # optional drop after
             """,
         re.IGNORECASE | re.VERBOSE,
     )
@@ -408,12 +410,16 @@ class Dice:
 
             rolls.append(current_total)
 
-        # Parse multiple keep operations
-        keep_ops_str = match.group("keep_ops") or ""
+        # Parse multiple keep operations (combine from before and after reroll/explode)
+        keep_ops_1 = match.group("keep_ops_1") or ""
+        keep_ops_2 = match.group("keep_ops_2") or ""
+        keep_ops_str = keep_ops_1 + keep_ops_2
         keep_operations = KeepOperationsParser.parse_keep_operations(keep_ops_str)
 
-        # Parse multiple drop operations
-        drop_ops_str = match.group("drop_ops") or ""
+        # Parse multiple drop operations (combine from before and after reroll/explode)
+        drop_ops_1 = match.group("drop_ops_1") or ""
+        drop_ops_2 = match.group("drop_ops_2") or ""
+        drop_ops_str = drop_ops_1 + drop_ops_2
         drop_operations = DropOperationsParser.parse_drop_operations(drop_ops_str)
 
         # Debug logging for keep/drop operations
