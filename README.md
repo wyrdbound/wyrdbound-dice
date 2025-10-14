@@ -41,6 +41,7 @@ Wyrdbound Dice supports an extensive range of dice rolling mechanics used across
 - **Limited rerolls**: `1d6r1<=2` (reroll once), `1d6r3<=3` (reroll up to 3 times)
 - **Comparison operators**: `<=`, `<`, `>=`, `>`, `=`
 - **Alternate notation**: `1d6ro<=2` (reroll once)
+- **Combine with keep/drop**: `4d6r<=2kh3` (reroll ≤2, keep highest 3)
 
 ### Exploding Dice
 
