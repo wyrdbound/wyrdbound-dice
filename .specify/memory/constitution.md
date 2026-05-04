@@ -81,7 +81,8 @@ All code must be debuggable and observable:
 - **Feature branches**: `feature/description` or `fix/description`
 - **Sequential numbering**: Use Spec Kit's sequential branch numbering
 - **Conventional commits REQUIRED**: Format `<type>[optional scope]: <description>`
-  - Examples: `feat: Add success counting for World of Darkness`, `fix(parser): Resolve reroll chain edge case`, `chore: Update dependencies`
+  - Examples: `feat: add success counting for World of Darkness`, `fix(parser): resolve reroll chain edge case`, `chore: update dependencies`
+  - **Description MUST be lowercase**: the word immediately after `type: ` must begin with a lowercase letter
   - **NO itemized lists**: Commit messages must be single high-level descriptions, not bullet lists of changes
   - Types: `feat`, `fix`, `chore`, `docs`, `test`, `refactor`, `perf`, `ci`, `build`, `style`
   - Breaking changes: Append `!` before colon or add `BREAKING CHANGE:` footer
