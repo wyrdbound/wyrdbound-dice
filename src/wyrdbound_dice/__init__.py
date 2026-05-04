@@ -42,7 +42,7 @@ __description__ = "A comprehensive dice rolling library for tabletop RPGs"
 
 
 # Convenience function for easier access
-def roll(expression, modifiers=None, debug=False, debug_logger=None):
+def roll(expression, modifiers=None, debug=False, debug_logger=None, rng=None):
     """Convenience function for rolling dice.
 
     Args:
@@ -51,11 +51,16 @@ def roll(expression, modifiers=None, debug=False, debug_logger=None):
         debug: Enable debug logging to see detailed parsing and rolling steps
         debug_logger: Optional debug logger instance (replaces 'logger'
             parameter)
+        rng: Optional random number source. Any object with a
+            ``random() -> float`` method returning a value in [0.0, 1.0)
+            is accepted (duck-typed). When None, stdlib random is used.
+            The same rng instance is used for all dice in this call,
+            including dice inside modifier expressions.
 
     Returns:
         RollResult: The result of the dice roll
     """
-    return Dice.roll(expression, modifiers, debug, debug_logger)
+    return Dice.roll(expression, modifiers, debug, debug_logger, rng)
 
 
 __all__ = [

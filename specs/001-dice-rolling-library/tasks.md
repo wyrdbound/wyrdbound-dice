@@ -17,8 +17,8 @@
 
 **Purpose**: Confirm a green baseline before any changes; create the dedicated test file.
 
-- [ ] T001 Run `python -m pytest tests/ -v` and confirm all existing tests pass; note the passing count in a comment at the top of the soon-to-be-created `tests/test_dice_rng.py`
-- [ ] T002 [P] Create `tests/test_dice_rng.py` with module docstring, imports (`import random`, `from unittest.mock import Mock`, `import pytest`, `from wyrdbound_dice import Dice, roll, RollResultSet`, `from wyrdbound_dice.dice import _randint`), and a reusable `seeded_rng` pytest fixture returning `random.Random(42)`
+- [x] T001 Run `python -m pytest tests/ -v` and confirm all existing tests pass; note the passing count in a comment at the top of the soon-to-be-created `tests/test_dice_rng.py`
+- [x] T002 [P] Create `tests/test_dice_rng.py` with module docstring, imports (`import random`, `from unittest.mock import Mock`, `import pytest`, `from wyrdbound_dice import Dice, roll, RollResultSet`, `from wyrdbound_dice.dice import _randint`), and a reusable `seeded_rng` pytest fixture returning `random.Random(42)`
 
 **Checkpoint**: Green baseline confirmed; test file scaffolding ready.
 
@@ -38,47 +38,47 @@ Note: T003–T019 all write functions into `tests/test_dice_rng.py` and are ther
 
 #### Infrastructure Tests
 
-- [ ] T003 Write failing test `test_randint_fallback_uses_stdlib`: import `_randint` via `from wyrdbound_dice.dice import _randint`; assert `_randint(None, 1, 6)` returns an `int` in `[1, 6]` over 100 iterations in `tests/test_dice_rng.py`
-- [ ] T004 Write failing test `test_randint_calls_rng_random`: import `_randint` via `from wyrdbound_dice.dice import _randint`; assert `_randint(mock_rng, 1, 6)` calls `mock_rng.random()` exactly once and returns an `int` in `[1, 6]` in `tests/test_dice_rng.py`
+- [x] T003 Write failing test `test_randint_fallback_uses_stdlib`: import `_randint` via `from wyrdbound_dice.dice import _randint`; assert `_randint(None, 1, 6)` returns an `int` in `[1, 6]` over 100 iterations in `tests/test_dice_rng.py`
+- [x] T004 Write failing test `test_randint_calls_rng_random`: import `_randint` via `from wyrdbound_dice.dice import _randint`; assert `_randint(mock_rng, 1, 6)` calls `mock_rng.random()` exactly once and returns an `int` in `[1, 6]` in `tests/test_dice_rng.py`
 
 #### US1 — Basic Dice Rolling
 
-- [ ] T005 [US1] Write failing test `test_dice_roll_accepts_rng_none`: assert `Dice.roll("1d6", rng=None)` returns a `RollResultSet` without raising `TypeError` in `tests/test_dice_rng.py`
-- [ ] T006 [US1] Write failing test `test_dice_roll_uses_rng_random`: assert `Dice.roll("1d6", rng=mock_rng)` calls `mock_rng.random()` at least once in `tests/test_dice_rng.py`
-- [ ] T007 [US1] Write failing test `test_basic_roll_reproducible`: two `Dice.roll("1d20", rng=random.Random(42))` calls produce equal totals in `tests/test_dice_rng.py`
-- [ ] T008 [US1] Write failing test `test_mock_rng_pins_result`: `Dice.roll("1d6", rng=Mock(random=lambda: 0.9999)).total == 6` in `tests/test_dice_rng.py`
+- [x] T005 [US1] Write failing test `test_dice_roll_accepts_rng_none`: assert `Dice.roll("1d6", rng=None)` returns a `RollResultSet` without raising `TypeError` in `tests/test_dice_rng.py`
+- [x] T006 [US1] Write failing test `test_dice_roll_uses_rng_random`: assert `Dice.roll("1d6", rng=mock_rng)` calls `mock_rng.random()` at least once in `tests/test_dice_rng.py`
+- [x] T007 [US1] Write failing test `test_basic_roll_reproducible`: two `Dice.roll("1d20", rng=random.Random(42))` calls produce equal totals in `tests/test_dice_rng.py`
+- [x] T008 [US1] Write failing test `test_mock_rng_pins_result`: `Dice.roll("1d6", rng=Mock(random=lambda: 0.9999)).total == 6` in `tests/test_dice_rng.py`
 
 #### US2 — Mathematical Operations (Precedence Parser Path)
 
-- [ ] T009 [US2] Write failing test `test_precedence_parser_reproducible`: two `Dice.roll("2d6 + 1d4 × 2", rng=random.Random(42))` calls produce equal totals in `tests/test_dice_rng.py`; this expression forces the `_parse_with_precedence` code path
+- [x] T009 [US2] Write failing test `test_precedence_parser_reproducible`: two `Dice.roll("2d6 + 1d4 × 2", rng=random.Random(42))` calls produce equal totals in `tests/test_dice_rng.py`; this expression forces the `_parse_with_precedence` code path
 
 #### US3 — Keep/Drop Mechanics
 
-- [ ] T010 [US3] Write failing test `test_keep_drop_reproducible`: two `Dice.roll("4d6kh3", rng=random.Random(7))` calls produce equal totals in `tests/test_dice_rng.py`
+- [x] T010 [US3] Write failing test `test_keep_drop_reproducible`: two `Dice.roll("4d6kh3", rng=random.Random(7))` calls produce equal totals in `tests/test_dice_rng.py`
 
 #### US4 — Reroll Mechanics
 
-- [ ] T011 [US4] Write failing test `test_reroll_reproducible`: two `Dice.roll("2d6r<=2", rng=random.Random(7))` calls produce equal totals in `tests/test_dice_rng.py`
+- [x] T011 [US4] Write failing test `test_reroll_reproducible`: two `Dice.roll("2d6r<=2", rng=random.Random(7))` calls produce equal totals in `tests/test_dice_rng.py`
 
 #### US5 — Exploding Dice
 
-- [ ] T012 [US5] Write failing test `test_exploding_reproducible`: two `Dice.roll("1d6e", rng=random.Random(7))` calls produce equal totals in `tests/test_dice_rng.py`
+- [x] T012 [US5] Write failing test `test_exploding_reproducible`: two `Dice.roll("1d6e", rng=random.Random(7))` calls produce equal totals in `tests/test_dice_rng.py`
 
 #### US6 — Fudge Dice
 
-- [ ] T013 [US6] Write failing test `test_fudge_reproducible`: two `Dice.roll("4dF", rng=random.Random(1))` calls produce equal totals in `tests/test_dice_rng.py`
-- [ ] T014 [US6] Write failing test `test_fudge_mock_min`: with `Mock(random=lambda: 0.0)`, assert `Dice.roll("1dF", rng=mock).total == -1` in `tests/test_dice_rng.py`
+- [x] T013 [US6] Write failing test `test_fudge_reproducible`: two `Dice.roll("4dF", rng=random.Random(1))` calls produce equal totals in `tests/test_dice_rng.py`
+- [x] T014 [US6] Write failing test `test_fudge_mock_min`: with `Mock(random=lambda: 0.0)`, assert `Dice.roll("1dF", rng=mock).total == -1` in `tests/test_dice_rng.py`
 
 #### US7 — System Shorthands
 
-- [ ] T015 [US7] Write failing test `test_goodflux_reproducible`: two `Dice.roll("GOODFLUX", rng=random.Random(5))` calls produce equal totals in `tests/test_dice_rng.py`
-- [ ] T016 [US7] Write failing test `test_badflux_reproducible`: two `Dice.roll("BADFLUX", rng=random.Random(5))` calls produce equal totals in `tests/test_dice_rng.py`
-- [ ] T017 [US7] Write failing test `test_percentile_reproducible`: two `Dice.roll("1d%", rng=random.Random(3))` calls produce equal totals in `tests/test_dice_rng.py`
+- [x] T015 [US7] Write failing test `test_goodflux_reproducible`: two `Dice.roll("GOODFLUX", rng=random.Random(5))` calls produce equal totals in `tests/test_dice_rng.py`
+- [x] T016 [US7] Write failing test `test_badflux_reproducible`: two `Dice.roll("BADFLUX", rng=random.Random(5))` calls produce equal totals in `tests/test_dice_rng.py`
+- [x] T017 [US7] Write failing test `test_percentile_reproducible`: two `Dice.roll("1d%", rng=random.Random(3))` calls produce equal totals in `tests/test_dice_rng.py`
 
 #### US8 — Named Modifier Propagation
 
-- [ ] T018 [US8] Write failing test `test_modifier_propagation_reproducible`: two `Dice.roll("1d20", modifiers={"Bless": "1d4"}, rng=random.Random(9))` calls produce equal totals in `tests/test_dice_rng.py`
-- [ ] T019 [US8] Write failing test `test_modifier_mock_controls_all_dice`: with `Mock(random=lambda: 0.9999)`, assert `Dice.roll("1d20", modifiers={"Bless": "1d4"}, rng=mock).total == 24` (20 + 4) in `tests/test_dice_rng.py`
+- [x] T018 [US8] Write failing test `test_modifier_propagation_reproducible`: two `Dice.roll("1d20", modifiers={"Bless": "1d4"}, rng=random.Random(9))` calls produce equal totals in `tests/test_dice_rng.py`
+- [x] T019 [US8] Write failing test `test_modifier_mock_controls_all_dice`: with `Mock(random=lambda: 0.9999)`, assert `Dice.roll("1d20", modifiers={"Bless": "1d4"}, rng=mock).total == 24` (20 + 4) in `tests/test_dice_rng.py`
 
 > ⛔ **GATE**: Run `python -m pytest tests/test_dice_rng.py -v` now. Confirm T003–T019 ALL fail (NameError or TypeError expected). Do not proceed to T020 until every test in this file fails.
 
@@ -86,19 +86,19 @@ Note: T003–T019 all write functions into `tests/test_dice_rng.py` and are ther
 
 ### Step B: Implementation
 
-- [ ] T020 Add module-private `_randint(rng, a: int, b: int) -> int` helper above `class RollModifier` in `src/wyrdbound_dice/dice.py`: returns `random.randint(a, b)` when `rng is None`, else `int(rng.random() * (b - a + 1)) + a`
-- [ ] T021 Add `rng=None` parameter to `DiceRoller.roll_standard_die(sides, rng=None)`, `DiceRoller.roll_fudge_die(rng=None)`, and `DiceRoller.roll_percentile_die(rng=None)`; replace every `random.randint(...)` call in those three methods with `_randint(rng, ...)` in `src/wyrdbound_dice/dice.py`
-- [ ] T022 Add `rng=None` to `Dice.roll()`, `Dice.roll_with_precedence()`, `Dice._roll_original_method()`, and `Dice._parse_with_precedence()`; thread `rng` to every `DiceRoller.*` call site and to every `cls._roll_original_method` / `cls._parse_with_precedence` call site in `src/wyrdbound_dice/dice.py`
-- [ ] T023 Add `rng=None` to `Dice._handle_goodflux_roll()` and `Dice._handle_badflux_roll()`; thread `rng` to `FluxDiceHandler.roll_flux(rng=None)` and to both `DiceRoller.roll_standard_die(6, rng)` calls inside `FluxDiceHandler.roll_flux` in `src/wyrdbound_dice/dice.py`
-- [ ] T024 Add `rng=None` to `RollResultSet.__init__(results, modifiers=None, dice_class=None, rng=None)` and to `RollModifier.roll(dice_class, rng=None)`; update the modifier roll loop in `RollResultSet.__init__` to call `modifier.roll(dice_class, rng=rng)`, and update `RollModifier.roll()` to call `dice_class.roll(self.dice_expression, rng=rng)` in `src/wyrdbound_dice/dice.py`
-- [ ] T025 Add `rng=None` to the `roll()` convenience function signature and pass it through to `Dice.roll()` in `src/wyrdbound_dice/__init__.py`; update the docstring to document the `rng` parameter
-- [ ] T026 Add debug log line `logger.log_step("RNG", f"Custom RNG in use: {type(rng).__name__}")` inside `Dice.roll()` when `rng is not None`, immediately after the existing `[START]` log in `src/wyrdbound_dice/dice.py`
+- [x] T020 Add module-private `_randint(rng, a: int, b: int) -> int` helper above `class RollModifier` in `src/wyrdbound_dice/dice.py`: returns `random.randint(a, b)` when `rng is None`, else `int(rng.random() * (b - a + 1)) + a`
+- [x] T021 Add `rng=None` parameter to `DiceRoller.roll_standard_die(sides, rng=None)`, `DiceRoller.roll_fudge_die(rng=None)`, and `DiceRoller.roll_percentile_die(rng=None)`; replace every `random.randint(...)` call in those three methods with `_randint(rng, ...)` in `src/wyrdbound_dice/dice.py`
+- [x] T022 Add `rng=None` to `Dice.roll()`, `Dice.roll_with_precedence()`, `Dice._roll_original_method()`, and `Dice._parse_with_precedence()`; thread `rng` to every `DiceRoller.*` call site and to every `cls._roll_original_method` / `cls._parse_with_precedence` call site in `src/wyrdbound_dice/dice.py`
+- [x] T023 Add `rng=None` to `Dice._handle_goodflux_roll()` and `Dice._handle_badflux_roll()`; thread `rng` to `FluxDiceHandler.roll_flux(rng=None)` and to both `DiceRoller.roll_standard_die(6, rng)` calls inside `FluxDiceHandler.roll_flux` in `src/wyrdbound_dice/dice.py`
+- [x] T024 Add `rng=None` to `RollResultSet.__init__(results, modifiers=None, dice_class=None, rng=None)` and to `RollModifier.roll(dice_class, rng=None)`; update the modifier roll loop in `RollResultSet.__init__` to call `modifier.roll(dice_class, rng=rng)`, and update `RollModifier.roll()` to call `dice_class.roll(self.dice_expression, rng=rng)` in `src/wyrdbound_dice/dice.py`
+- [x] T025 Add `rng=None` to the `roll()` convenience function signature and pass it through to `Dice.roll()` in `src/wyrdbound_dice/__init__.py`; update the docstring to document the `rng` parameter
+- [x] T026 Add debug log line `logger.log_step("RNG", f"Custom RNG in use: {type(rng).__name__}")` inside `Dice.roll()` when `rng is not None`, immediately after the existing `[START]` log in `src/wyrdbound_dice/dice.py`
 
 ---
 
 ### Step C: Verify Green
 
-- [ ] T027 Run `python -m pytest tests/test_dice_rng.py -v` and confirm all T003–T019 now pass; then run `python -m pytest tests/ -v` and confirm all prior baseline tests still pass with no regressions
+- [x] T027 Run `python -m pytest tests/test_dice_rng.py -v` and confirm all T003–T019 now pass; then run `python -m pytest tests/ -v` and confirm all prior baseline tests still pass with no regressions
 
 **Checkpoint**: Foundation complete — all mechanics reproducible with seeded RNG. Red→Green cycle satisfied for all user stories.
 
