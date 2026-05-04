@@ -28,10 +28,23 @@ SHORTHAND_EXPANSIONS = {
 COMPARISON_OPERATORS = {
     "<": lambda a, b: a < b,
     "<=": lambda a, b: a <= b,
-    ">": lambda a, b: a > b,
+    ">":  lambda a, b: a > b,
     ">=": lambda a, b: a >= b,
     "=": lambda a, b: a == b,
 }
+
+
+def _randint(rng, a: int, b: int) -> int:
+    """Return a random integer N such that a <= N <= b.
+
+    When rng is None, falls back to stdlib random.randint(a, b).
+    When rng is supplied, uses rng.random() — any object with a
+    ``random() -> float`` method returning a value in [0.0, 1.0) is
+    accepted (duck-typed; no base class required).
+    """
+    if rng is None:
+        return random.randint(a, b)
+    return int(rng.random() * (b - a + 1)) + a
 
 
 class RollModifier:
@@ -67,15 +80,21 @@ class RollModifier:
             self.sign = "+"
             self.dice_expression = value_str.lstrip("+")  # Remove optional plus
 
-    def roll(self, dice_class=None) -> None:
-        """Roll the modifier if it's a dice expression."""
+    def roll(self, dice_class=None, rng=None) -> None:
+        """Roll the modifier if it's a dice expression.
+
+        Args:
+            dice_class: The Dice class used to roll dice expressions.
+            rng: Optional random number source propagated from the parent
+                ``Dice.roll()`` call so the entire invocation is reproducible.
+        """
         if not self.is_dice or self.dice_result is not None:
             return
 
         if dice_class is None:
             raise ValueError("Dice class must be provided to roll dice modifiers")
 
-        self.dice_result = dice_class.roll(self.dice_expression)
+        self.dice_result = dice_class.roll(self.dice_expression, rng=rng)
         self.value = self.dice_result.total
         if self.sign == "-":
             self.value = -self.value
@@ -103,15 +122,16 @@ class RollResultSet:
         results: List[RollResult],
         modifiers: List[RollModifier] = None,
         dice_class=None,
+        rng=None,
     ):
         self.results = results
         self.modifiers = modifiers or []
         self._override_total: Optional[int] = None
         self._override_description: Optional[str] = None
 
-        # Roll any dice modifiers
+        # Roll any dice modifiers, propagating rng for full reproducibility
         for modifier in self.modifiers:
-            modifier.roll(dice_class)
+            modifier.roll(dice_class, rng=rng)
 
     @property
     def subtotal(self) -> int:
@@ -205,7 +225,10 @@ class Dice:
 
     @classmethod
     def _roll_original_method(
-        cls, expr: str, modifiers: Optional[Dict[str, Union[int, str]]] = None
+        cls,
+        expr: str,
+        modifiers: Optional[Dict[str, Union[int, str]]] = None,
+        rng=None,
     ) -> RollResultSet:
         """Roll dice using the original parsing method for backward
         compatibility."""
@@ -230,10 +253,10 @@ class Dice:
         # Handle special flux cases
         if "GOODFLUX_SPECIAL" in expr:
             logger.log_step("SPECIAL_CASE", "Handling GOODFLUX")
-            return cls._handle_goodflux_roll()
+            return cls._handle_goodflux_roll(rng=rng)
         elif "BADFLUX_SPECIAL" in expr:
             logger.log_step("SPECIAL_CASE", "Handling BADFLUX")
-            return cls._handle_badflux_roll()
+            return cls._handle_badflux_roll(rng=rng)
 
         results: List[RollResult] = []
 
@@ -272,12 +295,12 @@ class Dice:
             )
             # Handle cross-dice operations (e.g., "1d6 + 2d8")
             for match in dice_matches:
-                dice_result = cls._roll_single_dice_expression(expr, match)
+                dice_result = cls._roll_single_dice_expression(expr, match, rng=rng)
                 results.append(dice_result)
         else:
             # Handle normal single or multiple dice of same type
             for match in dice_matches:
-                dice_result = cls._roll_single_dice_expression(expr, match)
+                dice_result = cls._roll_single_dice_expression(expr, match, rng=rng)
                 results.append(dice_result)
 
         # Create modifiers list
@@ -287,7 +310,7 @@ class Dice:
                 mod = RollModifier(value, name)
                 mods.append(mod)
 
-        result_set = RollResultSet(results, mods, cls)
+        result_set = RollResultSet(results, mods, cls, rng=rng)
 
         # Handle special display cases
         if "GOODFLUX_SPECIAL" in expr:
@@ -302,7 +325,7 @@ class Dice:
         return result_set
 
     @classmethod
-    def _roll_single_dice_expression(cls, expr: str, match) -> RollResult:
+    def _roll_single_dice_expression(cls, expr: str, match, rng=None) -> RollResult:
         """Roll a single dice expression given a regex match."""
         num = int(match.group("num"))
         sides_str = match.group("sides")
@@ -368,14 +391,14 @@ class Dice:
         for _ in range(num):
             count = 0
             if is_fudge:
-                raw_value, value = DiceRoller.roll_fudge_die()
+                raw_value, value = DiceRoller.roll_fudge_die(rng=rng)
                 all_rolls.append(raw_value)  # Store raw value for display
             elif is_percentile:
-                value, tens_roll, ones_roll = DiceRoller.roll_percentile_die()
+                value, tens_roll, ones_roll = DiceRoller.roll_percentile_die(rng=rng)
                 # Store both dice for display
                 all_rolls.append((tens_roll, ones_roll))
             else:
-                value = DiceRoller.roll_standard_die(sides)
+                value = DiceRoller.roll_standard_die(sides, rng=rng)
                 all_rolls.append(value)
 
             # apply rerolls (not applicable to fudge or percentile dice)
@@ -384,14 +407,14 @@ class Dice:
                     value, reroll_cmp, target, cls._cmp_funcs
                 ) and (max_rerolls is None or count < max_rerolls):
                     count += 1
-                    value = DiceRoller.roll_standard_die(sides)
+                    value = DiceRoller.roll_standard_die(sides, rng=rng)
                     all_rolls.append(value)
             elif is_percentile and reroll_cmp and target is not None:
                 while DiceRoller.should_reroll(
                     value, reroll_cmp, target, cls._cmp_funcs
                 ) and (max_rerolls is None or count < max_rerolls):
                     count += 1
-                    value, tens_roll, ones_roll = DiceRoller.roll_percentile_die()
+                    value, tens_roll, ones_roll = DiceRoller.roll_percentile_die(rng=rng)
                     all_rolls.append((tens_roll, ones_roll))
 
             # Handle exploding dice (not applicable to fudge or percentile
@@ -402,7 +425,7 @@ class Dice:
                     if DiceRoller.should_explode(
                         value, explode_cmp, explode_target, cls._cmp_funcs
                     ):
-                        value = DiceRoller.roll_standard_die(sides)
+                        value = DiceRoller.roll_standard_die(sides, rng=rng)
                         all_rolls.append(value)
                         current_total += value
                     else:
@@ -467,7 +490,9 @@ class Dice:
         )
 
     @classmethod
-    def _roll_single_dice_expression_from_string(cls, dice_expr: str) -> RollResult:
+    def _roll_single_dice_expression_from_string(
+        cls, dice_expr: str, rng=None
+    ) -> RollResult:
         """Roll a single dice expression from a string like '2d6kh1'."""
         # Validate the dice expression for common issues
         DiceExpressionValidator.validate_expression_input(dice_expr)
@@ -476,11 +501,14 @@ class Dice:
         match = cls._dice_re.match(dice_expr)
         if not match:
             raise ValueError(f"Invalid dice expression: {dice_expr}")
-        return cls._roll_single_dice_expression(dice_expr, match)
+        return cls._roll_single_dice_expression(dice_expr, match, rng=rng)
 
     @classmethod
     def roll_with_precedence(
-        cls, expr: str, modifiers: Optional[Dict[str, Union[int, str]]] = None
+        cls,
+        expr: str,
+        modifiers: Optional[Dict[str, Union[int, str]]] = None,
+        rng=None,
     ) -> "RollResultSet":
         """Roll dice with proper mathematical precedence parsing.
 
@@ -507,10 +535,10 @@ class Dice:
         # Handle special flux cases
         if "GOODFLUX_SPECIAL" in expr:
             logger.log_step("SPECIAL_CASE", "Handling GOODFLUX")
-            return cls._handle_goodflux_roll()
+            return cls._handle_goodflux_roll(rng=rng)
         elif "BADFLUX_SPECIAL" in expr:
             logger.log_step("SPECIAL_CASE", "Handling BADFLUX")
-            return cls._handle_badflux_roll()
+            return cls._handle_badflux_roll(rng=rng)
 
         # Check if we should use the new parser or fall back to original
         needs_precedence_parsing = ExpressionProcessor.should_use_precedence_parsing(
@@ -522,7 +550,7 @@ class Dice:
 
         # If we don't need precedence parsing, use the simpler original method
         if not needs_precedence_parsing:
-            return cls._roll_original_method(expr, modifiers)
+            return cls._roll_original_method(expr, modifiers, rng=rng)
 
         # Handle negative dice expressions for precedence parser
         expr = ExpressionProcessor.process_negative_dice(expr)
@@ -531,14 +559,14 @@ class Dice:
         DiceExpressionValidator.validate_expression_input(expr)
 
         try:
-            return cls._parse_with_precedence(expr, modifiers)
+            return cls._parse_with_precedence(expr, modifiers, rng=rng)
         except (SyntaxError, AttributeError, TypeError, ParseError) as e:
             logger.log_step(
                 "FALLBACK",
                 f"Parser error: {e}, falling back to original method",
             )
             # Fall back to the original parsing method only for parsing errors
-            return cls._roll_original_method(expr, modifiers)
+            return cls._roll_original_method(expr, modifiers, rng=rng)
 
     @classmethod
     def roll(
@@ -547,6 +575,7 @@ class Dice:
         modifiers: Optional[Dict[str, Union[int, str]]] = None,
         debug: bool = False,
         logger=None,
+        rng=None,
     ) -> "RollResultSet":
         """Roll dice expressions with proper mathematical precedence.
 
@@ -560,6 +589,11 @@ class Dice:
                 steps
             logger: Optional Python logger instance (from logging module) or
                 StringLogger for testing
+            rng: Optional random number source. Any object with a
+                ``random() -> float`` method returning a value in [0.0, 1.0)
+                is accepted (duck-typed). When None, stdlib random is used.
+                The same rng instance is used for all dice in this call,
+                including dice inside modifier expressions.
 
         Returns:
             RollResultSet with the evaluated results
@@ -570,16 +604,16 @@ class Dice:
             >>> Dice.roll("1d10 / 2 x 2 + 5")  # Proper precedence handling
             >>> Dice.roll("2d6", debug=True)  # With debug logging
 
-            # With custom logger
-            >>> import logging
-            >>> logger = logging.getLogger('my_app')
-            >>> Dice.roll("2d6", debug=True, logger=logger)
+            # With seeded rng for reproducible results
+            >>> import random
+            >>> rng = random.Random(42)
+            >>> Dice.roll("2d6", rng=rng)
 
-            # With string logger for testing/APIs
-            >>> from wyrdbound_dice.debug_logger import StringLogger
-            >>> string_logger = StringLogger()
-            >>> Dice.roll("2d6", debug=True, logger=string_logger)
-            >>> print(string_logger.get_logs())
+            # With mock rng for deterministic testing
+            >>> from unittest.mock import Mock
+            >>> mock_rng = Mock()
+            >>> mock_rng.random.return_value = 0.9999
+            >>> Dice.roll("1d6", rng=mock_rng)  # Always rolls 6
         """
         from .debug_logger import get_debug_logger, set_debug_mode
 
@@ -588,10 +622,12 @@ class Dice:
         debug_logger = get_debug_logger()
 
         debug_logger.log_step("START", f"Rolling expression: '{expr}'")
+        if rng is not None:
+            debug_logger.log_step("RNG", f"Custom RNG in use: {type(rng).__name__}")
         if modifiers:
             debug_logger.log_step("MODIFIERS", f"Using modifiers: {modifiers}")
 
-        result = cls.roll_with_precedence(expr, modifiers)
+        result = cls.roll_with_precedence(expr, modifiers, rng=rng)
 
         debug_logger.log_step("COMPLETE", f"Final result: {result.total}")
 
@@ -613,18 +649,21 @@ class Dice:
         return "BADFLUX_SPECIAL"
 
     @classmethod
-    def _handle_goodflux_roll(cls) -> RollResultSet:
+    def _handle_goodflux_roll(cls, rng=None) -> RollResultSet:
         """Handle GOODFLUX: Roll 2d6, subtract lower from higher."""
-        return FluxDiceHandler.roll_flux(True)
+        return FluxDiceHandler.roll_flux(True, rng=rng)
 
     @classmethod
-    def _handle_badflux_roll(cls) -> RollResultSet:
+    def _handle_badflux_roll(cls, rng=None) -> RollResultSet:
         """Handle BADFLUX: Roll 2d6, subtract higher from lower."""
-        return FluxDiceHandler.roll_flux(False)
+        return FluxDiceHandler.roll_flux(False, rng=rng)
 
     @classmethod
     def _parse_with_precedence(
-        cls, expr: str, modifiers: Optional[Dict[str, Union[int, str]]]
+        cls,
+        expr: str,
+        modifiers: Optional[Dict[str, Union[int, str]]],
+        rng=None,
     ) -> "RollResultSet":
         """Parse expression using the precedence parser."""
         from .debug_logger import get_debug_logger
@@ -652,8 +691,19 @@ class Dice:
 
         logger.log_step("EVALUATING", "Evaluating parsed expression")
 
-        # Evaluate the expression
-        result = parsed_expr.evaluate(cls)
+        # Evaluate the expression. The parser calls dice_class._roll_single_dice_expression_from_string
+        # so we pass a thin proxy that closes over rng.
+        class _DiceProxy:
+            """Proxy that forwards all attribute access to cls, but binds rng
+            into _roll_single_dice_expression_from_string."""
+            def __getattr__(self, name):
+                return getattr(cls, name)
+
+            @staticmethod
+            def _roll_single_dice_expression_from_string(dice_expr):
+                return cls._roll_single_dice_expression_from_string(dice_expr, rng=rng)
+
+        result = parsed_expr.evaluate(_DiceProxy())
 
         logger.log_step("RESULT", f"Expression evaluated to: {result.value}")
 
@@ -668,7 +718,7 @@ class Dice:
 
         # Create a custom result set that shows the full mathematical
         # expression
-        result_set = RollResultSet(result.dice_results, mods, cls)
+        result_set = RollResultSet(result.dice_results, mods, cls, rng=rng)
 
         # Override the total calculation to use our evaluated result plus
         # modifiers
@@ -827,10 +877,10 @@ class FluxDiceHandler:
         return RollResultSet([result])
 
     @staticmethod
-    def roll_flux(is_good_flux: bool) -> "RollResultSet":
+    def roll_flux(is_good_flux: bool, rng=None) -> "RollResultSet":
         """Roll flux dice and return the appropriate result."""
-        roll1 = DiceRoller.roll_standard_die(6)
-        roll2 = DiceRoller.roll_standard_die(6)
+        roll1 = DiceRoller.roll_standard_die(6, rng=rng)
+        roll2 = DiceRoller.roll_standard_die(6, rng=rng)
         return FluxDiceHandler.create_flux_result(roll1, roll2, is_good_flux)
 
 
@@ -940,11 +990,11 @@ class DiceRoller:
     """Handles the actual rolling of individual dice."""
 
     @staticmethod
-    def roll_fudge_die() -> Tuple[int, int]:
+    def roll_fudge_die(rng=None) -> Tuple[int, int]:
         """Roll a fudge die and return (display_value, effective_value)."""
         from .debug_logger import get_debug_logger
 
-        raw_value = random.randint(1, 6)
+        raw_value = _randint(rng, 1, 6)
         if raw_value <= FUDGE_NEGATIVE_MAX:
             effective_value = -1
         elif raw_value <= FUDGE_BLANK_MAX:
@@ -958,24 +1008,24 @@ class DiceRoller:
         return raw_value, effective_value
 
     @staticmethod
-    def roll_standard_die(sides: int) -> int:
+    def roll_standard_die(sides: int, rng=None) -> int:
         """Roll a standard die with given number of sides."""
         from .debug_logger import get_debug_logger
 
-        result = random.randint(1, sides)
+        result = _randint(rng, 1, sides)
         logger = get_debug_logger()
         logger.log_roll(f"1d{sides}", result)
         return result
 
     @staticmethod
-    def roll_percentile_die() -> Tuple[int, int, int]:
+    def roll_percentile_die(rng=None) -> Tuple[int, int, int]:
         """
         Roll percentile dice and return (total_value, tens_die, ones_die).
         """
         from .debug_logger import get_debug_logger
 
-        tens_die = random.randint(0, 9) * 10  # 0, 10, 20, ..., 90
-        ones_die = random.randint(0, 9)  # 0, 1, 2, ..., 9
+        tens_die = _randint(rng, 0, 9) * 10  # 0, 10, 20, ..., 90
+        ones_die = _randint(rng, 0, 9)       # 0, 1, 2, ..., 9
         total = tens_die + ones_die
         # Handle the special case where 00 + 0 = 100 (not 0)
         if total == 0:
