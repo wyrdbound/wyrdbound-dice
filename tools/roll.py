@@ -9,10 +9,13 @@ Examples:
   roll.py "1d20" --json          # Output as JSON
   roll.py "1d6" -n 5 --json      # Multiple rolls as JSON array
   roll.py "2d6 + 3" --debug      # Show debug logging
+  roll.py "1d20" --seed 42       # Reproducible roll
+  roll.py "1d6" -n 3 --seed 42   # Reproducible batch
 """
 
 import argparse
 import json
+import random
 import sys
 from pathlib import Path
 
@@ -37,8 +40,19 @@ parser.add_argument(
     action="store_true",
     help="Enable debug logging to see detailed parsing and rolling steps",
 )
+parser.add_argument(
+    "--seed",
+    type=int,
+    default=None,
+    metavar="N",
+    help="Integer seed for reproducible rolls (e.g. --seed 42)",
+)
 
 args = parser.parse_args()
+
+# Build rng from seed if provided; a fresh Random(seed) is used per-run so
+# --count N with --seed produces a deterministic sequence across all N rolls.
+rng = random.Random(args.seed) if args.seed is not None else None
 
 try:
     results = []
@@ -47,10 +61,12 @@ try:
         # For JSON output with debug, use StringLogger to capture debug info
         if args.json and args.debug:
             string_logger = StringLogger()
-            result = Dice.roll(args.expression, debug=args.debug, logger=string_logger)
+            result = Dice.roll(
+                args.expression, debug=args.debug, logger=string_logger, rng=rng
+            )
             debug_output = string_logger.get_logs()
         else:
-            result = Dice.roll(args.expression, debug=args.debug)
+            result = Dice.roll(args.expression, debug=args.debug, rng=rng)
             debug_output = None
 
         if args.json:
@@ -68,11 +84,17 @@ try:
     # Output JSON if requested
     if args.json:
         if args.count == 1:
-            # Single roll: return just the object
-            print(json.dumps(results[0], indent=2))
+            # Single roll: return object, include seed if provided
+            output = results[0]
+            if args.seed is not None:
+                output["seed"] = args.seed
+            print(json.dumps(output, indent=2))
         else:
-            # Multiple rolls: return array
-            print(json.dumps(results, indent=2))
+            # Multiple rolls: wrap in object with seed when provided
+            if args.seed is not None:
+                print(json.dumps({"seed": args.seed, "results": results}, indent=2))
+            else:
+                print(json.dumps(results, indent=2))
 
     exit(0)
 

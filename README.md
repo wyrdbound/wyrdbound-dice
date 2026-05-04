@@ -510,6 +510,91 @@ When using `--json --debug`, the debug output is captured and included in the JS
 
 Debug messages are prefixed with `DEBUG:` and use structured labels like `[START]`, `[TOKENIZING]`, `[PARSING]`, etc. This makes it easy to follow the progression through the dice rolling engine and identify where issues might occur.
 
+## RNG Injection
+
+By default, `Dice.roll()` uses Python's stdlib random module, producing non-deterministic results. You can supply your own random number source via the `rng=` parameter — any object with a `random()` method returning a float in `[0.0, 1.0)` is accepted (duck-typed).
+
+### Seeded Rolls
+
+```python
+import random
+from wyrdbound_dice import Dice
+
+# Same seed always produces the same result
+rng = random.Random(42)
+result = Dice.roll("2d6 + 3", rng=rng)
+print(result)  # e.g., "11 = 8 (2d6: 5, 3) + 3"
+
+# Replay identically
+result2 = Dice.roll("2d6 + 3", rng=random.Random(42))
+assert result.total == result2.total  # always True
+```
+
+### Deterministic Testing with Mock RNG
+
+```python
+from unittest.mock import Mock
+from wyrdbound_dice import Dice
+
+# Pin every die to its maximum
+max_rng = Mock()
+max_rng.random.return_value = 0.9999
+result = Dice.roll("1d6", rng=max_rng)
+assert result.total == 6
+
+# Control a sequence of rolls
+values = iter([0.9, 0.1, 0.5])  # Controls each die in order
+seq_rng = Mock()
+seq_rng.random.side_effect = lambda: next(values)
+result = Dice.roll("3d6", rng=seq_rng)  # rolls: 6, 1, 3 → total 10
+assert result.total == 10
+```
+
+### Modifier Propagation
+
+When a modifier is itself a dice expression, the same `rng` is used — the entire call is reproducible from one seed:
+
+```python
+import random
+from wyrdbound_dice import Dice
+
+rng = random.Random(7)
+result = Dice.roll("1d20", modifiers={"Bless": "1d4"}, rng=rng)
+# Both the d20 and the Bless d4 use the same rng sequence
+```
+
+### CLI: `--seed`
+
+```bash
+# Same seed → same result every time
+python tools/roll.py "2d6 + 3" --seed 42
+# 11 = 8 (2d6: 5, 3) + 3
+
+# JSON output includes seed
+python tools/roll.py "1d20" --seed 42 --json
+# {"result": 14, "description": "14 = 14 (1d20: 14)", "seed": 42}
+
+# Reproducible batch
+python tools/roll.py "4d6kh3" --seed 42 --count 6
+```
+
+### Thread Safety
+
+Do not share a single `rng` instance across threads. Each thread should create its own:
+
+```python
+import random, threading
+from wyrdbound_dice import Dice
+
+def roll_in_thread(seed):
+    rng = random.Random(seed)  # per-thread rng — safe
+    print(Dice.roll("2d6", rng=rng).total)
+
+threads = [threading.Thread(target=roll_in_thread, args=(i,)) for i in range(10)]
+for t in threads: t.start()
+for t in threads: t.join()
+```
+
 ## Development
 
 ### Setting Up Development Environment

@@ -108,12 +108,12 @@ Note: T003–T019 all write functions into `tests/test_dice_rng.py` and are ther
 
 **Purpose**: CLI `--seed` flag, concurrent safety verification, documentation, and final regression.
 
-- [ ] T028 Add `--seed` integer argument to `tools/roll.py`; when provided, construct `random.Random(args.seed)` and pass as `rng=` to `Dice.roll()`; for single-roll JSON include `"seed": args.seed` alongside `"result"` and `"description"`; for multi-roll JSON (`--count N`) wrap results in `{"seed": N, "results": [...]}`
-- [ ] T029 [P] Update docstrings for `Dice.roll()`, `DiceRoller.roll_standard_die()`, `DiceRoller.roll_fudge_die()`, `DiceRoller.roll_percentile_die()`, and `RollModifier.roll()` to document the `rng` parameter in `src/wyrdbound_dice/dice.py`
-- [ ] T030 [P] Update `README.md`: add "RNG Injection" subsection under Debug Logging with a seeded roll example, a mock testing example, and the `--seed` CLI example from `specs/001-dice-rolling-library/quickstart.md`
-- [ ] T031 [P] Add entry under `[Unreleased]` in `CHANGELOG.md`: `feat: Add rng= parameter to Dice.roll() for reproducible, testable dice rolling`
-- [ ] T032 Write failing test `test_concurrent_rng_safety` in `tests/test_dice_rng.py`: use `concurrent.futures.ThreadPoolExecutor(max_workers=20)` to submit 1000 calls of `Dice.roll("2d6", rng=random.Random(i))` each with a unique per-thread seed `i`; assert all 1000 results are `RollResultSet` instances with `.total` in `[2, 12]` and that no exceptions were raised — verifying SC-006 with the new rng parameter
-- [ ] T033 Run `python -m pytest tests/ -v --cov=wyrdbound_dice` and confirm all tests pass; then run `black src/ tests/ tools/`, `isort src/ tests/ tools/`, `ruff check src/ tests/ tools/` and resolve any issues before committing
+- [x] T028 Add `--seed` integer argument to `tools/roll.py`; when provided, construct `random.Random(args.seed)` and pass as `rng=` to `Dice.roll()`; for single-roll JSON include `"seed": args.seed` alongside `"result"` and `"description"`; for multi-roll JSON (`--count N`) wrap results in `{"seed": N, "results": [...]}`
+- [x] T029 [P] Update docstrings for `Dice.roll()`, `DiceRoller.roll_standard_die()`, `DiceRoller.roll_fudge_die()`, `DiceRoller.roll_percentile_die()`, and `RollModifier.roll()` to document the `rng` parameter in `src/wyrdbound_dice/dice.py`
+- [x] T030 [P] Update `README.md`: add "RNG Injection" subsection under Debug Logging with a seeded roll example, a mock testing example, and the `--seed` CLI example from `specs/001-dice-rolling-library/quickstart.md`
+- [x] T031 [P] Add entry under `[Unreleased]` in `CHANGELOG.md`: `feat: Add rng= parameter to Dice.roll() for reproducible, testable dice rolling`
+- [x] T032 Write failing test `test_concurrent_rng_safety` in `tests/test_dice_rng.py`: use `concurrent.futures.ThreadPoolExecutor(max_workers=20)` to submit 1000 calls of `Dice.roll("2d6", rng=random.Random(i))` each with a unique per-thread seed `i`; assert all 1000 results are `RollResultSet` instances with `.total` in `[2, 12]` and that no exceptions were raised — verifying SC-006 with the new rng parameter
+- [x] T033 Run `python -m pytest tests/ -v --cov=wyrdbound_dice` and confirm all tests pass; then run `black src/ tests/ tools/`, `isort src/ tests/ tools/`, `ruff check src/ tests/ tools/` and resolve any issues before committing
 
 **Checkpoint**: All tests green, linting clean, docs updated, CLI enhanced, thread safety verified. Feature complete.
 
