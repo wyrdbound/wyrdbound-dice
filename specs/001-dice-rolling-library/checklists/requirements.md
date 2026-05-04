@@ -32,26 +32,29 @@
 ## Validation Notes
 
 **Content Quality**:
+
 - ✅ Specification describes WHAT the library does and WHY users need it
 - ✅ User stories are prioritized and independently testable
 - ✅ No technology stack, framework, or API details in requirements
 - ✅ Written for players and GMs, not developers
 
 **Requirement Completeness**:
+
 - ✅ All 22 functional requirements are testable against existing test suite
 - ✅ Edge cases cover zero dice, negative dice, division by zero, infinite conditions
 - ✅ Success criteria are measurable (1ms roll time, 100ms CLI startup, 1000+ concurrent)
 - ✅ No NEEDS CLARIFICATION markers - all aspects documented from existing code
 
 **Feature Readiness**:
-- ✅ Each user story maps to existing test files (test_dice.py, test_dice_*.py)
+
+- ✅ Each user story maps to existing test files (test*dice.py, test_dice*\*.py)
 - ✅ User scenarios cover all 8 priority levels from basic rolling to named modifiers
 - ✅ Success criteria align with README claims and test coverage
 - ✅ Specification captures existing functionality without implementation leakage
 
 ## Notes
 
-- This specification documents EXISTING functionality of wyrdbound-dice v0.0.2
+- This specification documents EXISTING functionality of wyrdbound-dice v0.0.3
 - All requirements verified against: README.md, source code, test files, CLI tools
 - Specification serves as documentation for agentic work going forward
 - Ready for any future enhancement planning via `/speckit.plan`

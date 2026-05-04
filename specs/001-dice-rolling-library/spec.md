@@ -222,6 +222,6 @@ As a player, I want to apply named modifiers like "Strength", "Proficiency", or 
 - Thread safety is achieved through avoiding global mutable state during rolling
 - Debug logging follows Python's standard logging interface for compatibility
 - CLI tools are optional utilities, not core library functionality
-- Package is experimental and in active development (v0.0.2)
+- Package is experimental and in active development (v0.0.3)
 - Users understand that vibe coding approach means rapid iteration with strong test coverage
 - RNG injection uses duck typing: any object with a `random()` method returning a float in [0.0, 1.0) is a valid `rng` argument; no formal interface, base class, or registration is required
