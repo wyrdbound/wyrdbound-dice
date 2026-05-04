@@ -28,7 +28,7 @@ SHORTHAND_EXPANSIONS = {
 COMPARISON_OPERATORS = {
     "<": lambda a, b: a < b,
     "<=": lambda a, b: a <= b,
-    ">":  lambda a, b: a > b,
+    ">": lambda a, b: a > b,
     ">=": lambda a, b: a >= b,
     "=": lambda a, b: a == b,
 }
@@ -84,9 +84,10 @@ class RollModifier:
         """Roll the modifier if it's a dice expression.
 
         Args:
-            dice_class: The Dice class used to roll dice expressions.
-            rng: Optional random number source propagated from the parent
-                ``Dice.roll()`` call so the entire invocation is reproducible.
+            dice_class: The Dice class used to evaluate dice expressions.
+            rng: Optional random number source propagated from the enclosing
+                ``Dice.roll()`` call. Passing the same ``rng`` instance ensures
+                modifier dice are part of the same reproducible sequence.
         """
         if not self.is_dice or self.dice_result is not None:
             return
@@ -414,7 +415,9 @@ class Dice:
                     value, reroll_cmp, target, cls._cmp_funcs
                 ) and (max_rerolls is None or count < max_rerolls):
                     count += 1
-                    value, tens_roll, ones_roll = DiceRoller.roll_percentile_die(rng=rng)
+                    value, tens_roll, ones_roll = DiceRoller.roll_percentile_die(
+                        rng=rng
+                    )
                     all_rolls.append((tens_roll, ones_roll))
 
             # Handle exploding dice (not applicable to fudge or percentile
@@ -691,11 +694,13 @@ class Dice:
 
         logger.log_step("EVALUATING", "Evaluating parsed expression")
 
-        # Evaluate the expression. The parser calls dice_class._roll_single_dice_expression_from_string
+        # Evaluate the expression. The parser calls
+        # dice_class._roll_single_dice_expression_from_string
         # so we pass a thin proxy that closes over rng.
         class _DiceProxy:
             """Proxy that forwards all attribute access to cls, but binds rng
             into _roll_single_dice_expression_from_string."""
+
             def __getattr__(self, name):
                 return getattr(cls, name)
 
@@ -991,7 +996,12 @@ class DiceRoller:
 
     @staticmethod
     def roll_fudge_die(rng=None) -> Tuple[int, int]:
-        """Roll a fudge die and return (display_value, effective_value)."""
+        """Roll a fudge die and return (display_value, effective_value).
+
+        Args:
+            rng: Optional random number source. Any object with a
+                ``random() -> float`` method. When None, stdlib random is used.
+        """
         from .debug_logger import get_debug_logger
 
         raw_value = _randint(rng, 1, 6)
@@ -1009,7 +1019,13 @@ class DiceRoller:
 
     @staticmethod
     def roll_standard_die(sides: int, rng=None) -> int:
-        """Roll a standard die with given number of sides."""
+        """Roll a standard die with given number of sides.
+
+        Args:
+            sides: Number of faces on the die.
+            rng: Optional random number source. Any object with a
+                ``random() -> float`` method. When None, stdlib random is used.
+        """
         from .debug_logger import get_debug_logger
 
         result = _randint(rng, 1, sides)
@@ -1019,13 +1035,16 @@ class DiceRoller:
 
     @staticmethod
     def roll_percentile_die(rng=None) -> Tuple[int, int, int]:
-        """
-        Roll percentile dice and return (total_value, tens_die, ones_die).
+        """Roll percentile dice and return (total_value, tens_die, ones_die).
+
+        Args:
+            rng: Optional random number source. Any object with a
+                ``random() -> float`` method. When None, stdlib random is used.
         """
         from .debug_logger import get_debug_logger
 
         tens_die = _randint(rng, 0, 9) * 10  # 0, 10, 20, ..., 90
-        ones_die = _randint(rng, 0, 9)       # 0, 1, 2, ..., 9
+        ones_die = _randint(rng, 0, 9)  # 0, 1, 2, ..., 9
         total = tens_die + ones_die
         # Handle the special case where 00 + 0 = 100 (not 0)
         if total == 0:
