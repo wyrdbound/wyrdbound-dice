@@ -5,6 +5,14 @@
 **Status**: Implemented (Documentation)  
 **Input**: Document existing wyrdbound-dice repository codebase
 
+## Clarifications
+
+### Session 2026-05-03
+
+- Q: How should RNG be injectable into `Dice.roll()`? → A: Add `rng=None` parameter — full signature `Dice.roll(expression, modifiers=None, rng=None)` — where `rng` is duck-typed to any object with a `random()` method, defaulting to stdlib random. Backward-compatible: existing callers unaffected.
+- Q: Should GOODFLUX and BADFLUX be included in the system shorthands spec? → A: Yes — add to FR-011; they are fully implemented, tested, and documented.
+- Q: Should the `rng` parameter propagate to nested modifier dice rolls? → A: Yes — the entire `Dice.roll()` call, including all modifier dice expressions, uses the same `rng` instance for end-to-end reproducibility.
+
 ## User Scenarios & Testing
 
 ### User Story 1 - Basic Dice Rolling (Priority: P1)
@@ -104,7 +112,7 @@ As a Fate Core player, I want to roll Fudge dice (dF) so that I can play Fate Ac
 
 ### User Story 7 - System Shorthands (Priority: P7)
 
-As a multi-system player, I want to use shorthand expressions like "FUDGE", "BOON", "BANE", and "FLUX" so that I can quickly roll common patterns from different game systems.
+As a multi-system player, I want to use shorthand expressions like "FUDGE", "BOON", "BANE", "FLUX", "GOODFLUX", and "BADFLUX" so that I can quickly roll common patterns from different game systems.
 
 **Why this priority**: Shorthands improve usability for players who frequently use specific mechanics from Traveller, Fate, and other systems.
 
@@ -115,6 +123,8 @@ As a multi-system player, I want to use shorthand expressions like "FUDGE", "BOO
 1. **Given** a user enters "FUDGE", **When** the roll is executed, **Then** it rolls 4dF
 2. **Given** a user enters "BOON", **When** the roll is executed, **Then** it rolls 3d6kh2 (Traveller advantage)
 3. **Given** a user enters "FLUX", **When** the roll is executed, **Then** it rolls 1d6 - 1d6
+4. **Given** a user enters "GOODFLUX", **When** the roll is executed, **Then** it rolls 2d6 and returns highest minus lowest (always ≥ 0)
+5. **Given** a user enters "BADFLUX", **When** the roll is executed, **Then** it rolls 2d6 and returns lowest minus highest (always ≤ 0)
 
 ---
 
@@ -130,6 +140,7 @@ As a player, I want to apply named modifiers like "Strength", "Proficiency", or 
 
 1. **Given** a user rolls "1d20" with modifiers {"Strength": 3}, **When** the roll is executed, **Then** the result shows "+ 3 (Strength)"
 2. **Given** a user rolls "1d20" with modifiers {"Bless": "1d4"}, **When** the roll is executed, **Then** a d4 is rolled and labeled as "Bless"
+3. **Given** a user rolls with a seeded `rng` and modifiers containing dice expressions, **When** the same `rng` seed is replayed, **Then** the total result and all modifier rolls are identical
 
 ---
 
@@ -158,7 +169,7 @@ As a player, I want to apply named modifiers like "Strength", "Proficiency", or 
 - **FR-008**: System MUST support limited rerolls (r1, r2, r3 for number of rerolls allowed)
 - **FR-009**: System MUST support exploding dice on maximum (e) and custom thresholds (e>=, e<=, e=)
 - **FR-010**: System MUST support Fudge dice (dF) with results -, B, + mapping to -1, 0, +1
-- **FR-011**: System MUST support system shorthands: FUDGE, BOON, BANE, FLUX, PERC, PERCENTILE
+- **FR-011**: System MUST support system shorthands: FUDGE, BOON, BANE, FLUX, GOODFLUX, BADFLUX, PERC, PERCENTILE
 - **FR-012**: System MUST accept named modifiers as dictionary with string keys and int or dice expression values
 - **FR-013**: System MUST return structured results including total, individual rolls, all rolls (including rerolls/explosions), and human-readable description
 - **FR-014**: System MUST provide CLI tool for rolling dice expressions from command line
@@ -170,6 +181,11 @@ As a player, I want to apply named modifiers like "Strength", "Proficiency", or 
 - **FR-020**: System MUST raise InfiniteConditionError for impossible reroll/explode conditions
 - **FR-021**: System MUST support Unicode operators (×, ÷, −) and fullwidth character normalization
 - **FR-022**: System MUST support zero dice (0d6 returns 0) and negative dice (-1d6 returns negative result)
+- **FR-023**: `Dice.roll()` MUST accept an optional `rng=None` parameter; when supplied, the provided object's `random()` method is used as the source of randomness for all dice in that call
+- **FR-024**: The `rng` parameter MUST accept any object with a `random()` method returning a float in [0.0, 1.0) — no base class or formal interface required (duck-typed)
+- **FR-025**: When `rng=None`, system MUST fall back to standard library random behavior — all existing callers with no `rng` argument MUST be unaffected
+- **FR-026**: The top-level `roll()` convenience function MUST expose the same `rng=` parameter as `Dice.roll()`
+- **FR-027**: When `rng` is supplied, it MUST be propagated to all dice rolls within that call, including dice expressions inside named modifiers, such that the entire `Dice.roll()` invocation is reproducible from a single seeded `rng` instance
 
 ### Key Entities
 
@@ -182,6 +198,7 @@ As a player, I want to apply named modifiers like "Strength", "Proficiency", or 
 - **ExpressionToken**: Represents a single token (dice, number, operator, etc.)
 - **DebugLogger**: Provides structured debug logging infrastructure
 - **StringLogger**: In-memory logger for testing and API capture
+- **RNG Protocol**: Any object implementing `random() -> float` in [0.0, 1.0); used to inject seeded, deterministic, or mock randomness per call
 
 ## Success Criteria
 
@@ -195,6 +212,7 @@ As a player, I want to apply named modifiers like "Strength", "Proficiency", or 
 - **SC-006**: System handles 1000+ concurrent rolls without thread safety issues
 - **SC-007**: Error messages clearly indicate the problem and how to fix invalid expressions
 - **SC-008**: Library has zero external dependencies for core functionality
+- **SC-009**: Given a seeded `rng`, repeated calls to `Dice.roll()` with identical expressions and modifiers produce identical results, including all modifier dice
 
 ## Assumptions
 
@@ -206,4 +224,4 @@ As a player, I want to apply named modifiers like "Strength", "Proficiency", or 
 - CLI tools are optional utilities, not core library functionality
 - Package is experimental and in active development (v0.0.2)
 - Users understand that vibe coding approach means rapid iteration with strong test coverage
-- RNG (random number generation) is pluggable for testing and deterministic results
+- RNG injection uses duck typing: any object with a `random()` method returning a float in [0.0, 1.0) is a valid `rng` argument; no formal interface, base class, or registration is required
