@@ -63,7 +63,7 @@ src/wyrdbound_dice/
 │                           DiceRoller.roll_standard_die,
 │                           DiceRoller.roll_fudge_die,
 │                           DiceRoller.roll_percentile_die
-└── roll_result.py       ← RollModifier.roll, RollResultSet.__init__
+└── dice.py              ← also: RollModifier.roll, RollResultSet.__init__
 
 tools/
 └── roll.py              ← Add --seed flag
