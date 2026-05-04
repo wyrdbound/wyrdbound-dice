@@ -80,10 +80,11 @@ All code must be debuggable and observable:
 ### Git Branching & Commits
 - **Feature branches**: `feature/description` or `fix/description`
 - **Sequential numbering**: Use Spec Kit's sequential branch numbering
-- **Conventional commits REQUIRED**: Format `[TYPE] high-level description`
-  - Examples: `[FEATURE] Add success counting for World of Darkness`, `[FIX] Resolve reroll chain edge case`, `[CHORE] Update dependencies`
+- **Conventional commits REQUIRED**: Format `<type>[optional scope]: <description>`
+  - Examples: `feat: Add success counting for World of Darkness`, `fix(parser): Resolve reroll chain edge case`, `chore: Update dependencies`
   - **NO itemized lists**: Commit messages must be single high-level descriptions, not bullet lists of changes
-  - Types: `FEATURE`, `FIX`, `CHORE`, `DOCS`, `TEST`, `REFACTOR`, `CI`
+  - Types: `feat`, `fix`, `chore`, `docs`, `test`, `refactor`, `perf`, `ci`, `build`, `style`
+  - Breaking changes: Append `!` before colon or add `BREAKING CHANGE:` footer
 - **PR templates**: Follow `.github/pull_request_template.md`
 
 ### Code Review Checklist
