@@ -358,7 +358,7 @@ rendered changes.
   and `g.subtotal == sum(d.value for d in g.dice if d.kept)`.
   *Accept:* fails with `AttributeError`.
 
-- [ ] **T021** [P] [US2] Append failing `test_breakdown_kinds`: `"4dF"` →
+- [x] **T021** [P] [US2] Append failing `test_breakdown_kinds`: `"4dF"` →
   `kind == "fudge"`; `"1d%"` → `"percentile"`; `"2d6"` → `"standard"`.
   *Accept:* fails with `AttributeError`.
 

@@ -98,3 +98,9 @@ def test_roll_result_breakdown_shape():
     assert sum(1 for d in g.dice if not d.kept) == 1
     assert g.keep_operations == (("h", 3),)
     assert g.subtotal == sum(d.value for d in g.dice if d.kept)
+
+
+def test_breakdown_kinds():
+    assert roll("4dF").results[0].breakdown.kind == "fudge"
+    assert roll("1d%").results[0].breakdown.kind == "percentile"
+    assert roll("2d6").results[0].breakdown.kind == "standard"
