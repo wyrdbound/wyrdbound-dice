@@ -350,7 +350,7 @@ rendered changes.
   `dataclasses.FrozenInstanceError`.
   *Accept:* fails with `ImportError`.
 
-- [ ] **T020** [P] [US2] Append failing `test_roll_result_breakdown_shape`: roll
+- [x] **T020** [P] [US2] Append failing `test_roll_result_breakdown_shape`: roll
   `"4d6kh3"` seed 42; `g = result.results[0].breakdown`; assert
   `isinstance(g, DiceGroup)`, `g.num == 4`, `g.sides == "6"`,
   `g.kind == "standard"`, `len(g.dice) == 4`,
