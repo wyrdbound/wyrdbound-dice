@@ -325,7 +325,7 @@ reconstruct-provenance trap before starting.
   the trace. **`all_rolls` is not touched** (rule 3).
   *Accept:* T010 and T011 pass once T017 lands.
 
-- [ ] **T017** [US2] Pass `dice_traces=dice_traces` to the `RollResult(...)`
+- [x] **T017** [US2] Pass `dice_traces=dice_traces` to the `RollResult(...)`
   constructor at the end of `_roll_single_dice_expression`.
   *Accept:* T010 and T011 pass.
 

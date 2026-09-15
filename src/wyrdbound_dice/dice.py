@@ -506,6 +506,7 @@ class Dice:
             is_percentile=is_percentile,
             keep_operations=keep_operations,
             drop_operations=drop_operations,
+            dice_traces=dice_traces,
         )
 
     @classmethod
