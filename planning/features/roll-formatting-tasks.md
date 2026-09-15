@@ -1,7 +1,7 @@
 # Roll Formatting — the breakdown, the formatter, and the byte-identical gate
 
-**Status:** Phase 2 complete (T008–T018 done; 267 passing, checkpoint 2 patch
-bump to 0.0.5). Phase 3 next.
+**Status:** Phase 3 complete (T019–T030 done; 272 passing, 1 xfail, checkpoint 3
+patch bump to 0.0.6). Phase 4 next.
 **Source design:** `planning/features/roll-formatting.md` (v0.1; §N references
 below are into that document). `AGENTS.md` — the constitution summary and the
 Verification Contract — is binding on every task here.
@@ -416,7 +416,7 @@ rendered changes.
   `DiceNode`, `UnaryOp`, `BinaryOp`.
   *Accept:* `python -c "import sys; sys.path.insert(0,'src'); from wyrdbound_dice import RollBreakdown, Die"`.
 
-- [ ] **T030** [US2] Run `python -m pytest tests/ -q` and `black`/`isort`/`ruff`.
+- [x] **T030** [US2] Run `python -m pytest tests/ -q` and `black`/`isort`/`ruff`.
   *Accept:* T019–T023 green, T028 xfails, snapshots green.
 
 **Checkpoint 3.** Per-phase gate. Patch bump.
