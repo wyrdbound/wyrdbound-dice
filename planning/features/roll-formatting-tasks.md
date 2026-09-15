@@ -536,7 +536,7 @@ Proving the renderer in isolation is what makes Phase 5 survivable.
   `@runtime_checkable`) with a single `format(self, breakdown: RollBreakdown) -> str`.
   *Accept:* the second half of T043 passes.
 
-- [ ] **T047** [US3] Implement `DefaultFormatter.__init__`, `format_die` and
+- [x] **T047** [US3] Implement `DefaultFormatter.__init__`, `format_die` and
   `format_group`. `format_die`: for `kind == "fudge"` map each raw face through
   `fudge_symbols` at the existing thresholds (`<= 2` → 0, `<= 4` → 1, else 2);
   for `"percentile"` render `f"[{tens:02d}, {ones}]"` under `PAIR` — matching
