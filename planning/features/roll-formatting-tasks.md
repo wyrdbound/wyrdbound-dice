@@ -254,7 +254,7 @@ rendered strings (§2) — this phase is why the rest of the list is safe.
 and which die was dropped. Additive only; nothing rendered changes. Read the
 reconstruct-provenance trap before starting.
 
-- [ ] **T008** [P] [US2] Create `tests/test_breakdown.py` with a module
+- [x] **T008** [P] [US2] Create `tests/test_breakdown.py` with a module
   docstring, imports (`random`, `pytest`, `from wyrdbound_dice import Dice`),
   and a helper `roll(expr, seed=42, **kw)` returning
   `Dice.roll(expr, rng=random.Random(seed), **kw)`.
