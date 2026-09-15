@@ -494,7 +494,7 @@ Proving the renderer in isolation is what makes Phase 5 survivable.
   → `"8 (6, 2)"`.
   *Accept:* fails with `ImportError`.
 
-- [ ] **T040** [P] [US4] Write failing `test_fudge_symbols`: `fudge_group()`
+- [x] **T040** [P] [US4] Write failing `test_fudge_symbols`: `fudge_group()`
   renders `"-, B, +"` by default and `"-, 0, +"` with
   `fudge_symbols=("-", "0", "+")`.
   *Accept:* fails with `ImportError`.
