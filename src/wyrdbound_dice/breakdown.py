@@ -106,3 +106,85 @@ class RollBreakdown:
     total: int
     expression: str = ""
     modifiers: Tuple[ModifierBreakdown, ...] = ()
+
+    def to_dict(self):
+        """Return a JSON-serialisable dict of this breakdown.
+
+        No enums, tuples or dataclasses survive into the output, so the result
+        can be passed straight to :func:`json.dumps` without a custom encoder.
+        """
+        return {
+            "root": _node_to_dict(self.root),
+            "total": self.total,
+            "expression": self.expression,
+            "modifiers": [_modifier_to_dict(modifier) for modifier in self.modifiers],
+        }
+
+
+def _die_to_dict(die):
+    """Serialise one :class:`Die`."""
+    return {
+        "value": die.value,
+        "faces": [_face_to_dict(face) for face in die.faces],
+        "sources": list(die.sources),
+        "kept": die.kept,
+    }
+
+
+def _face_to_dict(face):
+    """Serialise one face, expanding percentile tuples into lists."""
+    if isinstance(face, tuple):
+        return list(face)
+    return face
+
+
+def _group_to_dict(group):
+    """Serialise one :class:`DiceGroup`."""
+    return {
+        "num": group.num,
+        "sides": group.sides,
+        "kind": group.kind,
+        "notation": group.notation,
+        "dice": [_die_to_dict(die) for die in group.dice],
+        "keep_operations": [list(op) for op in group.keep_operations],
+        "drop_operations": [list(op) for op in group.drop_operations],
+        "reroll": list(group.reroll) if group.reroll is not None else None,
+        "explode": list(group.explode) if group.explode is not None else None,
+        "subtotal": group.subtotal,
+        "total": group.total,
+    }
+
+
+def _modifier_to_dict(modifier):
+    """Serialise one :class:`ModifierBreakdown`."""
+    return {
+        "name": modifier.name,
+        "value": modifier.value,
+        "nested": (
+            _group_to_dict(modifier.nested) if modifier.nested is not None else None
+        ),
+    }
+
+
+def _node_to_dict(node):
+    """Serialise an expression-tree node, tagged by its ``type``."""
+    if isinstance(node, Literal):
+        return {"type": "literal", "value": node.value}
+    if isinstance(node, DiceNode):
+        return {"type": "dice", "group": _group_to_dict(node.group)}
+    if isinstance(node, UnaryOp):
+        return {
+            "type": "unary",
+            "op": node.op,
+            "operand": _node_to_dict(node.operand),
+            "value": node.value,
+        }
+    if isinstance(node, BinaryOp):
+        return {
+            "type": "binary",
+            "left": _node_to_dict(node.left),
+            "op": node.op,
+            "right": _node_to_dict(node.right),
+            "value": node.value,
+        }
+    raise TypeError("unknown node type: {!r}".format(type(node).__name__))
