@@ -95,7 +95,7 @@ class ModifierBreakdown:
 
     name: str = ""
     value: int = 0
-    nested: Optional[DiceGroup] = None
+    nested: Optional["RollBreakdown"] = None
 
 
 @dataclass(frozen=True)
@@ -157,12 +157,14 @@ def _group_to_dict(group):
 
 def _modifier_to_dict(modifier):
     """Serialise one :class:`ModifierBreakdown`."""
+    if modifier.nested is not None:
+        nested = modifier.nested.to_dict()
+    else:
+        nested = None
     return {
         "name": modifier.name,
         "value": modifier.value,
-        "nested": (
-            _group_to_dict(modifier.nested) if modifier.nested is not None else None
-        ),
+        "nested": nested,
     }
 
 

@@ -558,7 +558,7 @@ Proving the renderer in isolation is what makes Phase 5 survivable.
   space (`-4`).
   *Accept:* T038 passes.
 
-- [ ] **T049** [US3] Implement `DefaultFormatter.format_modifier(modifier)`
+- [x] **T049** [US3] Implement `DefaultFormatter.format_modifier(modifier)`
   honouring `modifier_depth`: `0` → `f"{sign} {abs(value)}"`; `1` →
   `f"{sign} {abs(value)} ({name})"`, omitting the parenthesised part when `name`
   is empty; `2` → as `1` for a static modifier, and for a dice modifier

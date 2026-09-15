@@ -272,3 +272,54 @@ class DefaultFormatter:
         if precedence > parent_precedence:
             return False
         return is_right and node.op in ("-", "/")
+
+    def format_modifier(self, modifier) -> str:
+        """Render a named modifier honouring ``modifier_depth``.
+
+        ``0`` renders the value only; ``1`` adds the name; ``2`` additionally
+        renders a nested dice roll through the same layout. Above ``2`` behaves
+        as ``2``. The sign sits outside the value and the nested roll shows its
+        unsigned total, matching the established modifier output.
+
+        Args:
+            modifier: The :class:`~wyrdbound_dice.breakdown.ModifierBreakdown`
+                to render.
+        """
+        sign = "+" if modifier.value >= 0 else "-"
+        magnitude = abs(modifier.value)
+
+        if self.fmt.modifier_depth <= 0:
+            return "{} {}".format(sign, magnitude)
+
+        base = "{} {}".format(sign, magnitude)
+        if not modifier.name:
+            return base
+
+        if self.fmt.modifier_depth == 1 or modifier.nested is None:
+            return "{} ({})".format(base, modifier.name)
+
+        nested = self._render_nested(modifier.nested)
+        return "{} ({}: {})".format(base, modifier.name, nested)
+
+    def _render_nested(self, nested) -> str:
+        """Render a modifier's nested roll, accepting a breakdown or a group."""
+        if hasattr(nested, "root"):
+            return self._apply_layout(nested.total, nested, nested.expression)
+        return self.format_group(nested)
+
+    def _apply_layout(self, total, breakdown_obj, expression: str) -> str:
+        """Apply the layout template to already-rendered components.
+
+        Only the layout string is parsed by ``str.format``; the component text
+        is substituted in as literal output and never re-scanned. The breakdown
+        is not rendered at all when ``{breakdown}`` is absent.
+        """
+        if "{breakdown}" in self.fmt.layout:
+            body = self.format_node(breakdown_obj.root)
+            for modifier in breakdown_obj.modifiers:
+                body += " " + self.format_modifier(modifier)
+        else:
+            body = ""
+        return self.fmt.layout.format(
+            total=str(total), breakdown=body, expression=expression
+        )
