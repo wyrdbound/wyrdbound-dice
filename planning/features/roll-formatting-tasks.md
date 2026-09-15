@@ -581,7 +581,7 @@ Proving the renderer in isolation is what makes Phase 5 survivable.
   `self.fmt.layout.format(total=str(breakdown.total), breakdown=body, expression=breakdown.expression)`.
   *Accept:* T036 and T037 pass.
 
-- [ ] **T051** [P] [US3] In `src/wyrdbound_dice/__init__.py`, import and add to
+- [x] **T051** [P] [US3] In `src/wyrdbound_dice/__init__.py`, import and add to
   `__all__`: `RollFormat`, `Dropped`, `Percentile`, `Formatter`, `DefaultFormatter`.
   *Accept:* `python -c "import sys; sys.path.insert(0,'src'); from wyrdbound_dice import RollFormat, DefaultFormatter"`.
 
