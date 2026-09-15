@@ -481,7 +481,7 @@ Proving the renderer in isolation is what makes Phase 5 survivable.
   appear in the output and nothing raises. This is rule 8.
   *Accept:* fails with `ImportError`.
 
-- [ ] **T038** [P] [US4] Write failing `test_precedence_parenthesisation` over
+- [x] **T038** [P] [US4] Write failing `test_precedence_parenthesisation` over
   hand-built trees: `BinaryOp(BinaryOp(Literal(2), "+", Literal(3), 5), "x", Literal(2), 10)`
   → `"(2 + 3) x 2"`; `BinaryOp(Literal(10), "-", BinaryOp(Literal(2), "x", Literal(3), 6), 4)`
   → `"10 - 2 x 3"`; `BinaryOp(Literal(10), "-", BinaryOp(Literal(2), "-", Literal(3), -1), 11)`
