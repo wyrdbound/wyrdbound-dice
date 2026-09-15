@@ -203,7 +203,7 @@ def test_formatter_protocol_and_subclass():
             return "#"
 
     breakdown = RollBreakdown(root=DiceNode(simple_group()), total=8, expression="2d6")
-    assert HashFormatter().format(breakdown) == "8 (2d6: #, #)"
+    assert HashFormatter().format(breakdown) == "8 = 8 (2d6: #, #)"
 
     class Duck:
         def format(self, breakdown):
