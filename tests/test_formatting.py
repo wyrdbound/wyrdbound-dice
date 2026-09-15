@@ -87,6 +87,21 @@ def test_layout_arrangements():
         assert DefaultFormatter(RollFormat(layout=layout)).format(breakdown) == expected
 
 
+def test_layout_does_not_reparse_rendered_braces():
+    from wyrdbound_dice.breakdown import DiceNode, RollBreakdown
+    from wyrdbound_dice.formatting import DefaultFormatter, Dropped, RollFormat
+
+    breakdown = RollBreakdown(
+        root=DiceNode(keep_group()),
+        total=13,
+        expression="4d6kh3",
+    )
+    fmt = RollFormat(dropped=Dropped.MARKED, dropped_marker="{{{value}}}")
+    output = DefaultFormatter(fmt).format(breakdown)
+    assert "{1}" in output
+    assert "~" not in output
+
+
 def simple_group():
     """A plain 2d6 group: dice 6 and 2, both kept, subtotal 8."""
     return DiceGroup(

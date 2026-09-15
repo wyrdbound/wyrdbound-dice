@@ -475,7 +475,7 @@ Proving the renderer in isolation is what makes Phase 5 survivable.
 
   *Accept:* fails with `ImportError`.
 
-- [ ] **T037** [P] [US4] Write failing
+- [x] **T037** [P] [US4] Write failing
   `test_layout_does_not_reparse_rendered_braces`: default layout,
   `dropped_marker="{{{value}}}"`, format `keep_group()`; assert literal braces
   appear in the output and nothing raises. This is rule 8.
