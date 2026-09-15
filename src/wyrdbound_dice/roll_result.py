@@ -297,6 +297,7 @@ class RollResult:
         is_percentile: bool = False,
         keep_operations: Optional[List[Tuple]] = None,
         drop_operations: Optional[List[Tuple]] = None,
+        dice_traces: Optional[List[dict]] = None,
     ):
         # Basic attributes
         self.num = num
@@ -329,6 +330,18 @@ class RollResult:
 
         # Calculate kept and dropped dice
         self._calculate_kept_and_dropped()
+
+        # Per-die provenance. Results built without tracing (flux results take
+        # this path) synthesise one face per die so the shape is uniform.
+        if dice_traces is None:
+            faces_source = (
+                self.all_rolls if len(self.all_rolls) == len(self.rolls) else self.rolls
+            )
+            dice_traces = [
+                {"faces": [value], "sources": ["roll"], "value": value}
+                for value in faces_source
+            ]
+        self.dice_traces = dice_traces
 
     @property
     def subtotal(self) -> int:
