@@ -374,7 +374,7 @@ rendered changes.
 > **Gate.** `python -m pytest tests/test_breakdown.py -q` — T019–T023 fail with
 > `ImportError` or `AttributeError`.
 
-- [ ] **T024** [US2] Create `src/wyrdbound_dice/breakdown.py` with the
+- [x] **T024** [US2] Create `src/wyrdbound_dice/breakdown.py` with the
   dataclasses, the `Node` union alias and
   `PRECEDENCE = {"+": 1, "-": 1, "x": 2, "/": 2}` exactly as §3.2/§3.4 specify.
   All dataclasses `frozen=True`; sequence fields typed `Tuple[...]` with default
