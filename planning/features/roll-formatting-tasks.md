@@ -518,7 +518,7 @@ Proving the renderer in isolation is what makes Phase 5 survivable.
 > **Gate.** `python -m pytest tests/test_formatting.py -q` — T032–T043 all fail
 > with `ImportError`.
 
-- [ ] **T044** [US3] Create `src/wyrdbound_dice/formatting.py` with the `Dropped`
+- [x] **T044** [US3] Create `src/wyrdbound_dice/formatting.py` with the `Dropped`
   and `Percentile` enums and the frozen `RollFormat` dataclass exactly as §5
   specifies, including `layout`. Imports limited to `dataclasses`, `enum`,
   `typing`, `.breakdown`. **Do not define presets yet** — they land at T068.
