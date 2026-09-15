@@ -125,6 +125,36 @@ def test_precedence_parenthesisation():
         assert formatter.format_node(node) == expected
 
 
+def test_glyph_overrides():
+    from wyrdbound_dice.breakdown import BinaryOp, DiceNode, Literal, RollBreakdown
+    from wyrdbound_dice.formatting import DefaultFormatter, RollFormat
+
+    breakdown = RollBreakdown(
+        root=BinaryOp(DiceNode(simple_group()), "+", Literal(3), 11),
+        total=11,
+        expression="2d6 + 3",
+    )
+
+    multiply = RollBreakdown(
+        root=BinaryOp(DiceNode(simple_group()), "x", Literal(3), 24),
+        total=24,
+        expression="2d6 x 3",
+    )
+    out = DefaultFormatter(RollFormat(multiply_symbol="×")).format(multiply)
+    assert "×" in out
+    assert "x" not in out
+
+    fmt = DefaultFormatter(RollFormat(die_separator=" "))
+    assert fmt.format_group(simple_group()) == "8 (2d6: 6 2)"
+
+    fmt = DefaultFormatter(RollFormat(group_open="[", group_close="]"))
+    assert fmt.format_group(simple_group()) == "8 [2d6: 6, 2]"
+
+    fmt = DefaultFormatter(RollFormat(show_notation=False))
+    assert fmt.format_group(simple_group()) == "8 (6, 2)"
+    assert DefaultFormatter(RollFormat()).format(breakdown) is not None
+
+
 def simple_group():
     """A plain 2d6 group: dice 6 and 2, both kept, subtotal 8."""
     return DiceGroup(
