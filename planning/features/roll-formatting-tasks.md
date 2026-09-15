@@ -278,7 +278,7 @@ reconstruct-provenance trap before starting.
   `sources` is `"roll"`.
   *Accept:* fails with `AttributeError`.
 
-- [ ] **T012** [P] [US2] Write failing `test_kept_indices_handles_ties`:
+- [x] **T012** [P] [US2] Write failing `test_kept_indices_handles_ties`:
   construct `RollResult(4, "6", [3, 3, 5, 1], keep_operations=[("h", 2)])`
   directly from `wyrdbound_dice.roll_result`; assert `len(r.kept_indices) == 2`,
   `len(r.dropped_indices) == 2`, `2 in r.kept_indices`,
