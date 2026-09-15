@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `RollFormat`, a frozen options object holding every display choice (`layout` template, notation, dropped-dice handling, reroll display, modifier depth, separators, glyphs, Fudge symbols, percentile style) with construction-time layout validation
+- `DefaultFormatter` and the `Formatter` protocol: a subclassable renderer that folds over a roll breakdown, with `Dropped` and `Percentile` enums, all exported from the package root
 - Structured roll breakdown: `RollResult.breakdown` and `RollResultSet.breakdown` as frozen dataclasses (`DiceGroup`, `Die`, `RollBreakdown`, the expression-tree `Literal`/`DiceNode`/`UnaryOp`/`BinaryOp` nodes), exported from the package root, with a JSON-serialisable `RollBreakdown.to_dict()`
 - Per-die roll provenance: each `RollResult` now records `dice_traces` (faces, their `roll`/`reroll`/`explosion` source, and the die's value) alongside `all_rolls`
 - Index-based `kept_indices` / `dropped_indices` on `RollResult`, so a dropped die is unambiguous when two dice tie

@@ -1,7 +1,8 @@
 # Roll Formatting — the breakdown, the formatter, and the byte-identical gate
 
-**Status:** Phase 3 complete (T019–T030 done; 272 passing, 1 xfail, checkpoint 3
-patch bump to 0.0.6). Phase 4 next.
+**Status:** Phase 4 complete (T031–T052 done; 283 passing, 2 xfail — `T028` pending
+T059/T060 and `T037` pending T075; checkpoint 4 patch bump to 0.0.7). Phase 5
+next.
 **Source design:** `planning/features/roll-formatting.md` (v0.1; §N references
 below are into that document). `AGENTS.md` — the constitution summary and the
 Verification Contract — is binding on every task here.
@@ -483,8 +484,9 @@ Proving the renderer in isolation is what makes Phase 5 survivable.
 
   > **Note (maintainer decision, 2026-09-15).** The test is written and
   > committed. It cannot *pass* until `Dropped.MARKED` rendering lands at T075;
-  > it stays red until then. T050's original accept named T037 — that is a
-  > forward reference and does not block T050.
+  > it carries a strict `xfail` marker until then, mirroring the T028/T060
+  > pattern. **T075 must remove the marker.** T050's original accept named T037
+  > — that is a forward reference and does not block T050.
 
 - [x] **T038** [P] [US4] Write failing `test_precedence_parenthesisation` over
   hand-built trees: `BinaryOp(BinaryOp(Literal(2), "+", Literal(3), 5), "x", Literal(2), 10)`
@@ -585,7 +587,7 @@ Proving the renderer in isolation is what makes Phase 5 survivable.
   `__all__`: `RollFormat`, `Dropped`, `Percentile`, `Formatter`, `DefaultFormatter`.
   *Accept:* `python -c "import sys; sys.path.insert(0,'src'); from wyrdbound_dice import RollFormat, DefaultFormatter"`.
 
-- [ ] **T052** [US3] Run `python -m pytest tests/ -q` and `black`/`isort`/`ruff`.
+- [x] **T052** [US3] Run `python -m pytest tests/ -q` and `black`/`isort`/`ruff`.
   *Accept:* T032–T043 green; snapshots green (nothing is wired yet).
 
 **Checkpoint 4.** Per-phase gate. Patch bump.
@@ -769,7 +771,9 @@ through non-default formats, which is why this is a MINOR bump and not a MAJOR o
   **still renders every `"explosion"` face**, because they all contribute to the
   value. Document that asymmetry in the method docstring — it is the kind of rule
   that looks like a bug six months later.
-  *Accept:* T073 and T074 pass.
+  *Accept:* T073 and T074 pass, and the strict `xfail` marker on
+  `test_layout_does_not_reparse_rendered_braces` (added with T037) is removed so
+  the test passes for real.
 
 - [ ] **T076** [US4] Run `python -m pytest tests/ -q` and `black`/`isort`/`ruff`.
   *Accept:* snapshots **still green** — `SHOWN` and `show_rerolls=True` are the
