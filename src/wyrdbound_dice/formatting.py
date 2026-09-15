@@ -112,3 +112,88 @@ class Formatter(Protocol):
     def format(self, breakdown: RollBreakdown) -> str:
         """Render a roll breakdown to a string."""
         ...
+
+
+class DefaultFormatter:
+    """The standard renderer for a roll breakdown.
+
+    Subclass and override any of the ``format_*`` hooks to change part of the
+    output without reimplementing the whole fold.
+    """
+
+    def __init__(self, fmt: RollFormat = None) -> None:
+        """Store the format this formatter renders with.
+
+        Args:
+            fmt: The display options. Defaults to ``RollFormat()``.
+        """
+        self.fmt = fmt if fmt is not None else RollFormat()
+
+    def format_die(self, die, group) -> str:
+        """Render one die's faces, joined by ``die_separator``.
+
+        Fudge faces map through ``fudge_symbols`` at the raw thresholds
+        (``<= 2`` minus, ``<= 4`` blank, else plus). Percentile faces render as
+        a pair ``[tens, ones]`` or a single value per ``percentile``.
+
+        Args:
+            die: The :class:`~wyrdbound_dice.breakdown.Die` to render.
+            group: The group the die belongs to, for its ``kind``.
+        """
+        rendered = []
+        for face in die.faces:
+            if group.kind == "fudge":
+                if face <= 2:
+                    rendered.append(self.fmt.fudge_symbols[0])
+                elif face <= 4:
+                    rendered.append(self.fmt.fudge_symbols[1])
+                else:
+                    rendered.append(self.fmt.fudge_symbols[2])
+            elif group.kind == "percentile":
+                rendered.append(self._format_percentile_face(face))
+            else:
+                rendered.append(str(face))
+        return self.fmt.die_separator.join(rendered)
+
+    def _format_percentile_face(self, face) -> str:
+        """Render one percentile face as a pair or a single value."""
+        if self.fmt.percentile == Percentile.VALUE:
+            if isinstance(face, tuple) and len(face) == 2:
+                tens, ones = face
+                return str(tens + ones)
+            return str(face)
+
+        if isinstance(face, tuple) and len(face) == 2:
+            tens, ones = face
+            tens_str = "{}".format(tens).zfill(2) if tens < 100 else str(tens)
+            return "[{}, {}]".format(tens_str, ones)
+        return str(face)
+
+    def format_group(self, group) -> str:
+        """Render a dice group: total, notation and dice values.
+
+        Omits the notation and its separator when ``show_notation`` is False,
+        and omits the whole bracketed section when the group has no dice.
+
+        Args:
+            group: The :class:`~wyrdbound_dice.breakdown.DiceGroup` to render.
+        """
+        dice_text = self.fmt.die_separator.join(
+            self.format_die(die, group) for die in group.dice
+        )
+
+        if not group.dice:
+            return "{} {}{}{}".format(
+                group.total, self.fmt.group_open, group.notation, self.fmt.group_close
+            )
+
+        if self.fmt.show_notation:
+            inner = "{}{}{}".format(
+                group.notation, self.fmt.notation_separator, dice_text
+            )
+        else:
+            inner = dice_text
+
+        return "{} {}{}{}".format(
+            group.total, self.fmt.group_open, inner, self.fmt.group_close
+        )
