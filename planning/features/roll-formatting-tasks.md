@@ -289,7 +289,7 @@ reconstruct-provenance trap before starting.
 > **Gate.** Run `python -m pytest tests/test_breakdown.py -q`. T009–T012 must all
 > fail with `AttributeError`. Do not proceed until they do.
 
-- [ ] **T013** [US2] In `src/wyrdbound_dice/roll_result.py`, add four static
+- [x] **T013** [US2] In `src/wyrdbound_dice/roll_result.py`, add four static
   methods to `KeepOperationProcessor`: `apply_keep_operations_indexed`,
   `apply_drop_operations_indexed`, `apply_legacy_keep_indexed`, and a private
   `_sorted_pairs(rolls)` returning `sorted(enumerate(rolls), key=lambda p: p[1])`.
