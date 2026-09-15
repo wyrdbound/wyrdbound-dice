@@ -42,6 +42,23 @@ def test_rollformat_defaults():
         fmt.modifier_depth = 0
 
 
+def test_layout_validation():
+    from wyrdbound_dice.formatting import RollFormat
+
+    with pytest.raises(ValueError):
+        RollFormat(layout="no placeholders")
+    with pytest.raises(ValueError) as excinfo:
+        RollFormat(layout="{total} {bogus}")
+    message = str(excinfo.value)
+    assert "total" in message
+    assert "breakdown" in message
+    assert "expression" in message
+    with pytest.raises(ValueError):
+        RollFormat(layout="{}")
+    assert RollFormat(layout="{total}")
+    assert RollFormat(layout="{expression}")
+
+
 def simple_group():
     """A plain 2d6 group: dice 6 and 2, both kept, subtotal 8."""
     return DiceGroup(
