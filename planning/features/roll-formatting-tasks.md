@@ -207,7 +207,7 @@ rendered strings (§2) — this phase is why the rest of the list is safe.
   ```
   *Accept:* `python -c "import sys; sys.path.insert(0,'tests'); import format_corpus as c; print(len(c.EXPRESSIONS), len(c.MODIFIER_CASES))"` prints `62 7`.
 
-- [ ] **T003** [US1] Create `tools/gen_format_snapshots.py`. Insert `src` on
+- [x] **T003** [US1] Create `tools/gen_format_snapshots.py`. Insert `src` on
   `sys.path` the way `tools/roll.py` does, and `tests` as well. For each
   expression roll `Dice.roll(expr, rng=random.Random(SEED))`; for each modifier
   case `Dice.roll(expr, modifiers=mods, rng=random.Random(SEED))`. Record
