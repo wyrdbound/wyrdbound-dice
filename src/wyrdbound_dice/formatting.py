@@ -11,7 +11,9 @@ This module owns display policy only. The facts being displayed live in
 
 from dataclasses import dataclass
 from enum import Enum
-from typing import Tuple
+from typing import Protocol, Tuple, runtime_checkable
+
+from .breakdown import RollBreakdown
 
 
 class Dropped(Enum):
@@ -96,3 +98,17 @@ class RollFormat:
         placeholders = ("{total}", "{breakdown}", "{expression}")
         if not any(placeholder in self.layout for placeholder in placeholders):
             raise ValueError(message)
+
+
+@runtime_checkable
+class Formatter(Protocol):
+    """Structural interface for anything that renders a roll breakdown.
+
+    Matches the duck-typed ``rng=`` precedent: an object satisfies this
+    protocol if it has a compatible ``format`` method, with no inheritance
+    required.
+    """
+
+    def format(self, breakdown: RollBreakdown) -> str:
+        """Render a roll breakdown to a string."""
+        ...
