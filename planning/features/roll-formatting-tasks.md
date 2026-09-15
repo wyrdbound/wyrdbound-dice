@@ -342,7 +342,7 @@ reconstruct-provenance trap before starting.
 **Purpose:** the structured types, built from `RollResult`. Still nothing
 rendered changes.
 
-- [ ] **T019** [P] [US2] Append failing `test_breakdown_types_exist_and_are_frozen`
+- [x] **T019** [P] [US2] Append failing `test_breakdown_types_exist_and_are_frozen`
   to `tests/test_breakdown.py`: import `Die`, `DiceGroup`, `Literal`, `DiceNode`,
   `UnaryOp`, `BinaryOp`, `ModifierBreakdown`, `RollBreakdown` from
   `wyrdbound_dice.breakdown`; construct a minimal instance of each; assert

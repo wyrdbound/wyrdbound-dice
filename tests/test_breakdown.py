@@ -1,6 +1,9 @@
 """Tests for the structured roll breakdown."""
 
+import dataclasses
 import random
+
+import pytest
 
 from wyrdbound_dice import Dice
 
@@ -44,3 +47,39 @@ def test_kept_indices_handles_ties():
     assert 2 in r.kept_indices
     assert set(r.kept_indices) | set(r.dropped_indices) == {0, 1, 2, 3}
     assert len(set(r.kept_indices) & {0, 1}) == 1
+
+
+def test_breakdown_types_exist_and_are_frozen():
+    from wyrdbound_dice.breakdown import (
+        BinaryOp,
+        DiceGroup,
+        DiceNode,
+        Die,
+        Literal,
+        ModifierBreakdown,
+        RollBreakdown,
+        UnaryOp,
+    )
+
+    die = Die(value=3, faces=(3,), sources=("roll",), kept=True)
+    group = DiceGroup(num=1, sides="6")
+    literal = Literal(value=1)
+    dice_node = DiceNode(group=group)
+    unary = UnaryOp(op="-", operand=literal, value=-1)
+    binary = BinaryOp(left=literal, op="+", right=literal, value=2)
+    modifier = ModifierBreakdown(name="Strength", value=3)
+    breakdown = RollBreakdown(root=binary, total=2, expression="1 + 1", modifiers=())
+
+    for obj in [
+        die,
+        group,
+        literal,
+        dice_node,
+        unary,
+        binary,
+        modifier,
+        breakdown,
+    ]:
+        assert dataclasses.is_dataclass(obj)
+        with pytest.raises(dataclasses.FrozenInstanceError):
+            obj.value = 0
