@@ -111,3 +111,9 @@ def test_breakdown_faces_match_all_rolls():
         r = roll(expr).results[0]
         g = r.breakdown
         assert [f for d in g.dice for f in d.faces] == r.all_rolls
+
+
+def test_to_node_returns_dice_node():
+    from wyrdbound_dice.breakdown import DiceNode
+
+    assert isinstance(roll("2d6").results[0].to_node(), DiceNode)

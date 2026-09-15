@@ -367,7 +367,7 @@ rendered changes.
   `[f for d in g.dice for f in d.faces] == r.all_rolls`.
   *Accept:* fails with `AttributeError`.
 
-- [ ] **T023** [P] [US2] Append failing `test_to_node_returns_dice_node`: for
+- [x] **T023** [P] [US2] Append failing `test_to_node_returns_dice_node`: for
   `"2d6"`, `isinstance(result.results[0].to_node(), DiceNode)`.
   *Accept:* fails with `AttributeError`.
 
