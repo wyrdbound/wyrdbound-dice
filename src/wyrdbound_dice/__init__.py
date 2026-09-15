@@ -29,6 +29,16 @@ Example usage:
     >>> result = Dice.roll("2d6 + 1d4 x 2 - 1")
 """
 
+from .breakdown import (
+    BinaryOp,
+    DiceGroup,
+    DiceNode,
+    Die,
+    Literal,
+    ModifierBreakdown,
+    RollBreakdown,
+    UnaryOp,
+)
 from .debug_logger import DebugLogger, StringLogger
 from .dice import Dice, RollModifier, RollResultSet
 from .errors import DivisionByZeroError, InfiniteConditionError, ParseError
@@ -75,4 +85,12 @@ __all__ = [
     "StringLogger",
     "DebugLogger",
     "roll",
+    "RollBreakdown",
+    "DiceGroup",
+    "Die",
+    "ModifierBreakdown",
+    "Literal",
+    "DiceNode",
+    "UnaryOp",
+    "BinaryOp",
 ]
