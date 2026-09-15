@@ -1,7 +1,7 @@
 # Implementation Plan: RNG Injection for Dice Rolling Library
 
 **Branch**: `addRNGInjection` | **Date**: 2026-05-03 | **Spec**: [spec.md](spec.md)  
-**Input**: Feature specification from `specs/001-dice-rolling-library/spec.md`
+**Input**: Feature specification from `planning/features/001-dice-rolling-library/spec.md`
 
 ## Summary
 
@@ -42,14 +42,14 @@ Add an optional `rng=None` parameter to `Dice.roll()` and the `roll()` convenien
 ### Documentation (this feature)
 
 ```text
-specs/001-dice-rolling-library/
+planning/features/001-dice-rolling-library/
 ├── plan.md              ← This file
 ├── research.md          ← Phase 0 output
 ├── data-model.md        ← Phase 1 output
 ├── quickstart.md        ← Phase 1 output
 ├── contracts/
 │   └── api.md           ← Phase 1 output
-└── tasks.md             ← Phase 2 output (created by /speckit.tasks, not here)
+└── tasks.md             ← Phase 2 output
 ```
 
 ### Source Code (files touched by this feature)

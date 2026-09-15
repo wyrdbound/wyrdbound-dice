@@ -57,4 +57,4 @@
 - This specification documents EXISTING functionality of wyrdbound-dice v0.0.3
 - All requirements verified against: README.md, source code, test files, CLI tools
 - Specification serves as documentation for agentic work going forward
-- Ready for any future enhancement planning via `/speckit.plan`
+- Ready for any future enhancement planning under `planning/features/`
