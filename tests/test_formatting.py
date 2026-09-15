@@ -87,6 +87,10 @@ def test_layout_arrangements():
         assert DefaultFormatter(RollFormat(layout=layout)).format(breakdown) == expected
 
 
+@pytest.mark.xfail(
+    reason="Dropped.MARKED rendering lands in T075; T075 removes this marker",
+    strict=True,
+)
 def test_layout_does_not_reparse_rendered_braces():
     from wyrdbound_dice.breakdown import DiceNode, RollBreakdown
     from wyrdbound_dice.formatting import DefaultFormatter, Dropped, RollFormat
