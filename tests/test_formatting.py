@@ -194,6 +194,24 @@ def test_zero_dice_group():
     assert DefaultFormatter().format_group(group) == "0 (0d6)"
 
 
+def test_formatter_protocol_and_subclass():
+    from wyrdbound_dice.breakdown import DiceNode, RollBreakdown
+    from wyrdbound_dice.formatting import DefaultFormatter, Formatter
+
+    class HashFormatter(DefaultFormatter):
+        def format_die(self, die, group):
+            return "#"
+
+    breakdown = RollBreakdown(root=DiceNode(simple_group()), total=8, expression="2d6")
+    assert HashFormatter().format(breakdown) == "8 (2d6: #, #)"
+
+    class Duck:
+        def format(self, breakdown):
+            return "duck"
+
+    assert isinstance(Duck(), Formatter)
+
+
 def simple_group():
     """A plain 2d6 group: dice 6 and 2, both kept, subtotal 8."""
     return DiceGroup(
