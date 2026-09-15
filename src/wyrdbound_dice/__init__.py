@@ -43,6 +43,7 @@ from .debug_logger import DebugLogger, StringLogger
 from .dice import Dice, RollModifier, RollResultSet
 from .errors import DivisionByZeroError, InfiniteConditionError, ParseError
 from .expression_token import TokenType
+from .formatting import DefaultFormatter, Dropped, Formatter, Percentile, RollFormat
 from .roll_result import RollResult
 
 __version__ = "0.0.6"
@@ -93,4 +94,9 @@ __all__ = [
     "DiceNode",
     "UnaryOp",
     "BinaryOp",
+    "RollFormat",
+    "Dropped",
+    "Percentile",
+    "Formatter",
+    "DefaultFormatter",
 ]
