@@ -499,7 +499,7 @@ Proving the renderer in isolation is what makes Phase 5 survivable.
   `fudge_symbols=("-", "0", "+")`.
   *Accept:* fails with `ImportError`.
 
-- [ ] **T041** [P] [US4] Write failing `test_percentile_styles`: a hand-built
+- [x] **T041** [P] [US4] Write failing `test_percentile_styles`: a hand-built
   percentile group with face `(60, 0)` renders `"[60, 0]"` under
   `Percentile.PAIR` and `"60"` under `Percentile.VALUE`.
   *Accept:* fails with `ImportError`.
