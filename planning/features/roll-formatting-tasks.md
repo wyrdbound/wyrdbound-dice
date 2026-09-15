@@ -1,7 +1,7 @@
 # Roll Formatting — the breakdown, the formatter, and the byte-identical gate
 
-**Status:** Phase 1 complete (T001–T007 done; baseline 194 → 263 passing,
-checkpoint 1 patch bump to 0.0.4). Phase 2 next.
+**Status:** Phase 2 complete (T008–T018 done; 267 passing, checkpoint 2 patch
+bump to 0.0.5). Phase 3 next.
 **Source design:** `planning/features/roll-formatting.md` (v0.1; §N references
 below are into that document). `AGENTS.md` — the constitution summary and the
 Verification Contract — is binding on every task here.
@@ -329,7 +329,7 @@ reconstruct-provenance trap before starting.
   constructor at the end of `_roll_single_dice_expression`.
   *Accept:* T010 and T011 pass.
 
-- [ ] **T018** [US2] Run `python -m pytest tests/ -q`, then `black`/`isort`/`ruff`
+- [x] **T018** [US2] Run `python -m pytest tests/ -q`, then `black`/`isort`/`ruff`
   over `src/ tests/ tools/`.
   *Accept:* T009–T012 green, snapshots green, quality checks clean.
 

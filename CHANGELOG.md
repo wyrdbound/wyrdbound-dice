@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Per-die roll provenance: each `RollResult` now records `dice_traces` (faces, their `roll`/`reroll`/`explosion` source, and the die's value) alongside `all_rolls`
+- Index-based `kept_indices` / `dropped_indices` on `RollResult`, so a dropped die is unambiguous when two dice tie
 - Characterization snapshot suite pinning default roll rendering for 69 corpus entries (`tests/data/format_snapshots.json`), backed by `tests/format_corpus.py` and the `tools/gen_format_snapshots.py` generator
 
 ### Changed
