@@ -102,6 +102,29 @@ def test_layout_does_not_reparse_rendered_braces():
     assert "~" not in output
 
 
+def test_precedence_parenthesisation():
+    from wyrdbound_dice.breakdown import BinaryOp, Literal
+    from wyrdbound_dice.formatting import DefaultFormatter
+
+    formatter = DefaultFormatter()
+    cases = [
+        (
+            BinaryOp(BinaryOp(Literal(2), "+", Literal(3), 5), "x", Literal(2), 10),
+            "(2 + 3) x 2",
+        ),
+        (
+            BinaryOp(Literal(10), "-", BinaryOp(Literal(2), "x", Literal(3), 6), 4),
+            "10 - 2 x 3",
+        ),
+        (
+            BinaryOp(Literal(10), "-", BinaryOp(Literal(2), "-", Literal(3), -1), 11),
+            "10 - (2 - 3)",
+        ),
+    ]
+    for node, expected in cases:
+        assert formatter.format_node(node) == expected
+
+
 def simple_group():
     """A plain 2d6 group: dice 6 and 2, both kept, subtotal 8."""
     return DiceGroup(
