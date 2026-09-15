@@ -117,3 +117,11 @@ def test_to_node_returns_dice_node():
     from wyrdbound_dice.breakdown import DiceNode
 
     assert isinstance(roll("2d6").results[0].to_node(), DiceNode)
+
+
+@pytest.mark.xfail(reason="RollResultSet.breakdown lands in T059", strict=True)
+def test_to_dict_is_json_serialisable():
+    import json
+
+    for expr in ["4d6kh3", "1d%", "4dF", "2d6 + 1d4 x 2 - 1"]:
+        json.dumps(roll(expr).breakdown.to_dict())

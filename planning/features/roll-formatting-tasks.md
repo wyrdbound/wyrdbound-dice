@@ -403,7 +403,7 @@ rendered changes.
   two-element lists. No enums, tuples or dataclasses may survive into the output.
   *Accept:* T028.
 
-- [ ] **T028** [P] [US2] Append `test_to_dict_is_json_serialisable`: for
+- [x] **T028** [P] [US2] Append `test_to_dict_is_json_serialisable`: for
   `"4d6kh3"`, `"1d%"`, `"4dF"` and `"2d6 + 1d4 x 2 - 1"`, call
   `json.dumps(result.breakdown.to_dict())` and assert it does not raise. This
   depends on `RollResultSet.breakdown`, which lands at **T059** — mark it
