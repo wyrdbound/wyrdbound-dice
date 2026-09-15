@@ -481,6 +481,11 @@ Proving the renderer in isolation is what makes Phase 5 survivable.
   appear in the output and nothing raises. This is rule 8.
   *Accept:* fails with `ImportError`.
 
+  > **Note (maintainer decision, 2026-09-15).** The test is written and
+  > committed. It cannot *pass* until `Dropped.MARKED` rendering lands at T075;
+  > it stays red until then. T050's original accept named T037 — that is a
+  > forward reference and does not block T050.
+
 - [x] **T038** [P] [US4] Write failing `test_precedence_parenthesisation` over
   hand-built trees: `BinaryOp(BinaryOp(Literal(2), "+", Literal(3), 5), "x", Literal(2), 10)`
   → `"(2 + 3) x 2"`; `BinaryOp(Literal(10), "-", BinaryOp(Literal(2), "x", Literal(3), 6), 4)`
@@ -569,7 +574,7 @@ Proving the renderer in isolation is what makes Phase 5 survivable.
   `+ 1 (Bless: 1 = 1 (1d4: 1))`.
   *Accept:* rendering a hand-built dice modifier matches that string.
 
-- [ ] **T050** [US3] Implement `DefaultFormatter.format(breakdown)`: if
+- [x] **T050** [US3] Implement `DefaultFormatter.format(breakdown)`: if
   `"{breakdown}"` appears in the layout, render the root via `format_node` and
   append each modifier rendered by `format_modifier`, separated by single spaces,
   to form the body; otherwise skip that work entirely and use `""`. Return

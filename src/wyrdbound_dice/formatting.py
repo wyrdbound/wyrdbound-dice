@@ -301,6 +301,19 @@ class DefaultFormatter:
         nested = self._render_nested(modifier.nested)
         return "{} ({}: {})".format(base, modifier.name, nested)
 
+    def format(self, breakdown: RollBreakdown) -> str:
+        """Render a full roll breakdown through the layout template.
+
+        The breakdown body is only built when ``{breakdown}`` appears in the
+        layout; otherwise the work is skipped entirely. The total is exposed as
+        a component and the layout arranges it.
+
+        Args:
+            breakdown: The :class:`~wyrdbound_dice.breakdown.RollBreakdown` to
+                render.
+        """
+        return self._apply_layout(breakdown.total, breakdown, breakdown.expression)
+
     def _render_nested(self, nested) -> str:
         """Render a modifier's nested roll, accepting a breakdown or a group."""
         if hasattr(nested, "root"):
