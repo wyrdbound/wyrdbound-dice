@@ -165,6 +165,27 @@ def test_fudge_symbols():
     assert "-, 0, +" in custom.format_group(fudge_group())
 
 
+def test_percentile_styles():
+    from wyrdbound_dice.breakdown import DiceGroup, Die
+    from wyrdbound_dice.formatting import DefaultFormatter, Percentile, RollFormat
+
+    group = DiceGroup(
+        num=1,
+        sides="%",
+        kind="percentile",
+        notation="1d%",
+        dice=(Die(value=60, faces=((60, 0),), sources=("roll",), kept=True),),
+        subtotal=60,
+        total=60,
+    )
+    pair = DefaultFormatter(RollFormat(percentile=Percentile.PAIR))
+    assert "[60, 0]" in pair.format_group(group)
+
+    value = DefaultFormatter(RollFormat(percentile=Percentile.VALUE))
+    assert "60" in value.format_group(group)
+    assert "[" not in value.format_group(group)
+
+
 def simple_group():
     """A plain 2d6 group: dice 6 and 2, both kept, subtotal 8."""
     return DiceGroup(
