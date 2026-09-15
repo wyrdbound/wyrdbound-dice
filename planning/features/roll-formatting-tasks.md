@@ -411,7 +411,7 @@ rendered changes.
   now; **T060** removes the marker.
   *Accept:* the test xfails.
 
-- [ ] **T029** [P] [US2] In `src/wyrdbound_dice/__init__.py`, import and add to
+- [x] **T029** [P] [US2] In `src/wyrdbound_dice/__init__.py`, import and add to
   `__all__`: `RollBreakdown`, `DiceGroup`, `Die`, `ModifierBreakdown`, `Literal`,
   `DiceNode`, `UnaryOp`, `BinaryOp`.
   *Accept:* `python -c "import sys; sys.path.insert(0,'src'); from wyrdbound_dice import RollBreakdown, Die"`.
