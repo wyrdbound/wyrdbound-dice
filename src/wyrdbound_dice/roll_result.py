@@ -120,6 +120,145 @@ class KeepOperationProcessor:
         to_drop = rolls[:drop_n]
         return to_keep, to_drop
 
+    @staticmethod
+    def _sorted_pairs(rolls: List[int]) -> List[Tuple[int, int]]:
+        """Pair each die with its original position, ordered by value.
+
+        The sort is stable, so ties keep their original relative order — which
+        is what makes an index-based dropped die deterministic when two dice
+        share a value.
+        """
+        return sorted(enumerate(rolls), key=lambda p: p[1])
+
+    @staticmethod
+    def apply_keep_operations_indexed(
+        rolls: List[int], keep_operations: List[Tuple]
+    ) -> Tuple[List[int], List[int]]:
+        """Apply keep operations and return (kept_indices, dropped_indices)."""
+        current_pairs = KeepOperationProcessor._sorted_pairs(rolls)
+        dropped_pairs = []
+
+        for keep_type, keep_n in keep_operations:
+            if keep_n == 0:
+                dropped_pairs.extend(current_pairs)
+                current_pairs = []
+                break
+            elif keep_type.lower() == "h":
+                current_pairs, newly_dropped = (
+                    KeepOperationProcessor._keep_highest_indexed(current_pairs, keep_n)
+                )
+            else:  # keep_type.lower() == "l"
+                current_pairs, newly_dropped = (
+                    KeepOperationProcessor._keep_lowest_indexed(current_pairs, keep_n)
+                )
+
+            dropped_pairs.extend(newly_dropped)
+            current_pairs = sorted(current_pairs, key=lambda p: p[1])
+
+        return (
+            [index for index, _ in current_pairs],
+            [index for index, _ in dropped_pairs],
+        )
+
+    @staticmethod
+    def _keep_highest_indexed(
+        pairs: List[Tuple[int, int]], keep_n: int
+    ) -> Tuple[List[Tuple[int, int]], List[Tuple[int, int]]]:
+        """Keep the highest N dice from value-sorted pairs."""
+        if keep_n >= len(pairs):
+            return pairs, []
+
+        to_drop = pairs[:-keep_n]
+        to_keep = pairs[-keep_n:]
+        return to_keep, to_drop
+
+    @staticmethod
+    def _keep_lowest_indexed(
+        pairs: List[Tuple[int, int]], keep_n: int
+    ) -> Tuple[List[Tuple[int, int]], List[Tuple[int, int]]]:
+        """Keep the lowest N dice from value-sorted pairs."""
+        if keep_n >= len(pairs):
+            return pairs, []
+
+        to_keep = pairs[:keep_n]
+        to_drop = pairs[keep_n:]
+        return to_keep, to_drop
+
+    @staticmethod
+    def apply_legacy_keep_indexed(
+        rolls: List[int], keep_type: str, keep_n: int
+    ) -> Tuple[List[int], List[int]]:
+        """Apply a single legacy keep operation, returning indices."""
+        sorted_pairs = KeepOperationProcessor._sorted_pairs(rolls)
+
+        if keep_n == 0:
+            kept_pairs, dropped_pairs = [], sorted_pairs
+        elif keep_type.lower() == "h":
+            kept_pairs, dropped_pairs = KeepOperationProcessor._keep_highest_indexed(
+                sorted_pairs, keep_n
+            )
+        else:
+            kept_pairs, dropped_pairs = KeepOperationProcessor._keep_lowest_indexed(
+                sorted_pairs, keep_n
+            )
+
+        return (
+            [index for index, _ in kept_pairs],
+            [index for index, _ in dropped_pairs],
+        )
+
+    @staticmethod
+    def apply_drop_operations_indexed(
+        rolls: List[int], drop_operations: List[Tuple]
+    ) -> Tuple[List[int], List[int]]:
+        """Apply drop operations and return (kept_indices, dropped_indices)."""
+        current_pairs = KeepOperationProcessor._sorted_pairs(rolls)
+        dropped_pairs = []
+
+        for drop_type, drop_n in drop_operations:
+            if drop_n == 0:
+                continue
+            elif drop_type.lower() == "h":
+                current_pairs, newly_dropped = (
+                    KeepOperationProcessor._drop_highest_indexed(current_pairs, drop_n)
+                )
+            else:  # drop_type.lower() == "l"
+                current_pairs, newly_dropped = (
+                    KeepOperationProcessor._drop_lowest_indexed(current_pairs, drop_n)
+                )
+
+            dropped_pairs.extend(newly_dropped)
+            current_pairs = sorted(current_pairs, key=lambda p: p[1])
+
+        return (
+            [index for index, _ in current_pairs],
+            [index for index, _ in dropped_pairs],
+        )
+
+    @staticmethod
+    def _drop_highest_indexed(
+        pairs: List[Tuple[int, int]], drop_n: int
+    ) -> Tuple[List[Tuple[int, int]], List[Tuple[int, int]]]:
+        """Drop the highest N dice from value-sorted pairs."""
+        if drop_n >= len(pairs):
+            return [], pairs
+
+        to_drop = pairs[-drop_n:]
+        to_keep = pairs[:-drop_n]
+        return to_keep, to_drop
+
+    @staticmethod
+    def _drop_lowest_indexed(
+        pairs: List[Tuple[int, int]], drop_n: int
+    ) -> Tuple[List[Tuple[int, int]], List[Tuple[int, int]]]:
+        """Drop the lowest N dice from value-sorted pairs."""
+        if drop_n >= len(pairs):
+            return [], pairs
+
+        to_keep = pairs[drop_n:]
+        to_drop = pairs[:drop_n]
+        return to_keep, to_drop
+
 
 class FudgeDiceFormatter:
     """Handles formatting of Fudge dice values."""
