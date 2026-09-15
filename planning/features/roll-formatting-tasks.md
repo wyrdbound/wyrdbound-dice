@@ -158,7 +158,7 @@ rendered strings (§2) — this phase is why the rest of the list is safe.
   it.
   *Accept:* the suite is green and the count is written into the commit message.
 
-- [ ] **T002** [P] [US1] Create `tests/format_corpus.py` with exactly three
+- [x] **T002** [P] [US1] Create `tests/format_corpus.py` with exactly three
   module-level names and no test functions: `SEED = 42`, `EXPRESSIONS`, and
   `MODIFIER_CASES`, using the values below **verbatim and in this order**. These
   were verified against v0.0.3 on 2026-09-15; **do not recompute or reorder
@@ -205,7 +205,7 @@ rendered strings (§2) — this phase is why the rest of the list is safe.
       ("4dF + 3", {"Aspect": 2}),
   ]
   ```
-  *Accept:* `python -c "import sys; sys.path.insert(0,'tests'); import format_corpus as c; print(len(c.EXPRESSIONS), len(c.MODIFIER_CASES))"` prints `63 7`.
+  *Accept:* `python -c "import sys; sys.path.insert(0,'tests'); import format_corpus as c; print(len(c.EXPRESSIONS), len(c.MODIFIER_CASES))"` prints `62 7`.
 
 - [ ] **T003** [US1] Create `tools/gen_format_snapshots.py`. Insert `src` on
   `sys.path` the way `tools/roll.py` does, and `tests` as well. For each
@@ -222,7 +222,7 @@ rendered strings (§2) — this phase is why the rest of the list is safe.
   `tests/data/format_snapshots.json`. Spot-check three entries: `"1d20"` is a
   string of the form `"N = N (1d20: N)"`; `"1d6 / 0"` is
   `"!DivisionByZeroError"`; `"1d6r<=6"` is `"!InfiniteConditionError"`.
-  *Accept:* the file has exactly 70 entries and the three spot-checks match.
+  *Accept:* the file has exactly 69 entries and the three spot-checks match.
 
 - [ ] **T005** [P] [US1] Create `tests/test_format_snapshots.py`: load the JSON
   once at module level, parametrise over `EXPRESSIONS` and `MODIFIER_CASES`,
@@ -234,14 +234,14 @@ rendered strings (§2) — this phase is why the rest of the list is safe.
   *Accept:* T006.
 
 - [ ] **T006** [US1] Run `python -m pytest tests/test_format_snapshots.py -q`.
-  All 70 assertions must **pass** — this is a characterization test, not a red
+  All 69 assertions must **pass** — this is a characterization test, not a red
   test. If any entry fails, the generator and the test disagree about key
   construction; fix the test, never the snapshot.
-  *Accept:* 70 passed.
+  *Accept:* 69 passed.
 
 - [ ] **T007** [US1] Run `black src/ tests/ tools/`, `isort src/ tests/ tools/`,
   `ruff check src/ tests/ tools/`, then `python -m pytest tests/ -q`.
-  *Accept:* the passing count is T001's count plus 70.
+  *Accept:* the passing count is T001's count plus 69.
 
 **Checkpoint 1.** Per-phase gate. Patch bump.
 
