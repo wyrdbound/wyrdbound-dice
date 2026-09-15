@@ -224,7 +224,7 @@ rendered strings (§2) — this phase is why the rest of the list is safe.
   `"!DivisionByZeroError"`; `"1d6r<=6"` is `"!InfiniteConditionError"`.
   *Accept:* the file has exactly 69 entries and the three spot-checks match.
 
-- [ ] **T005** [P] [US1] Create `tests/test_format_snapshots.py`: load the JSON
+- [x] **T005** [P] [US1] Create `tests/test_format_snapshots.py`: load the JSON
   once at module level, parametrise over `EXPRESSIONS` and `MODIFIER_CASES`,
   re-roll each with `random.Random(SEED)`, and assert the rendered string — or
   `"!" + exception class name` — equals the stored value. Failure messages print
