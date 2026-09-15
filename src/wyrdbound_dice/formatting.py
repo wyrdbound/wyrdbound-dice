@@ -237,7 +237,13 @@ class DefaultFormatter:
             precedence = PRECEDENCE[node.op]
             left = self._format_node(node.left, precedence, is_right=False)
             right = self._format_node(node.right, precedence, is_right=True)
-            rendered = "{} {} {}".format(left, self._operator_symbol(node.op), right)
+            symbol = self._operator_symbol(node.op)
+
+            if node.op in ("+", "-") and right.startswith("-"):
+                right = right[1:]
+                symbol = "-" if node.op == "+" else "+"
+
+            rendered = "{} {} {}".format(left, symbol, right)
 
             if self._needs_parentheses(node, parent_precedence, is_right):
                 return "{}{}{}".format(
@@ -246,6 +252,14 @@ class DefaultFormatter:
             return rendered
 
         raise TypeError("unknown node type: {!r}".format(type(node).__name__))
+
+    def _node_value(self, node) -> int:
+        """Return the integer value a node evaluates to."""
+        if isinstance(node, Literal):
+            return node.value
+        if isinstance(node, DiceNode):
+            return node.group.total
+        return node.value
 
     def _operator_symbol(self, op: str) -> str:
         """Substitute the format's glyph for a canonical operator."""

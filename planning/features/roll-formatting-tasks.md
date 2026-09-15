@@ -601,7 +601,7 @@ Proving the renderer in isolation is what makes Phase 5 survivable.
 the green-snapshot trap before starting. Re-run the snapshot suite after every
 task here, not only at the end.
 
-- [ ] **T053** [US1] In `expression_parser.py`, change `EvaluationResult` to
+- [x] **T053** [US1] In `expression_parser.py`, change `EvaluationResult` to
   `value: int`, `node: Node`, `dice_results: List[RollResult]`, and add a
   `description` property returning
   `DefaultFormatter(RollFormat(layout="{breakdown}")).format_node(self.node)`.
@@ -609,7 +609,12 @@ task here, not only at the end.
   yet.**
   *Accept:* the module imports; `python -m pytest tests/ -q` still green.
 
-- [ ] **T054** [US1] Update the four `evaluate()` methods to build nodes instead
+  > **Merged with T054 (maintainer decision, 2026-09-15).** T053 cannot pass its
+  > gate alone: replacing the `description` field with a property breaks the four
+  > `evaluate()` methods that still pass `description=`. The two landed as one
+  > green commit.
+
+- [x] **T054** [US1] Update the four `evaluate()` methods to build nodes instead
   of strings: `NumberExpression` → `Literal(self.value)`; `DiceExpression` →
   `result.to_node()`; `BinaryOperation` →
   `BinaryOp(left.node, op_symbol, right.node, value)`; `UnaryOperation` →

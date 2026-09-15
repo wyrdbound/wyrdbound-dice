@@ -1,8 +1,10 @@
 from dataclasses import dataclass
 from typing import List, Tuple
 
+from .breakdown import BinaryOp, DiceNode, Literal, Node, UnaryOp
 from .errors import DivisionByZeroError, ParseError
 from .expression_token import Token, TokenType
+from .formatting import DefaultFormatter, RollFormat
 from .roll_result import RollResult
 
 
@@ -11,8 +13,13 @@ class EvaluationResult:
     """Result of evaluating a parsed expression."""
 
     value: int
-    description: str
+    node: Node
     dice_results: List["RollResult"]
+
+    @property
+    def description(self) -> str:
+        """Render this result's node with the standard formatter."""
+        return DefaultFormatter(RollFormat(layout="{breakdown}")).format_node(self.node)
 
 
 class OperatorHandler:
@@ -213,7 +220,7 @@ class NumberExpression(ParsedExpression):
 
     def evaluate(self, dice_class) -> EvaluationResult:
         return EvaluationResult(
-            value=self.value, description=str(self.value), dice_results=[]
+            value=self.value, node=Literal(self.value), dice_results=[]
         )
 
 
@@ -228,7 +235,7 @@ class DiceExpression(ParsedExpression):
         result = dice_class._roll_single_dice_expression_from_string(self.dice_expr)
         return EvaluationResult(
             value=result.subtotal,
-            description=str(result),
+            node=DiceNode(result.breakdown),
             dice_results=[result],
         )
 
@@ -258,17 +265,12 @@ class BinaryOperation(ParsedExpression):
             left_result.value, right_result.value, self.operator
         )
 
-        # Build description
-        description = DescriptionBuilder.build_binary_description(
-            left_result, right_result, self.operator, op_symbol
-        )
-
         # Combine dice results
         dice_results = left_result.dice_results + right_result.dice_results
 
-        return EvaluationResult(
-            value=value, description=description, dice_results=dice_results
-        )
+        node = BinaryOp(left_result.node, op_symbol, right_result.node, value)
+
+        return EvaluationResult(value=value, node=node, dice_results=dice_results)
 
 
 class UnaryOperation(ParsedExpression):
@@ -283,12 +285,12 @@ class UnaryOperation(ParsedExpression):
 
         if self.operator == TokenType.MINUS:
             value = -operand_result.value
-            description = f"-{operand_result.description}"
+            node = UnaryOp("-", operand_result.node, value)
         else:
             raise ParseError(f"Unknown unary operator: {self.operator}")
 
         return EvaluationResult(
             value=value,
-            description=description,
+            node=node,
             dice_results=operand_result.dice_results,
         )
