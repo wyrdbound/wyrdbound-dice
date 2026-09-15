@@ -1,6 +1,6 @@
 from typing import List, Optional, Tuple
 
-from .breakdown import DiceGroup, Die
+from .breakdown import DiceGroup, DiceNode, Die
 from .errors import DivisionByZeroError
 
 
@@ -602,3 +602,7 @@ class RollResult:
                 f"d{drop_type}{drop_n}" for drop_type, drop_n in self.drop_operations
             )
         return ""
+
+    def to_node(self) -> DiceNode:
+        """Return this result as a :class:`DiceNode` in the expression tree."""
+        return DiceNode(self.breakdown)
