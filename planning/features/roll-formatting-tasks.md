@@ -260,7 +260,7 @@ reconstruct-provenance trap before starting.
   `Dice.roll(expr, rng=random.Random(seed), **kw)`.
   *Accept:* the file imports cleanly.
 
-- [ ] **T009** [P] [US2] Write failing `test_dice_traces_present` (TDD): roll
+- [x] **T009** [P] [US2] Write failing `test_dice_traces_present` (TDD): roll
   `"3d6"`, take `result.results[0]`, assert `dice_traces` is a list of length 3
   and each entry is a dict with keys exactly `{"faces", "sources", "value"}`.
   *Accept:* fails with `AttributeError`.
