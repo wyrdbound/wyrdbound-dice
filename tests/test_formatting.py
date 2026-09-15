@@ -65,6 +65,28 @@ def test_format_group_standard():
     assert DefaultFormatter().format_group(simple_group()) == "8 (2d6: 6, 2)"
 
 
+def test_layout_arrangements():
+    from wyrdbound_dice.breakdown import BinaryOp, DiceNode, Literal, RollBreakdown
+    from wyrdbound_dice.formatting import DefaultFormatter, RollFormat
+
+    breakdown = RollBreakdown(
+        root=BinaryOp(DiceNode(simple_group()), "+", Literal(3), 11),
+        total=11,
+        expression="2d6 + 3",
+    )
+
+    cases = [
+        ("{total} = {breakdown}", "11 = 8 (2d6: 6, 2) + 3"),
+        ("{breakdown}", "8 (2d6: 6, 2) + 3"),
+        ("{total}", "11"),
+        ("{breakdown} => {total}", "8 (2d6: 6, 2) + 3 => 11"),
+        ("{expression}: {total}", "2d6 + 3: 11"),
+        ("[{total}] {breakdown}", "[11] 8 (2d6: 6, 2) + 3"),
+    ]
+    for layout, expected in cases:
+        assert DefaultFormatter(RollFormat(layout=layout)).format(breakdown) == expected
+
+
 def simple_group():
     """A plain 2d6 group: dice 6 and 2, both kept, subtotal 8."""
     return DiceGroup(

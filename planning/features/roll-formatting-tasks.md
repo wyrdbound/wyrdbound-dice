@@ -459,7 +459,7 @@ Proving the renderer in isolation is what makes Phase 5 survivable.
   `DefaultFormatter().format_group(simple_group()) == "8 (2d6: 6, 2)"`.
   *Accept:* fails with `ImportError`.
 
-- [ ] **T036** [P] [US3] Write failing `test_layout_arrangements` against a
+- [x] **T036** [P] [US3] Write failing `test_layout_arrangements` against a
   hand-built `RollBreakdown` with root
   `BinaryOp(DiceNode(simple_group()), "+", Literal(3), 11)`, `total=11`,
   `expression="2d6 + 3"`:
