@@ -233,7 +233,7 @@ rendered strings (§2) — this phase is why the rest of the list is safe.
   regenerate the snapshot JSON to make it pass.**
   *Accept:* T006.
 
-- [ ] **T006** [US1] Run `python -m pytest tests/test_format_snapshots.py -q`.
+- [x] **T006** [US1] Run `python -m pytest tests/test_format_snapshots.py -q`.
   All 69 assertions must **pass** — this is a characterization test, not a red
   test. If any entry fails, the generator and the test disagree about key
   construction; fix the test, never the snapshot.
