@@ -394,7 +394,7 @@ rendered changes.
   `subtotal=sum(self.kept)`; `total=(sum(self.kept) * multiply) // divide`.
   *Accept:* T020, T021, T022 pass.
 
-- [ ] **T026** [US2] Add `RollResult.to_node()` returning `DiceNode(self.breakdown)`.
+- [x] **T026** [US2] Add `RollResult.to_node()` returning `DiceNode(self.breakdown)`.
   *Accept:* T023 passes.
 
 - [ ] **T027** [US2] Implement `RollBreakdown.to_dict()` and a module-private
