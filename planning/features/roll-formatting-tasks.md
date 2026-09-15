@@ -442,7 +442,7 @@ Proving the renderer in isolation is what makes Phase 5 survivable.
   2 members respectively.
   *Accept:* fails with `ImportError`.
 
-- [ ] **T033** [P] [US3] Write failing `test_rollformat_defaults`: every field of
+- [x] **T033** [P] [US3] Write failing `test_rollformat_defaults`: every field of
   `RollFormat()` equals its §5 default, field by field, including
   `layout == "{total} = {breakdown}"`; `RollFormat()` is hashable and frozen.
   *Accept:* fails with `ImportError`.
