@@ -24,3 +24,12 @@ def test_traces_concatenate_to_all_rolls():
         r = roll(expr).results[0]
         faces = [f for t in r.dice_traces for f in t["faces"]]
         assert faces == r.all_rolls
+
+
+def test_trace_sources_tag_rerolls():
+    r = roll("8d6r1<=1").results[0]
+    all_sources = [s for t in r.dice_traces for s in t["sources"]]
+    assert "reroll" in all_sources
+    assert set(all_sources) <= {"roll", "reroll", "explosion"}
+    for trace in r.dice_traces:
+        assert trace["sources"][0] == "roll"
