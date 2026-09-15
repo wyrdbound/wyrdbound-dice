@@ -104,3 +104,10 @@ def test_breakdown_kinds():
     assert roll("4dF").results[0].breakdown.kind == "fudge"
     assert roll("1d%").results[0].breakdown.kind == "percentile"
     assert roll("2d6").results[0].breakdown.kind == "standard"
+
+
+def test_breakdown_faces_match_all_rolls():
+    for expr in ["3d6", "2d6e", "4dF", "1d%"]:
+        r = roll(expr).results[0]
+        g = r.breakdown
+        assert [f for d in g.dice for f in d.faces] == r.all_rolls

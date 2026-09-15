@@ -362,7 +362,7 @@ rendered changes.
   `kind == "fudge"`; `"1d%"` → `"percentile"`; `"2d6"` → `"standard"`.
   *Accept:* fails with `AttributeError`.
 
-- [ ] **T022** [P] [US2] Append failing `test_breakdown_faces_match_all_rolls`:
+- [x] **T022** [P] [US2] Append failing `test_breakdown_faces_match_all_rolls`:
   for `"3d6"`, `"2d6e"`, `"4dF"`, `"1d%"`, assert
   `[f for d in g.dice for f in d.faces] == r.all_rolls`.
   *Accept:* fails with `AttributeError`.
