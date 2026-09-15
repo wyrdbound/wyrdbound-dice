@@ -549,7 +549,7 @@ Proving the renderer in isolation is what makes Phase 5 survivable.
   group has no dice.
   *Accept:* T035, T039, T040, T041, T042 and the first half of T043 pass.
 
-- [ ] **T048** [US3] Implement `DefaultFormatter.format_node(node, parent_precedence=0)`
+- [x] **T048** [US3] Implement `DefaultFormatter.format_node(node, parent_precedence=0)`
   for `Literal`, `DiceNode`, `UnaryOp`, `BinaryOp`. Use `breakdown.PRECEDENCE`:
   wrap a `BinaryOp` child when `PRECEDENCE[child.op] < PRECEDENCE[parent.op]`, or
   when equal and the child is the **right** operand of `-` or `/`. Substitute
