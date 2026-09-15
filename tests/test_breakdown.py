@@ -83,3 +83,18 @@ def test_breakdown_types_exist_and_are_frozen():
         assert dataclasses.is_dataclass(obj)
         with pytest.raises(dataclasses.FrozenInstanceError):
             obj.value = 0
+
+
+def test_roll_result_breakdown_shape():
+    from wyrdbound_dice.breakdown import DiceGroup
+
+    result = roll("4d6kh3")
+    g = result.results[0].breakdown
+    assert isinstance(g, DiceGroup)
+    assert g.num == 4
+    assert g.sides == "6"
+    assert g.kind == "standard"
+    assert len(g.dice) == 4
+    assert sum(1 for d in g.dice if not d.kept) == 1
+    assert g.keep_operations == (("h", 3),)
+    assert g.subtotal == sum(d.value for d in g.dice if d.kept)
