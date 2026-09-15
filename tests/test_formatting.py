@@ -3,6 +3,18 @@
 from wyrdbound_dice.breakdown import DiceGroup, Die
 
 
+def test_enums_exist():
+    from wyrdbound_dice.formatting import Dropped, Percentile
+
+    assert Dropped.SHOWN
+    assert Dropped.HIDDEN
+    assert Dropped.MARKED
+    assert len(list(Dropped)) == 3
+    assert Percentile.PAIR
+    assert Percentile.VALUE
+    assert len(list(Percentile)) == 2
+
+
 def simple_group():
     """A plain 2d6 group: dice 6 and 2, both kept, subtotal 8."""
     return DiceGroup(

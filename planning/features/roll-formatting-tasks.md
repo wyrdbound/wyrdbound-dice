@@ -437,7 +437,7 @@ Proving the renderer in isolation is what makes Phase 5 survivable.
   `fudge_group()` — `kind="fudge"`, raw faces 1, 3, 5.
   *Accept:* the file imports cleanly.
 
-- [ ] **T032** [P] [US3] Write failing `test_enums_exist`: `Dropped.SHOWN`,
+- [x] **T032** [P] [US3] Write failing `test_enums_exist`: `Dropped.SHOWN`,
   `.HIDDEN`, `.MARKED`, `Percentile.PAIR`, `.VALUE` all exist, with exactly 3 and
   2 members respectively.
   *Accept:* fails with `ImportError`.
