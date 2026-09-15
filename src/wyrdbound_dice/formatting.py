@@ -75,3 +75,24 @@ class RollFormat:
     dropped_marker: str = "~{value}~"
     fudge_symbols: Tuple[str, str, str] = ("-", "B", "+")
     percentile: Percentile = Percentile.PAIR
+
+    def __post_init__(self) -> None:
+        """Validate the layout template at construction time.
+
+        Only ``{total}``, ``{breakdown}`` and ``{expression}`` are permitted, and
+        at least one must be present. Only reads ``self``, so ``frozen=True``
+        is preserved.
+        """
+        message = (
+            "layout may only use {total}, {breakdown} and {expression}; "
+            "got: " + repr(self.layout)
+        )
+
+        try:
+            self.layout.format(total="", breakdown="", expression="")
+        except (KeyError, IndexError, ValueError):
+            raise ValueError(message)
+
+        placeholders = ("{total}", "{breakdown}", "{expression}")
+        if not any(placeholder in self.layout for placeholder in placeholders):
+            raise ValueError(message)

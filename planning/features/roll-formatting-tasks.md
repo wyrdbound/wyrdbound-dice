@@ -524,7 +524,7 @@ Proving the renderer in isolation is what makes Phase 5 survivable.
   `typing`, `.breakdown`. **Do not define presets yet** — they land at T068.
   *Accept:* T032 and T033 pass.
 
-- [ ] **T045** [US4] Add `RollFormat.__post_init__` validating `layout`: attempt
+- [x] **T045** [US4] Add `RollFormat.__post_init__` validating `layout`: attempt
   `self.layout.format(total="", breakdown="", expression="")`, converting
   `KeyError`, `IndexError` or `ValueError` into
   `ValueError("layout may only use {total}, {breakdown} and {expression}; got: …")`;
