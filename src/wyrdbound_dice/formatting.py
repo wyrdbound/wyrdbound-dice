@@ -13,7 +13,14 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Protocol, Tuple, runtime_checkable
 
-from .breakdown import RollBreakdown
+from .breakdown import (
+    PRECEDENCE,
+    BinaryOp,
+    DiceNode,
+    Literal,
+    RollBreakdown,
+    UnaryOp,
+)
 
 
 class Dropped(Enum):
@@ -197,3 +204,71 @@ class DefaultFormatter:
         return "{} {}{}{}".format(
             group.total, self.fmt.group_open, inner, self.fmt.group_close
         )
+
+    def format_node(self, node, parent_precedence: int = 0) -> str:
+        """Render an expression-tree node, parenthesising by precedence.
+
+        A ``BinaryOp`` child is wrapped when its operator binds more loosely
+        than the parent's, or equally loosely on the *right* of ``-`` or
+        ``/``. The canonical ``x`` and ``/`` operators are substituted with
+        the format's symbols at render time.
+
+        Args:
+            node: An expression-tree node.
+            parent_precedence: The binding strength of the enclosing operator,
+                or ``0`` at the root.
+        """
+        return self._format_node(node, parent_precedence, is_right=False)
+
+    def _format_node(self, node, parent_precedence: int, is_right: bool) -> str:
+        """Render a node, knowing whether it sits to a parent's right."""
+        if isinstance(node, Literal):
+            return str(node.value)
+
+        if isinstance(node, DiceNode):
+            return self.format_group(node.group)
+
+        if isinstance(node, UnaryOp):
+            return "{}{}".format(
+                node.op, self._format_node(node.operand, 3, is_right=False)
+            )
+
+        if isinstance(node, BinaryOp):
+            precedence = PRECEDENCE[node.op]
+            left = self._format_node(node.left, precedence, is_right=False)
+            right = self._format_node(node.right, precedence, is_right=True)
+            rendered = "{} {} {}".format(left, self._operator_symbol(node.op), right)
+
+            if self._needs_parentheses(node, parent_precedence, is_right):
+                return "{}{}{}".format(
+                    self.fmt.group_open, rendered, self.fmt.group_close
+                )
+            return rendered
+
+        raise TypeError("unknown node type: {!r}".format(type(node).__name__))
+
+    def _operator_symbol(self, op: str) -> str:
+        """Substitute the format's glyph for a canonical operator."""
+        if op == "x":
+            return self.fmt.multiply_symbol
+        if op == "/":
+            return self.fmt.divide_symbol
+        return op
+
+    def _needs_parentheses(self, node, parent_precedence: int, is_right: bool) -> bool:
+        """Decide whether a binary node needs wrapping given its parent.
+
+        A child that binds more loosely than its parent needs brackets. A child
+        that binds equally loosely needs them only on the right of ``-`` or
+        ``/``, where left-to-right evaluation would otherwise change the
+        meaning.
+        """
+        if parent_precedence == 0:
+            return False
+
+        precedence = PRECEDENCE[node.op]
+        if precedence < parent_precedence:
+            return True
+        if precedence > parent_precedence:
+            return False
+        return is_right and node.op in ("-", "/")
