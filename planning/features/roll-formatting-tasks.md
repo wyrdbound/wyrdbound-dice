@@ -429,7 +429,7 @@ rendered changes.
 breakdown objects. No RNG, no evaluator changes, nothing wired into `__str__`.
 Proving the renderer in isolation is what makes Phase 5 survivable.
 
-- [ ] **T031** [P] [US3] Create `tests/test_formatting.py` with a module
+- [x] **T031** [P] [US3] Create `tests/test_formatting.py` with a module
   docstring, imports from `wyrdbound_dice.breakdown` and
   `wyrdbound_dice.formatting`, and three helpers building breakdowns **by hand,
   with no dice rolls**: `simple_group()` — `2d6`, dice 6 and 2, all kept,
