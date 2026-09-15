@@ -352,7 +352,7 @@ Two assertions in the whole existing suite touch rendered strings (§2). The
 refactor rewrites the evaluator. Those two facts together mean the corpus is a
 prerequisite, not a nicety.
 
-`tests/format_corpus.py` holds 63 expressions and 7 modifier cases, all verified
+`tests/format_corpus.py` holds 62 expressions and 7 modifier cases, all verified
 against v0.0.3 at seed 42. `tools/gen_format_snapshots.py` renders each and
 writes `tests/data/format_snapshots.json`; `tests/test_format_snapshots.py`
 re-rolls and asserts byte equality. Entries are **append-only** — never edited,

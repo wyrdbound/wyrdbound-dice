@@ -218,7 +218,7 @@ rendered strings (§2) — this phase is why the rest of the list is safe.
   newline, creating `tests/data/` if needed.
   *Accept:* the script runs without error.
 
-- [ ] **T004** [US1] Run `python tools/gen_format_snapshots.py` and commit
+- [x] **T004** [US1] Run `python tools/gen_format_snapshots.py` and commit
   `tests/data/format_snapshots.json`. Spot-check three entries: `"1d20"` is a
   string of the form `"N = N (1d20: N)"`; `"1d6 / 0"` is
   `"!DivisionByZeroError"`; `"1d6r<=6"` is `"!InfiniteConditionError"`.
