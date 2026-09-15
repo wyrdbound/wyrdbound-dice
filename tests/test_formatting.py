@@ -155,6 +155,16 @@ def test_glyph_overrides():
     assert DefaultFormatter(RollFormat()).format(breakdown) is not None
 
 
+def test_fudge_symbols():
+    from wyrdbound_dice.formatting import DefaultFormatter, RollFormat
+
+    default = DefaultFormatter().format_group(fudge_group())
+    assert "-, B, +" in default
+
+    custom = DefaultFormatter(RollFormat(fudge_symbols=("-", "0", "+")))
+    assert "-, 0, +" in custom.format_group(fudge_group())
+
+
 def simple_group():
     """A plain 2d6 group: dice 6 and 2, both kept, subtotal 8."""
     return DiceGroup(
