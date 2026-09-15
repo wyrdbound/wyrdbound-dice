@@ -1,5 +1,6 @@
 from typing import List, Optional, Tuple
 
+from .breakdown import DiceGroup, Die
 from .errors import DivisionByZeroError
 
 
@@ -346,6 +347,66 @@ class RollResult:
     @property
     def subtotal(self) -> int:
         return sum(self.kept)
+
+    @property
+    def breakdown(self) -> DiceGroup:
+        """Return this result as a structured :class:`DiceGroup`.
+
+        The notation follows the display order keep, drop, reroll, explode.
+        ``kept`` on each die comes from ``kept_indices``, so a dropped die is
+        identified by position rather than by value.
+        """
+        if self.is_fudge:
+            kind = "fudge"
+        elif self.is_percentile:
+            kind = "percentile"
+        else:
+            kind = "standard"
+
+        notation = (
+            f"{self.num}d{self.sides}"
+            + self._build_keep_string()
+            + self._build_drop_string()
+            + self._build_reroll_string()
+            + self._build_explode_string()
+        )
+
+        kept_index_set = set(self.kept_indices)
+        dice = tuple(
+            Die(
+                value=trace["value"],
+                faces=tuple(trace["faces"]),
+                sources=tuple(trace["sources"]),
+                kept=index in kept_index_set,
+            )
+            for index, trace in enumerate(self.dice_traces)
+        )
+
+        reroll = (
+            (self.reroll_count, self.reroll_cmp, self.reroll_target)
+            if self.reroll_target is not None
+            else None
+        )
+        explode = (
+            (self.explode_cmp, self.explode_target)
+            if self.explode_target is not None
+            else None
+        )
+
+        kept_sum = sum(self.kept)
+        return DiceGroup(
+            num=self.num,
+            sides=str(self.sides),
+            kind=kind,
+            notation=notation,
+            dice=dice,
+            keep_operations=tuple(tuple(op) for op in self.keep_operations),
+            drop_operations=tuple(tuple(op) for op in self.drop_operations),
+            reroll=reroll,
+            explode=explode,
+            subtotal=kept_sum,
+            total=(kept_sum * self.multiply) // self.divide,
+        )
 
     def __str__(self):
         """Return a formatted string representation of the roll result."""

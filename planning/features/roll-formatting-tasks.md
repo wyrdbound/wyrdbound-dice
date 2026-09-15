@@ -382,7 +382,7 @@ rendered changes.
   `to_dict` yet — leave it out entirely rather than stubbing it.
   *Accept:* T019 passes.
 
-- [ ] **T025** [US2] Add a `breakdown` property to `RollResult` returning a
+- [x] **T025** [US2] Add a `breakdown` property to `RollResult` returning a
   `DiceGroup`. `kind` is `"fudge"` / `"percentile"` / `"standard"` from the flags;
   `notation` is `f"{num}d{sides}"` + `_build_keep_string()` + `_build_drop_string()`
   + `_build_reroll_string()` + `_build_explode_string()` **in that order** —
