@@ -494,23 +494,32 @@ class RollResult:
         """
         if self.drop_operations:
             # Apply drop operations
-            self.kept, self.dropped = KeepOperationProcessor.apply_drop_operations(
-                self.rolls, self.drop_operations
+            self.kept_indices, self.dropped_indices = (
+                KeepOperationProcessor.apply_drop_operations_indexed(
+                    self.rolls, self.drop_operations
+                )
             )
         elif self.keep_operations:
             # Apply keep operations
-            self.kept, self.dropped = KeepOperationProcessor.apply_keep_operations(
-                self.rolls, self.keep_operations
+            self.kept_indices, self.dropped_indices = (
+                KeepOperationProcessor.apply_keep_operations_indexed(
+                    self.rolls, self.keep_operations
+                )
             )
         elif self.keep_type and self.keep_n is not None:
             # Apply legacy keep operations
-            self.kept, self.dropped = KeepOperationProcessor.apply_legacy_keep(
-                self.rolls, self.keep_type, self.keep_n
+            self.kept_indices, self.dropped_indices = (
+                KeepOperationProcessor.apply_legacy_keep_indexed(
+                    self.rolls, self.keep_type, self.keep_n
+                )
             )
         else:
             # No operations - keep all dice
-            self.kept = self.rolls
-            self.dropped = []
+            self.kept_indices = list(range(len(self.rolls)))
+            self.dropped_indices = []
+
+        self.kept = [self.rolls[i] for i in sorted(self.kept_indices)]
+        self.dropped = [self.rolls[i] for i in sorted(self.dropped_indices)]
 
     def _build_drop_string(self) -> str:
         """Build the drop operations string for display."""

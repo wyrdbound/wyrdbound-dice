@@ -298,7 +298,7 @@ reconstruct-provenance trap before starting.
   modify the existing value-returning methods** — callers depend on them.
   *Accept:* `python -m pytest tests/ -q` unchanged.
 
-- [ ] **T014** [US2] Rewrite `RollResult._calculate_kept_and_dropped` to call the
+- [x] **T014** [US2] Rewrite `RollResult._calculate_kept_and_dropped` to call the
   T013 methods, set `self.kept_indices` and `self.dropped_indices`, then derive
   `self.kept = [self.rolls[i] for i in sorted(self.kept_indices)]` and
   `self.dropped` likewise. `sum(self.kept)` must be unchanged for every corpus
