@@ -397,7 +397,7 @@ rendered changes.
 - [x] **T026** [US2] Add `RollResult.to_node()` returning `DiceNode(self.breakdown)`.
   *Accept:* T023 passes.
 
-- [ ] **T027** [US2] Implement `RollBreakdown.to_dict()` and a module-private
+- [x] **T027** [US2] Implement `RollBreakdown.to_dict()` and a module-private
   `_node_to_dict(node)` in `breakdown.py`. Each node dict carries a `"type"` key:
   `"literal"`, `"dice"`, `"unary"`, `"binary"`. Percentile faces serialise as
   two-element lists. No enums, tuples or dataclasses may survive into the output.
