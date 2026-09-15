@@ -79,7 +79,6 @@ All code must be debuggable and observable:
 
 ### Git Branching & Commits
 - **Feature branches**: `feature/description` or `fix/description`
-- **Sequential numbering**: Use Spec Kit's sequential branch numbering
 - **Conventional commits REQUIRED**: Format `<type>[optional scope]: <description>`
   - Examples: `feat: add success counting for World of Darkness`, `fix(parser): resolve reroll chain edge case`, `chore: update dependencies`
   - **Description MUST be lowercase**: the word immediately after `type: ` must begin with a lowercase letter
@@ -164,7 +163,7 @@ This constitution supersedes all other development practices for wyrdbound-dice.
 **Compliance verification:**
 - All PRs must be reviewed against this constitution
 - Complexity must be justified against Core Principles
-- Use `.specify/templates/` for runtime development guidance
+- Feature plans, specs, and task lists live under `planning/features/`
 
 ---
 
