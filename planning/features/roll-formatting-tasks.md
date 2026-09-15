@@ -455,7 +455,7 @@ Proving the renderer in isolation is what makes Phase 5 survivable.
   both construct cleanly.
   *Accept:* fails with `ImportError`.
 
-- [ ] **T035** [P] [US3] Write failing `test_format_group_standard`:
+- [x] **T035** [P] [US3] Write failing `test_format_group_standard`:
   `DefaultFormatter().format_group(simple_group()) == "8 (2d6: 6, 2)"`.
   *Accept:* fails with `ImportError`.
 

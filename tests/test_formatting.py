@@ -59,6 +59,12 @@ def test_layout_validation():
     assert RollFormat(layout="{expression}")
 
 
+def test_format_group_standard():
+    from wyrdbound_dice.formatting import DefaultFormatter
+
+    assert DefaultFormatter().format_group(simple_group()) == "8 (2d6: 6, 2)"
+
+
 def simple_group():
     """A plain 2d6 group: dice 6 and 2, both kept, subtotal 8."""
     return DiceGroup(
