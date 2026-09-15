@@ -447,7 +447,7 @@ Proving the renderer in isolation is what makes Phase 5 survivable.
   `layout == "{total} = {breakdown}"`; `RollFormat()` is hashable and frozen.
   *Accept:* fails with `ImportError`.
 
-- [ ] **T034** [P] [US4] Write failing layout-validation tests:
+- [x] **T034** [P] [US4] Write failing layout-validation tests:
   `RollFormat(layout="no placeholders")` raises `ValueError`;
   `RollFormat(layout="{total} {bogus}")` raises `ValueError` with a message
   naming `total`, `breakdown` and `expression`; `RollFormat(layout="{}")` raises
