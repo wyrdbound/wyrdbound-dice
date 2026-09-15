@@ -314,7 +314,7 @@ reconstruct-provenance trap before starting.
   take this path).
   *Accept:* T009 passes.
 
-- [ ] **T016** [US2] In `src/wyrdbound_dice/dice.py`, inside
+- [x] **T016** [US2] In `src/wyrdbound_dice/dice.py`, inside
   `_roll_single_dice_expression`, build `dice_traces: List[dict]` alongside
   `all_rolls`. Create the list before the `for _ in range(num):` loop; at the top
   of each iteration create `trace = {"faces": [], "sources": [], "value": 0}`.

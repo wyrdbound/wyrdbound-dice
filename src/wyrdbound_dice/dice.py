@@ -389,18 +389,26 @@ class Dice:
 
         rolls: List[int] = []
         all_rolls: List[int] = []
+        dice_traces: List[dict] = []
         for _ in range(num):
+            trace = {"faces": [], "sources": [], "value": 0}
             count = 0
             if is_fudge:
                 raw_value, value = DiceRoller.roll_fudge_die(rng=rng)
                 all_rolls.append(raw_value)  # Store raw value for display
+                trace["faces"].append(raw_value)
+                trace["sources"].append("roll")
             elif is_percentile:
                 value, tens_roll, ones_roll = DiceRoller.roll_percentile_die(rng=rng)
                 # Store both dice for display
                 all_rolls.append((tens_roll, ones_roll))
+                trace["faces"].append((tens_roll, ones_roll))
+                trace["sources"].append("roll")
             else:
                 value = DiceRoller.roll_standard_die(sides, rng=rng)
                 all_rolls.append(value)
+                trace["faces"].append(value)
+                trace["sources"].append("roll")
 
             # apply rerolls (not applicable to fudge or percentile dice)
             if not is_fudge and not is_percentile and reroll_cmp and target is not None:
@@ -410,6 +418,8 @@ class Dice:
                     count += 1
                     value = DiceRoller.roll_standard_die(sides, rng=rng)
                     all_rolls.append(value)
+                    trace["faces"].append(value)
+                    trace["sources"].append("reroll")
             elif is_percentile and reroll_cmp and target is not None:
                 while DiceRoller.should_reroll(
                     value, reroll_cmp, target, cls._cmp_funcs
@@ -419,6 +429,8 @@ class Dice:
                         rng=rng
                     )
                     all_rolls.append((tens_roll, ones_roll))
+                    trace["faces"].append((tens_roll, ones_roll))
+                    trace["sources"].append("reroll")
 
             # Handle exploding dice (not applicable to fudge or percentile
             # dice)
@@ -430,11 +442,15 @@ class Dice:
                     ):
                         value = DiceRoller.roll_standard_die(sides, rng=rng)
                         all_rolls.append(value)
+                        trace["faces"].append(value)
+                        trace["sources"].append("explosion")
                         current_total += value
                     else:
                         break
 
             rolls.append(current_total)
+            trace["value"] = current_total
+            dice_traces.append(trace)
 
         # Parse multiple keep operations (combine from before and after reroll/explode)
         keep_ops_1 = match.group("keep_ops_1") or ""
