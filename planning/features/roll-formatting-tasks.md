@@ -488,7 +488,7 @@ Proving the renderer in isolation is what makes Phase 5 survivable.
   → `"10 - (2 - 3)"`.
   *Accept:* fails with `ImportError`.
 
-- [ ] **T039** [P] [US4] Write failing `test_glyph_overrides`: `multiply_symbol="×"`
+- [x] **T039** [P] [US4] Write failing `test_glyph_overrides`: `multiply_symbol="×"`
   renders `×` and no `x`; `die_separator=" "` → `"8 (2d6: 6 2)"`;
   `group_open="["`/`group_close="]"` → `"8 [2d6: 6, 2]"`; `show_notation=False`
   → `"8 (6, 2)"`.
