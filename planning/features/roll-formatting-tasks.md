@@ -509,7 +509,7 @@ Proving the renderer in isolation is what makes Phase 5 survivable.
   bracket contents.
   *Accept:* fails with `ImportError`.
 
-- [ ] **T043** [P] [US6] Write failing `test_formatter_protocol_and_subclass`: a
+- [x] **T043** [P] [US6] Write failing `test_formatter_protocol_and_subclass`: a
   `DefaultFormatter` subclass overriding `format_die` to return `"#"` renders
   every die as `#`; a plain object with a `format(self, breakdown)` method
   satisfies `isinstance(obj, Formatter)`.
