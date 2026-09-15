@@ -186,6 +186,14 @@ def test_percentile_styles():
     assert "[" not in value.format_group(group)
 
 
+def test_zero_dice_group():
+    from wyrdbound_dice.breakdown import DiceGroup
+    from wyrdbound_dice.formatting import DefaultFormatter
+
+    group = DiceGroup(num=0, sides="6", kind="standard", notation="0d6")
+    assert DefaultFormatter().format_group(group) == "0 (0d6)"
+
+
 def simple_group():
     """A plain 2d6 group: dice 6 and 2, both kept, subtotal 8."""
     return DiceGroup(

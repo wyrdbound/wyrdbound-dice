@@ -504,7 +504,7 @@ Proving the renderer in isolation is what makes Phase 5 survivable.
   `Percentile.PAIR` and `"60"` under `Percentile.VALUE`.
   *Accept:* fails with `ImportError`.
 
-- [ ] **T042** [P] [US4] Write failing `test_zero_dice_group`: a `DiceGroup` with
+- [x] **T042** [P] [US4] Write failing `test_zero_dice_group`: a `DiceGroup` with
   `num=0` and no dice renders `"0 (0d6)"` — no trailing separator, no empty
   bracket contents.
   *Accept:* fails with `ImportError`.
