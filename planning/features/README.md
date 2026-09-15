@@ -91,4 +91,4 @@ constitution wins for *what* the code must be.
 
 | Feature | Design | Tasks | Status |
 | --- | --- | --- | --- |
-| Roll formatting | [`roll-formatting.md`](roll-formatting.md) | [`roll-formatting-tasks.md`](roll-formatting-tasks.md) | In progress. Phase 1 done; Phase 2 next. |
+| Roll formatting | [`roll-formatting.md`](roll-formatting.md) | [`roll-formatting-tasks.md`](roll-formatting-tasks.md) | In progress. Phase 2 done; Phase 3 next. |
