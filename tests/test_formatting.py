@@ -1,5 +1,9 @@
 """Tests for the formatter, built against hand-constructed breakdowns."""
 
+import dataclasses
+
+import pytest
+
 from wyrdbound_dice.breakdown import DiceGroup, Die
 
 
@@ -13,6 +17,29 @@ def test_enums_exist():
     assert Percentile.PAIR
     assert Percentile.VALUE
     assert len(list(Percentile)) == 2
+
+
+def test_rollformat_defaults():
+    from wyrdbound_dice.formatting import Dropped, Percentile, RollFormat
+
+    fmt = RollFormat()
+    assert fmt.layout == "{total} = {breakdown}"
+    assert fmt.show_notation is True
+    assert fmt.dropped == Dropped.SHOWN
+    assert fmt.show_rerolls is True
+    assert fmt.modifier_depth == 2
+    assert fmt.die_separator == ", "
+    assert fmt.group_open == "("
+    assert fmt.group_close == ")"
+    assert fmt.notation_separator == ": "
+    assert fmt.multiply_symbol == "x"
+    assert fmt.divide_symbol == "/"
+    assert fmt.dropped_marker == "~{value}~"
+    assert fmt.fudge_symbols == ("-", "B", "+")
+    assert fmt.percentile == Percentile.PAIR
+    hash(fmt)
+    with pytest.raises(dataclasses.FrozenInstanceError):
+        fmt.modifier_depth = 0
 
 
 def simple_group():
