@@ -33,3 +33,14 @@ def test_trace_sources_tag_rerolls():
     assert set(all_sources) <= {"roll", "reroll", "explosion"}
     for trace in r.dice_traces:
         assert trace["sources"][0] == "roll"
+
+
+def test_kept_indices_handles_ties():
+    from wyrdbound_dice.roll_result import RollResult
+
+    r = RollResult(4, "6", [3, 3, 5, 1], keep_operations=[("h", 2)])
+    assert len(r.kept_indices) == 2
+    assert len(r.dropped_indices) == 2
+    assert 2 in r.kept_indices
+    assert set(r.kept_indices) | set(r.dropped_indices) == {0, 1, 2, 3}
+    assert len(set(r.kept_indices) & {0, 1}) == 1
