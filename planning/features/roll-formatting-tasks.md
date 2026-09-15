@@ -239,7 +239,7 @@ rendered strings (§2) — this phase is why the rest of the list is safe.
   construction; fix the test, never the snapshot.
   *Accept:* 69 passed.
 
-- [ ] **T007** [US1] Run `black src/ tests/ tools/`, `isort src/ tests/ tools/`,
+- [x] **T007** [US1] Run `black src/ tests/ tools/`, `isort src/ tests/ tools/`,
   `ruff check src/ tests/ tools/`, then `python -m pytest tests/ -q`.
   *Accept:* the passing count is T001's count plus 69.
 
