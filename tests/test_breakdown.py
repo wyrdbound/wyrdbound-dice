@@ -17,3 +17,10 @@ def test_dice_traces_present():
     assert len(dice_traces) == 3
     for trace in dice_traces:
         assert set(trace) == {"faces", "sources", "value"}
+
+
+def test_traces_concatenate_to_all_rolls():
+    for expr in ["3d6", "2d6r1<=2", "2d6e", "4dF", "1d%"]:
+        r = roll(expr).results[0]
+        faces = [f for t in r.dice_traces for f in t["faces"]]
+        assert faces == r.all_rolls

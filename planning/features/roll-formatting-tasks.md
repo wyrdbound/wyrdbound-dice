@@ -265,7 +265,7 @@ reconstruct-provenance trap before starting.
   and each entry is a dict with keys exactly `{"faces", "sources", "value"}`.
   *Accept:* fails with `AttributeError`.
 
-- [ ] **T010** [P] [US2] Write failing `test_traces_concatenate_to_all_rolls`:
+- [x] **T010** [P] [US2] Write failing `test_traces_concatenate_to_all_rolls`:
   for `"3d6"`, `"2d6r1<=2"`, `"2d6e"`, `"4dF"`, `"1d%"`, assert
   `[f for t in r.dice_traces for f in t["faces"]] == r.all_rolls` — same order,
   same values, same types. This is the §3.2 invariant and it is load-bearing.
