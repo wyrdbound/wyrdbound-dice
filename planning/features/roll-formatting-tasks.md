@@ -271,7 +271,7 @@ reconstruct-provenance trap before starting.
   same values, same types. This is the §3.2 invariant and it is load-bearing.
   *Accept:* fails with `AttributeError`.
 
-- [ ] **T011** [P] [US2] Write failing `test_trace_sources_tag_rerolls`: roll
+- [x] **T011** [P] [US2] Write failing `test_trace_sources_tag_rerolls`: roll
   `"8d6r1<=1"` at seed 42 (the corpus shows this rerolls), assert at least one
   `"reroll"` appears across all traces, that every source is one of `"roll"`,
   `"reroll"`, `"explosion"`, and that the **first** entry of every trace's
