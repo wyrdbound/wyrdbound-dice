@@ -532,7 +532,7 @@ Proving the renderer in isolation is what makes Phase 5 survivable.
   `self`** — never assigns — so `frozen=True` is preserved.
   *Accept:* T034 passes.
 
-- [ ] **T046** [US6] Add the `Formatter` protocol (`typing.Protocol`, decorated
+- [x] **T046** [US6] Add the `Formatter` protocol (`typing.Protocol`, decorated
   `@runtime_checkable`) with a single `format(self, breakdown: RollBreakdown) -> str`.
   *Accept:* the second half of T043 passes.
 
