@@ -305,7 +305,7 @@ reconstruct-provenance trap before starting.
   expression (rule 2).
   *Accept:* T012 passes; `python -m pytest tests/test_format_snapshots.py -q` green.
 
-- [ ] **T015** [US2] Add `dice_traces: Optional[List[dict]] = None` as the
+- [x] **T015** [US2] Add `dice_traces: Optional[List[dict]] = None` as the
   **last** keyword parameter of `RollResult.__init__` and store it. When `None`,
   synthesise one trace per entry of `self.rolls` as
   `{"faces": [v], "sources": ["roll"], "value": v}`, using `self.all_rolls` when
