@@ -1,4 +1,5 @@
 import argparse
+import html
 import sys
 import webbrowser
 from collections import Counter
@@ -254,8 +255,14 @@ Standard Deviation: {(sum((x - stats['average'])**2 for x in data['counter'].ele
     </div>
     """
 
-    # Add three example rolls to the HTML output
-    example_rolls = [str(Dice.roll(dice_expression)) for _ in range(3)]
+    # Add three example rolls to the HTML output.
+    # The expression is attacker-controlled whenever this tool is driven by
+    # anything but a human at a prompt, and the page it produces is opened in a
+    # browser, so everything derived from it is escaped before interpolation.
+    safe_expression = html.escape(dice_expression, quote=True)
+    example_rolls = [
+        html.escape(str(Dice.roll(dice_expression)), quote=True) for _ in range(3)
+    ]
 
     # Update HTML content to include the table
     html_content = f"""
@@ -264,7 +271,7 @@ Standard Deviation: {(sum((x - stats['average'])**2 for x in data['counter'].ele
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dice Statistics - {dice_expression}</title>
+    <title>Dice Statistics - {safe_expression}</title>
     <style>
         body {{
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -347,7 +354,7 @@ Standard Deviation: {(sum((x - stats['average'])**2 for x in data['counter'].ele
 </head>
 <body>
     <div class="container">
-        <h1>🎲 Dice Statistics for "{dice_expression}"</h1>
+        <h1>🎲 Dice Statistics for "{safe_expression}"</h1>
 
         <div class="graph-container">
             <img src="{png_file.name}" alt="Dice Statistics Graph">
