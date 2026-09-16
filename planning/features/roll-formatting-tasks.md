@@ -808,7 +808,7 @@ through non-default formats, which is why this is a MINOR bump and not a MAJOR o
   produces `[1]`.
   *Accept:* fails.
 
-- [ ] **T074** [P] [US4] Write failing `test_show_rerolls_false`: a hand-built
+- [x] **T074** [P] [US4] Write failing `test_show_rerolls_false`: a hand-built
   `DiceGroup` with one die whose `faces=(1, 5)` and `sources=("roll", "reroll")`
   renders both faces by default and only `5` with `show_rerolls=False`.
   *Accept:* fails.
