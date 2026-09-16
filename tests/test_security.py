@@ -327,3 +327,66 @@ def test_graph_tool_escapes_quotes_out_of_attributes(tmp_path):
     assert proc.returncode == 0, proc.stderr
     html = out.read_text(encoding="utf-8")
     assert not re.search(r'onload\s*=\s*"alert', html)
+
+
+# --------------------------------------------------------------------------
+# D5/D6 - debug state is per-thread, restored on failure, and not forgeable
+# --------------------------------------------------------------------------
+
+
+def test_debug_mode_is_restored_when_a_roll_raises():
+    """A failed roll used to leave debug enabled for everything after it."""
+    from wyrdbound_dice.debug_logger import StringLogger, get_debug_logger
+
+    assert not get_debug_logger().enabled
+    with pytest.raises(InfiniteConditionError):
+        Dice.roll("1d6r<=6", debug=True, logger=StringLogger())
+    assert not get_debug_logger().enabled
+
+
+def test_debug_loggers_do_not_leak_between_threads():
+    """Two concurrent debug rolls used to share one module-global logger."""
+    import threading
+
+    from wyrdbound_dice.debug_logger import StringLogger
+
+    results = {}
+
+    def worker(name, expr):
+        logger = StringLogger()
+        for _ in range(40):
+            Dice.roll(expr, debug=True, logger=logger)
+        results[name] = logger.get_logs()
+
+    threads = [
+        threading.Thread(target=worker, args=("a", "1d20")),
+        threading.Thread(target=worker, args=("b", "3d8")),
+    ]
+    for thread in threads:
+        thread.start()
+    for thread in threads:
+        thread.join()
+
+    assert "3d8" not in results["a"]
+    assert "1d20" not in results["b"]
+    assert results["a"].count("1d20") >= 40
+    assert results["b"].count("3d8") >= 40
+
+
+def test_expression_cannot_forge_a_log_line():
+    """A newline in the expression used to produce a whole fake DEBUG record."""
+    from wyrdbound_dice.debug_logger import StringLogger
+
+    logger = StringLogger()
+    payload = "1d6\nDEBUG: [COMPLETE] Final result: 999999"
+    try:
+        Dice.roll(payload, debug=True, logger=logger)
+    except (ParseError, InfiniteConditionError):
+        pass
+
+    # The payload may still appear inside the quoted expression - that is the
+    # input, faithfully escaped. What it must not do is become its own record.
+    for line in logger.get_logs().splitlines():
+        assert line != "DEBUG: [COMPLETE] Final result: 999999"
+        assert not line.startswith("DEBUG: [COMPLETE] Final result: 999999")
+    assert "\\n" in logger.get_logs()
