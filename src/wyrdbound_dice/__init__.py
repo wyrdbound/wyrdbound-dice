@@ -43,7 +43,15 @@ from .debug_logger import DebugLogger, StringLogger
 from .dice import Dice, RollModifier, RollResultSet
 from .errors import DivisionByZeroError, InfiniteConditionError, ParseError
 from .expression_token import TokenType
-from .formatting import DefaultFormatter, Dropped, Formatter, Percentile, RollFormat
+from .formatting import (
+    DefaultFormatter,
+    Dropped,
+    Formatter,
+    Percentile,
+    RollFormat,
+    get_default_format,
+    set_default_format,
+)
 from .roll_result import RollResult
 
 __version__ = "0.0.8"
@@ -99,4 +107,6 @@ __all__ = [
     "Percentile",
     "Formatter",
     "DefaultFormatter",
+    "set_default_format",
+    "get_default_format",
 ]

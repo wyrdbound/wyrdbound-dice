@@ -785,7 +785,7 @@ task here, not only at the end.
   > own strict-`xfail` test, `test_verbose_preset_marks_dropped_dice`; T075
   > removes the marker.
 
-- [ ] **T071** [P] [US5] Add `set_default_format` and `get_default_format` to the
+- [x] **T071** [P] [US5] Add `set_default_format` and `get_default_format` to the
   imports and `__all__` in `src/wyrdbound_dice/__init__.py`.
   *Accept:* both import from the package root.
 
