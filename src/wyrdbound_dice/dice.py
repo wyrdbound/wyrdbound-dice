@@ -208,7 +208,7 @@ class RollResultSet:
         """Return a formatted string representation of the roll result."""
         from .formatting import DefaultFormatter, RollFormat
 
-        return DefaultFormatter(RollFormat()).format(self.breakdown)
+        return DefaultFormatter(RollFormat.STANDARD).format(self.breakdown)
 
 
 class Dice:

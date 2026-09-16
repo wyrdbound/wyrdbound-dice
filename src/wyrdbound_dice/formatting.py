@@ -107,6 +107,18 @@ class RollFormat:
             raise ValueError(message)
 
 
+RollFormat.STANDARD = RollFormat()
+RollFormat.MINIMAL = RollFormat(layout="{total}")
+RollFormat.COMPACT = RollFormat(
+    die_separator=",",
+    notation_separator=":",
+    modifier_depth=1,
+    dropped=Dropped.HIDDEN,
+    show_rerolls=False,
+)
+RollFormat.VERBOSE = RollFormat(dropped=Dropped.MARKED)
+
+
 @runtime_checkable
 class Formatter(Protocol):
     """Structural interface for anything that renders a roll breakdown.
