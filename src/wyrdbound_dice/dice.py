@@ -206,45 +206,9 @@ class RollResultSet:
 
     def __str__(self) -> str:
         """Return a formatted string representation of the roll result."""
-        if self._root is not None:
-            from .formatting import DefaultFormatter, RollFormat
+        from .formatting import DefaultFormatter, RollFormat
 
-            body = DefaultFormatter(RollFormat(layout="{breakdown}")).format_node(
-                self._root
-            )
-            if self.modifiers:
-                body += " " + " ".join(str(mod) for mod in self.modifiers)
-            return "{} = {}".format(self.total, body)
-
-        parts = self._build_formula_parts()
-        formula = " ".join(parts)
-        return f"{self.total} = {formula}"
-
-    def _build_formula_parts(self) -> List[str]:
-        """Build the formula parts for string representation."""
-        parts = []
-
-        # Add dice results
-        for i, result in enumerate(self.results):
-            result_str = str(result)
-            result_total = (sum(result.kept) * result.multiply) // result.divide
-
-            if i == 0:
-                parts.append(result_str)
-            else:
-                # Format subsequent results with appropriate operators
-                if result_total < 0:
-                    parts.append(
-                        f"- {result_str[1:]}"
-                    )  # Remove negative and add our own
-                else:
-                    parts.append(f"+ {result_str}")
-
-        # Add modifiers
-        for modifier in self.modifiers:
-            parts.append(str(modifier))
-
-        return parts
+        return DefaultFormatter(RollFormat()).format(self.breakdown)
 
 
 class Dice:
@@ -894,11 +858,13 @@ class GoodFluxResult(RollResult):
         self.higher = higher
         self.lower = lower
 
-    def __str__(self):
-        return (
-            f"{self.higher} (1d6: {self.higher}) - "
-            + f"{self.lower} (1d6: {self.lower})"
-        )
+    def to_node(self):
+        """Render as ``high - low``, both operands single d6 groups."""
+        from .breakdown import BinaryOp, DiceNode
+
+        high = _flux_group(self.higher)
+        low = _flux_group(self.lower)
+        return BinaryOp(DiceNode(high), "-", DiceNode(low), self.higher - self.lower)
 
 
 class BadFluxResult(RollResult):
@@ -915,11 +881,28 @@ class BadFluxResult(RollResult):
         self.higher = higher
         self.lower = lower
 
-    def __str__(self):
-        return (
-            f"{self.lower} (1d6: {self.lower}) - "
-            + f"{self.higher} (1d6: {self.higher})"
-        )
+    def to_node(self):
+        """Render as ``low - high``, both operands single d6 groups."""
+        from .breakdown import BinaryOp, DiceNode
+
+        low = _flux_group(self.lower)
+        high = _flux_group(self.higher)
+        return BinaryOp(DiceNode(low), "-", DiceNode(high), self.lower - self.higher)
+
+
+def _flux_group(value: int):
+    """Build a synthetic single-d6 group for a flux operand."""
+    from .breakdown import DiceGroup, Die
+
+    return DiceGroup(
+        num=1,
+        sides="6",
+        kind="standard",
+        notation="1d6",
+        dice=(Die(value=value, faces=(value,), sources=("roll",), kept=True),),
+        subtotal=value,
+        total=value,
+    )
 
 
 class FluxDiceHandler:

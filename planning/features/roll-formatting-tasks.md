@@ -687,13 +687,20 @@ task here, not only at the end.
 - [x] **T060** [US2] Remove the `xfail` marker added at T028.
   *Accept:* `test_to_dict_is_json_serialisable` passes.
 
-- [ ] **T061** [US1] Reimplement `RollResultSet.__str__` as
+- [x] **T061** [US1] Reimplement `RollResultSet.__str__` as
   `DefaultFormatter(RollFormat()).format(self.breakdown)` and delete
   `_build_formula_parts`. (T068 switches this to `RollFormat.STANDARD`; they are
   equal by construction.) **It must not read the module default** (rule 7).
   *Accept:* snapshots green.
 
-- [ ] **T062** [US1] Reimplement `RollResult.__str__` as
+  > **Merged with T062 and T063 (maintainer decision, 2026-09-15).** Routing the
+  > set through `breakdown` bypasses the two flux `__str__` overrides, so
+  > `GOODFLUX`/`BADFLUX` go red the moment T061 lands; T063 replaces those
+  > overrides with `to_node`. T062's rewrite of `RollResult.__str__` is
+  > inseparable from its deletion of the four dead renderers. The three landed
+  > as one commit and the suite is green.
+
+- [x] **T062** [US1] Reimplement `RollResult.__str__` as
   `DefaultFormatter(RollFormat(layout="{breakdown}")).format_node(self.to_node())`.
   Delete `_format_rolls_display`, `_build_cross_dice_string`,
   `_build_math_operation_string` and the `FudgeDiceFormatter` class. **Keep**
@@ -703,7 +710,14 @@ task here, not only at the end.
   gap in this plan, not a decision for you.
   *Accept:* snapshots green.
 
-- [ ] **T063** [US1] Delete `GoodFluxResult.__str__` and `BadFluxResult.__str__`,
+  > **Reachability checked.** `_cross_dice_op` and `_cross_dice_result` are
+  > assigned `None` in `__init__` and never set non-`None` anywhere in `src/`,
+  > `tests/` or `tools/`, so `_build_cross_dice_string` was already dead. The
+  > stop condition did not trigger. A `divide == 0` guard that lived in the old
+  > `RollResult.__str__` was moved into the `breakdown` property so
+  > `DivisionByZeroError` still fires exactly as before.
+
+- [x] **T063** [US1] Delete `GoodFluxResult.__str__` and `BadFluxResult.__str__`,
   and override `to_node()` on each to return
   `BinaryOp(DiceNode(first_group), "-", DiceNode(second_group), value)` where each
   group is a synthetic
