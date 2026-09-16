@@ -1,7 +1,7 @@
 # Roll Formatting — the breakdown, the formatter, and the byte-identical gate
 
-**Status:** Phase 5 complete (T053–T064 done; 284 passing, 1 xfail pending T075;
-checkpoint 5 patch bump to 0.0.8). Phase 6 next.
+**Status:** Phase 6 complete (T065–T072 done; 288 passing, 2 xfail pending T075;
+checkpoint 6 patch bump to 0.0.9). Phase 7 next.
 **Source design:** `planning/features/roll-formatting.md` (v0.1; §N references
 below are into that document). `AGENTS.md` — the constitution summary and the
 Verification Contract — is binding on every task here.
@@ -789,7 +789,7 @@ task here, not only at the end.
   imports and `__all__` in `src/wyrdbound_dice/__init__.py`.
   *Accept:* both import from the package root.
 
-- [ ] **T072** [US5] Run `python -m pytest tests/ -q` and `black`/`isort`/`ruff`.
+- [x] **T072** [US5] Run `python -m pytest tests/ -q` and `black`/`isort`/`ruff`.
   *Accept:* all green.
 
 **Checkpoint 6.** Per-phase gate. Patch bump.
