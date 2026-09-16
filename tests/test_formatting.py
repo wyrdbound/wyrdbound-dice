@@ -281,6 +281,27 @@ def test_dropped_display_modes():
     assert "[1]" in custom
 
 
+def test_show_rerolls_false():
+    from wyrdbound_dice.breakdown import DiceGroup, Die
+    from wyrdbound_dice.formatting import DefaultFormatter, RollFormat
+
+    group = DiceGroup(
+        num=1,
+        sides="6",
+        kind="standard",
+        notation="1d6r1<=1",
+        dice=(Die(value=5, faces=(1, 5), sources=("roll", "reroll"), kept=True),),
+        subtotal=5,
+        total=5,
+    )
+    default = DefaultFormatter().format_group(group)
+    assert "1, 5" in default
+
+    trimmed = DefaultFormatter(RollFormat(show_rerolls=False)).format_group(group)
+    assert "1, 5" not in trimmed
+    assert "5" in trimmed
+
+
 @pytest.fixture
 def clean_default_format():
     yield
