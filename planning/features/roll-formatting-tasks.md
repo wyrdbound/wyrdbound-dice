@@ -837,6 +837,13 @@ through non-default formats, which is why this is a MINOR bump and not a MAJOR o
 
 ## Phase 8 — CLI, docs, and the gate
 
+> **Out-of-list fix landed during Phase 8 (maintainer decision, 2026-09-15).**
+> T080 could not write a working `{expression}` example because
+> `RollBreakdown.expression` was always `""` on real rolls (input gap 2). The
+> placeholder is now populated on the precedence, legacy and flux paths, with a
+> regression test; see the resolved note under "Input gaps" at the end of this
+> file. No default output changes.
+
 - [x] **T077** [P] [US7] In `tools/roll.py`, add `--format` with
   `choices=["standard", "compact", "minimal", "verbose"]` defaulting to
   `"standard"`, and `--detail` as `store_true`. Map the choice to the preset via a
@@ -959,6 +966,15 @@ the renderer is called from and not what it does.
    → `2d6 + 3: 17`. If it is not wanted, drop it from T034, T036, T045 and T050
    before starting; retrofitting a placeholder later is additive, removing one is
    a breaking change.
+
+   > **Resolved (maintainer decision, 2026-09-15).** `{expression}` is kept, and
+   > `RollBreakdown.expression` is now populated on every real roll. It was
+   > previously always `""` — T036's `{expression}` test passed only because it
+   > hand-built a breakdown with the field set. `RollResultSet` gained an
+   > `expression` attribute set from the user's normalized input (before
+   > shorthand expansion and negative-dice rewriting) on the precedence, legacy
+   > and flux paths. No default output changes. Covered by
+   > `test_expression_placeholder_renders_the_original_expression`.
 
 3. **Whether `COMPACT` should hide dropped dice.** As specified in §5 it sets
    `dropped=Dropped.HIDDEN`, so `4d6kh3` renders `8 (4d6kh3:4,2,2)` — compact, and
