@@ -119,7 +119,6 @@ def test_to_node_returns_dice_node():
     assert isinstance(roll("2d6").results[0].to_node(), DiceNode)
 
 
-@pytest.mark.xfail(reason="RollResultSet.breakdown lands in T059", strict=True)
 def test_to_dict_is_json_serialisable():
     import json
 
