@@ -877,7 +877,7 @@ through non-default formats, which is why this is a MINOR bump and not a MAJOR o
   flags. Every example must be runnable and its output correct at seed 42.
   *Accept:* every README example produces the output it claims.
 
-- [ ] **T081** [P] Update `CHANGELOG.md` under `[Unreleased]`: one `feat:` line
+- [x] **T081** [P] Update `CHANGELOG.md` under `[Unreleased]`: one `feat:` line
   for configurable roll formatting and the structured breakdown, one `feat:` line
   for the CLI flags, and — if T056 ran — one `fix:` line for precedence-correct
   parenthesisation including the enumerated renderings from the T056 diff.
