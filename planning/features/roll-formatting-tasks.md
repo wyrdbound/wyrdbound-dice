@@ -885,7 +885,7 @@ through non-default formats, which is why this is a MINOR bump and not a MAJOR o
   description.
   *Accept:* the entry names every changed rendering.
 
-- [ ] **T082** [P] Update `AGENTS.md` §Architecture to list `breakdown.py` and
+- [x] **T082** [P] Update `AGENTS.md` §Architecture to list `breakdown.py` and
   `formatting.py` with one-line purposes, and note that all rendering flows
   through `DefaultFormatter`.
   *Accept:* the architecture block matches the tree on disk.
