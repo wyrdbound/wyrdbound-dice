@@ -179,18 +179,7 @@ class RollResultSet:
             result_total = (sum(result.kept) * result.multiply) // result.divide
 
             if i == 0:
-                # Handle special negative dice formatting
-                if (
-                    hasattr(self, "_has_leading_zero_minus")
-                    and self._has_leading_zero_minus
-                    and result_total < 0
-                ):
-                    if result_str.startswith("-"):
-                        parts.append(f"0 - {result_str[1:]}")
-                    else:
-                        parts.append(result_str)
-                else:
-                    parts.append(result_str)
+                parts.append(result_str)
             else:
                 # Format subsequent results with appropriate operators
                 if result_total < 0:
