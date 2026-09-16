@@ -9,6 +9,7 @@ This module owns display policy only. The facts being displayed live in
 :mod:`wyrdbound_dice.breakdown`.
 """
 
+import re
 from dataclasses import dataclass
 from enum import Enum
 from typing import Protocol, Tuple, runtime_checkable
@@ -21,6 +22,84 @@ from .breakdown import (
     RollBreakdown,
     UnaryOp,
 )
+
+LAYOUT_FIELDS = ("total", "breakdown", "expression")
+MARKER_FIELDS = ("value",)
+
+
+def _template_pattern(fields):
+    """Build the scanner for a template that admits exactly ``fields``.
+
+    The pattern matches the two brace escapes and nothing else that is
+    brace-shaped, so anything it does not match is a validation failure.
+    """
+    return re.compile(r"\{\{|\}\}|\{(" + "|".join(fields) + r")\}")
+
+
+_LAYOUT_RE = _template_pattern(LAYOUT_FIELDS)
+_MARKER_RE = _template_pattern(MARKER_FIELDS)
+
+
+def _validate_template(template, pattern, fields, name):
+    """Reject any template this module would not substitute literally.
+
+    ``str.format`` accepts far more than a field name: attribute access
+    (``{total.__class__}``), indexing, and format specs with unbounded width
+    (``{value:>100000000}``). None of that is display configuration, and all of
+    it reaches through a component into the interpreter. This permits only a
+    bare ``{field}`` for a known field, plus the ``{{`` and ``}}`` escapes.
+
+    Args:
+        template: The candidate template string.
+        pattern: The scanner from :func:`_template_pattern`.
+        fields: The field names this template may name.
+        name: The attribute name, for the error message.
+
+    Returns:
+        The list of field names the template actually uses.
+
+    Raises:
+        ValueError: If the template is not a string, or contains any brace
+            construct other than a permitted placeholder or escape.
+    """
+    allowed = ", ".join("{" + field + "}" for field in fields)
+    if not isinstance(template, str):
+        raise ValueError(
+            name
+            + " must be a string using only "
+            + allowed
+            + "; got: "
+            + repr(template)
+        )
+
+    residue = pattern.sub("", template)
+    if "{" in residue or "}" in residue:
+        raise ValueError(
+            name
+            + " may only use "
+            + allowed
+            + " and the escapes {{ and }}; got: "
+            + repr(template)
+        )
+
+    return [match.group(1) for match in pattern.finditer(template) if match.group(1)]
+
+
+def _render_template(template, pattern, values):
+    """Substitute already-rendered components into a validated template.
+
+    One pass, and ``re.sub`` never rescans what a replacement produced, so a
+    brace inside a rendered component is literal output rather than a new
+    placeholder.
+    """
+
+    def replace(match):
+        field = match.group(1)
+        if field is None:
+            return "{" if match.group(0) == "{{" else "}"
+        return values[field]
+
+    return pattern.sub(replace, template)
 
 
 class Dropped(Enum):
@@ -47,7 +126,9 @@ class RollFormat:
 
     Attributes:
         layout: A template arranging the three top-level components. May use
-            ``{total}``, ``{breakdown}`` and ``{expression}`` only.
+            ``{total}``, ``{breakdown}`` and ``{expression}`` only, plus the
+            ``{{`` and ``}}`` escapes. Attribute access and format specs are
+            rejected at construction time.
         show_notation: Include the dice notation (for example ``2d6``) in a
             group. When ``False`` only the values render.
         dropped: Whether dropped dice are shown, hidden, or marked.
@@ -62,7 +143,7 @@ class RollFormat:
         multiply_symbol: Glyph substituted for the canonical ``x`` operator.
         divide_symbol: Glyph substituted for the canonical ``/`` operator.
         dropped_marker: Template wrapping a dropped die's rendered text; may
-            use ``{value}``.
+            use ``{value}`` only, on the same terms as ``layout``.
         fudge_symbols: ``(minus, blank, plus)`` for raw Fudge faces 1-2, 3-4,
             5-6.
         percentile: Pair (``[00, 5]``) or single value (``05``) display.
@@ -86,25 +167,38 @@ class RollFormat:
     percentile: Percentile = Percentile.PAIR
 
     def __post_init__(self) -> None:
-        """Validate the layout template at construction time.
+        """Validate every field a caller could turn into a render-time fault.
 
-        Only ``{total}``, ``{breakdown}`` and ``{expression}`` are permitted, and
-        at least one must be present. Only reads ``self``, so ``frozen=True``
-        is preserved.
+        ``layout`` and ``dropped_marker`` are templates and are checked against
+        :func:`_validate_template`; ``fudge_symbols`` is indexed by position at
+        render time and so must be exactly three strings. Validating here means
+        a bad format fails where it was written, and that formatting a
+        successfully-evaluated roll never raises. Only reads ``self``, so
+        ``frozen=True`` is preserved.
+
+        Raises:
+            ValueError: If any of those three fields could fault at render time.
         """
-        message = (
-            "layout may only use {total}, {breakdown} and {expression}; "
-            "got: " + repr(self.layout)
+        used = _validate_template(self.layout, _LAYOUT_RE, LAYOUT_FIELDS, "layout")
+        if not used:
+            raise ValueError(
+                "layout must use at least one of {total}, {breakdown}, "
+                "{expression}; got: " + repr(self.layout)
+            )
+
+        _validate_template(
+            self.dropped_marker, _MARKER_RE, MARKER_FIELDS, "dropped_marker"
         )
 
-        try:
-            self.layout.format(total="", breakdown="", expression="")
-        except (KeyError, IndexError, ValueError):
-            raise ValueError(message)
-
-        placeholders = ("{total}", "{breakdown}", "{expression}")
-        if not any(placeholder in self.layout for placeholder in placeholders):
-            raise ValueError(message)
+        if (
+            not isinstance(self.fudge_symbols, tuple)
+            or len(self.fudge_symbols) != 3
+            or not all(isinstance(symbol, str) for symbol in self.fudge_symbols)
+        ):
+            raise ValueError(
+                "fudge_symbols must be a tuple of exactly three strings "
+                "(minus, blank, plus); got: " + repr(self.fudge_symbols)
+            )
 
 
 RollFormat.STANDARD = RollFormat()
@@ -276,7 +370,9 @@ class DefaultFormatter:
         """Render a die, marking it when it was dropped and MARKED is set."""
         text = self.format_die(die, group)
         if not die.kept and self.fmt.dropped == Dropped.MARKED:
-            return self.fmt.dropped_marker.format(value=text)
+            return _render_template(
+                self.fmt.dropped_marker, _MARKER_RE, {"value": text}
+            )
         return text
 
     def format_node(self, node, parent_precedence: int = 0) -> str:
@@ -421,6 +517,12 @@ class DefaultFormatter:
                 body += " " + self.format_modifier(modifier)
         else:
             body = ""
-        return self.fmt.layout.format(
-            total=str(total), breakdown=body, expression=expression
+        return _render_template(
+            self.fmt.layout,
+            _LAYOUT_RE,
+            {
+                "total": str(total),
+                "breakdown": body,
+                "expression": expression,
+            },
         )
