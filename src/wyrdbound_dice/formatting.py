@@ -177,12 +177,19 @@ class DefaultFormatter:
         (``<= 2`` minus, ``<= 4`` blank, else plus). Percentile faces render as
         a pair ``[tens, ones]`` or a single value per ``percentile``.
 
+        When ``show_rerolls`` is ``False`` only the die's final face renders
+        for a rerolled die. **Explosion faces always render**, because every
+        explosion face contributes to the die's value whereas a superseded
+        reroll does not.
+
         Args:
             die: The :class:`~wyrdbound_dice.breakdown.Die` to render.
             group: The group the die belongs to, for its ``kind``.
         """
+        faces = self._visible_faces(die)
+
         rendered = []
-        for face in die.faces:
+        for face in faces:
             if group.kind == "fudge":
                 if face <= 2:
                     rendered.append(self.fmt.fudge_symbols[0])
@@ -195,6 +202,23 @@ class DefaultFormatter:
             else:
                 rendered.append(str(face))
         return self.fmt.die_separator.join(rendered)
+
+    def _visible_faces(self, die):
+        """Return the faces to render for a die under ``show_rerolls``.
+
+        Explosion faces are always kept: they are added to the value, unlike a
+        reroll face that was superseded.
+        """
+        if self.fmt.show_rerolls:
+            return list(die.faces)
+
+        kept_faces = []
+        for index, face in enumerate(die.faces):
+            source = die.sources[index] if index < len(die.sources) else "roll"
+            is_last = index == len(die.faces) - 1
+            if source == "explosion" or is_last:
+                kept_faces.append(face)
+        return kept_faces
 
     def _format_percentile_face(self, face) -> str:
         """Render one percentile face as a pair or a single value."""
@@ -215,12 +239,17 @@ class DefaultFormatter:
 
         Omits the notation and its separator when ``show_notation`` is False,
         and omits the whole bracketed section when the group has no dice.
+        Honour ``dropped``: ``HIDDEN`` omits a dropped die entirely, ``MARKED``
+        wraps its rendered text with ``dropped_marker``, ``SHOWN`` renders it
+        like any other die.
 
         Args:
             group: The :class:`~wyrdbound_dice.breakdown.DiceGroup` to render.
         """
+        visible = [die for die in group.dice if not self._omit_die(die)]
+
         dice_text = self.fmt.die_separator.join(
-            self.format_die(die, group) for die in group.dice
+            self._render_die(die, group) for die in visible
         )
 
         if not group.dice:
@@ -238,6 +267,17 @@ class DefaultFormatter:
         return "{} {}{}{}".format(
             group.total, self.fmt.group_open, inner, self.fmt.group_close
         )
+
+    def _omit_die(self, die) -> bool:
+        """Whether a die is dropped and hidden."""
+        return not die.kept and self.fmt.dropped == Dropped.HIDDEN
+
+    def _render_die(self, die, group) -> str:
+        """Render a die, marking it when it was dropped and MARKED is set."""
+        text = self.format_die(die, group)
+        if not die.kept and self.fmt.dropped == Dropped.MARKED:
+            return self.fmt.dropped_marker.format(value=text)
+        return text
 
     def format_node(self, node, parent_precedence: int = 0) -> str:
         """Render an expression-tree node, parenthesising by precedence.
