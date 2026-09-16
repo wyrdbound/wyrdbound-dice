@@ -820,7 +820,7 @@ class Dice:
             >>> mock_rng.random.return_value = 0.9999
             >>> Dice.roll("1d6", rng=mock_rng)  # Always rolls 6
         """
-        from .debug_logger import get_debug_logger, set_debug_mode
+        from .debug_logger import DebugLogger, get_debug_logger, swap_debug_logger
 
         if isinstance(expr, str) and len(expr) > MAX_EXPRESSION_LENGTH:
             raise ParseError(
@@ -829,24 +829,26 @@ class Dice:
                 )
             )
 
-        # Set debug mode for this roll
-        set_debug_mode(debug, logger)
-        debug_logger = get_debug_logger()
+        # Set debug mode for this roll, restoring whatever was in place when we
+        # are done. Without the finally, a roll that raised left debug enabled
+        # for everything that ran afterwards on this thread.
+        previous = swap_debug_logger(DebugLogger(debug, logger))
+        try:
+            debug_logger = get_debug_logger()
 
-        debug_logger.log_step("START", f"Rolling expression: '{expr}'")
-        if rng is not None:
-            debug_logger.log_step("RNG", f"Custom RNG in use: {type(rng).__name__}")
-        if modifiers:
-            debug_logger.log_step("MODIFIERS", f"Using modifiers: {modifiers}")
+            debug_logger.log_step("START", f"Rolling expression: '{expr}'")
+            if rng is not None:
+                debug_logger.log_step("RNG", f"Custom RNG in use: {type(rng).__name__}")
+            if modifiers:
+                debug_logger.log_step("MODIFIERS", f"Using modifiers: {modifiers}")
 
-        result = cls.roll_with_precedence(expr, modifiers, rng=rng)
+            result = cls.roll_with_precedence(expr, modifiers, rng=rng)
 
-        debug_logger.log_step("COMPLETE", f"Final result: {result.total}")
+            debug_logger.log_step("COMPLETE", f"Final result: {result.total}")
 
-        # Reset debug mode
-        set_debug_mode(False)
-
-        return result
+            return result
+        finally:
+            swap_debug_logger(previous)
 
     @classmethod
     def _handle_goodflux(cls, expr: str) -> str:
