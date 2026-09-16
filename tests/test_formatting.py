@@ -234,6 +234,19 @@ def test_standard_equals_default():
     assert RollFormat.STANDARD == RollFormat()
 
 
+def test_presets_render():
+    import random
+
+    from wyrdbound_dice import Dice
+    from wyrdbound_dice.formatting import RollFormat
+
+    result = Dice.roll("4d6kh3", rng=random.Random(42))
+    assert str(result) == "8 = 8 (4d6kh3: 4, 1, 2, 2)"
+    assert result.format(RollFormat.STANDARD) == str(result)
+    assert result.format(RollFormat.MINIMAL) == "8"
+    assert result.format(RollFormat.VERBOSE) != str(result)
+
+
 def simple_group():
     """A plain 2d6 group: dice 6 and 2, both kept, subtotal 8."""
     return DiceGroup(
