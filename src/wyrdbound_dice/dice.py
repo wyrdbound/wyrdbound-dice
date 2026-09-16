@@ -48,6 +48,87 @@ def _randint(rng, a: int, b: int) -> int:
     return int(rng.random() * (b - a + 1)) + a
 
 
+MAX_EXPRESSION_LENGTH = 1000
+"""Longest dice expression accepted by :meth:`Dice.roll`.
+
+Normalization and validation both scan the whole string with several regular
+expressions, so cost grows faster than length: a 20,000-character expression
+spent over a second in validation before any die was rolled. A thousand
+characters is far longer than any real expression and makes that cost constant.
+"""
+
+MAX_DICE_COUNT = 10000
+"""Largest number of dice a single term may roll.
+
+Every die in a term is rolled in a Python loop, so ``num`` is a direct
+multiplier on work and memory: before this bound, ``1000000000d6`` did not
+return. Ten thousand is far above any tabletop system (a large Shadowrun pool
+is tens of dice) and still completes in milliseconds.
+"""
+
+MAX_TOTAL_DICE = 20000
+"""Largest number of dice one :meth:`Dice.roll` call may roll in total.
+
+:data:`MAX_DICE_COUNT` bounds a single term, which leaves the sum unbounded:
+``9999d6+9999d6+...`` packed to :data:`MAX_EXPRESSION_LENGTH` is 143 terms and
+1.43 million dice, about ten seconds of CPU and 650 MB of peak memory for one
+thousand-byte input. This bounds the whole expression instead, which is what a
+caller's request budget actually cares about.
+
+Counted from the expression before rolling, so an oversized request is refused
+without allocating anything. Explosions can carry a roll slightly past the
+bound; they are geometrically bounded in expectation and
+:class:`DiceExpressionValidator` already rejects conditions that always explode.
+"""
+
+
+class _RollBudget:
+    """A per-call ceiling on how many dice may actually be rolled.
+
+    :meth:`DiceExpressionValidator.validate_total_dice` counts the dice an
+    expression *names*, which is not the same as the dice it *rolls*: rerolls
+    and explosions add dice at runtime. The validator only rejects conditions
+    that match every face, so ``1d1000000e>=2`` — which explodes on all but one
+    face — names one die and rolls hundreds of thousands. This counts the real
+    ones and stops the roll when they run out.
+
+    A budget of ``None`` anywhere in the chain means unlimited, preserving the
+    behaviour of any caller reaching past :meth:`Dice.roll`.
+    """
+
+    __slots__ = ("remaining", "expression")
+
+    def __init__(self, limit: int, expression: str = ""):
+        self.remaining = limit
+        self.expression = expression
+
+    def spend(self, count: int = 1) -> None:
+        """Account for ``count`` dice actually rolled.
+
+        Raises:
+            InfiniteConditionError: When the call's budget is exhausted, which
+                in practice means a reroll or explode condition that is very
+                nearly always true.
+        """
+        self.remaining -= count
+        if self.remaining < 0:
+            raise InfiniteConditionError(
+                "explosion/reroll",
+                self.expression,
+                "rolling more than {} dice; a reroll or explode condition is "
+                "almost always true".format(MAX_TOTAL_DICE),
+            )
+
+
+MAX_DIE_SIDES = 1000000
+"""Largest die size a single term may roll.
+
+Python integers are unbounded, so ``1d99999999999999999999`` produced a
+twenty-digit "roll" rather than failing. The bound keeps results inside the
+range a caller can reasonably display and arithmetic on them cheap.
+"""
+
+
 class RollModifier:
     """Represents a modifier that can be either a static value or a dice
     expression."""
@@ -265,6 +346,7 @@ class Dice:
         expr: str,
         modifiers: Optional[Dict[str, Union[int, str]]] = None,
         rng=None,
+        budget=None,
     ) -> RollResultSet:
         """Roll dice using the original parsing method for backward
         compatibility."""
@@ -285,6 +367,12 @@ class Dice:
 
         # Handle negative dice expressions (convert "-XdY" to "0 - XdY")
         expr = ExpressionProcessor.process_negative_dice(expr)
+
+        # Reachable directly as well as through roll_with_precedence, so it
+        # provisions its own budget when it was not handed one.
+        if budget is None:
+            DiceExpressionValidator.validate_total_dice(expr)
+            budget = _RollBudget(MAX_TOTAL_DICE, expr)
 
         # Handle special flux cases
         if "GOODFLUX_SPECIAL" in expr:
@@ -331,12 +419,16 @@ class Dice:
             )
             # Handle cross-dice operations (e.g., "1d6 + 2d8")
             for match in dice_matches:
-                dice_result = cls._roll_single_dice_expression(expr, match, rng=rng)
+                dice_result = cls._roll_single_dice_expression(
+                    expr, match, rng=rng, budget=budget
+                )
                 results.append(dice_result)
         else:
             # Handle normal single or multiple dice of same type
             for match in dice_matches:
-                dice_result = cls._roll_single_dice_expression(expr, match, rng=rng)
+                dice_result = cls._roll_single_dice_expression(
+                    expr, match, rng=rng, budget=budget
+                )
                 results.append(dice_result)
 
         # Create modifiers list
@@ -361,9 +453,28 @@ class Dice:
         return result_set
 
     @classmethod
-    def _roll_single_dice_expression(cls, expr: str, match, rng=None) -> RollResult:
+    def _roll_single_dice_expression(
+        cls, expr: str, match, rng=None, budget=None
+    ) -> RollResult:
         """Roll a single dice expression given a regex match."""
-        num = int(match.group("num"))
+        try:
+            num = int(match.group("num"))
+        except ValueError:
+            # CPython refuses int() on very long digit strings (>4300 digits).
+            # Surface that as a parse failure rather than an opaque ValueError.
+            raise ParseError(
+                "Dice count in '{}' is too large; the maximum is {}".format(
+                    expr, MAX_DICE_COUNT
+                )
+            )
+
+        if num > MAX_DICE_COUNT:
+            raise ParseError(
+                "Dice count {} in '{}' exceeds the maximum of {}".format(
+                    num, expr, MAX_DICE_COUNT
+                )
+            )
+
         sides_str = match.group("sides")
 
         # Normalize Unicode characters in sides string for display
@@ -372,6 +483,13 @@ class Dice:
         is_fudge = sides_str.upper() == "F"
         is_percentile = sides_str == "%"
         sides = 6 if is_fudge else (100 if is_percentile else int(normalized_sides_str))
+
+        if sides > MAX_DIE_SIDES:
+            raise ParseError(
+                "Die size {} in '{}' exceeds the maximum of {}".format(
+                    sides, expr, MAX_DIE_SIDES
+                )
+            )
 
         # reroll parameters
         rc_str = match.group("reroll_count")
@@ -431,17 +549,23 @@ class Dice:
             if is_fudge:
                 raw_value, value = DiceRoller.roll_fudge_die(rng=rng)
                 all_rolls.append(raw_value)  # Store raw value for display
+                if budget is not None:
+                    budget.spend()
                 trace["faces"].append(raw_value)
                 trace["sources"].append("roll")
             elif is_percentile:
                 value, tens_roll, ones_roll = DiceRoller.roll_percentile_die(rng=rng)
                 # Store both dice for display
                 all_rolls.append((tens_roll, ones_roll))
+                if budget is not None:
+                    budget.spend()
                 trace["faces"].append((tens_roll, ones_roll))
                 trace["sources"].append("roll")
             else:
                 value = DiceRoller.roll_standard_die(sides, rng=rng)
                 all_rolls.append(value)
+                if budget is not None:
+                    budget.spend()
                 trace["faces"].append(value)
                 trace["sources"].append("roll")
 
@@ -453,6 +577,8 @@ class Dice:
                     count += 1
                     value = DiceRoller.roll_standard_die(sides, rng=rng)
                     all_rolls.append(value)
+                    if budget is not None:
+                        budget.spend()
                     trace["faces"].append(value)
                     trace["sources"].append("reroll")
             elif is_percentile and reroll_cmp and target is not None:
@@ -464,6 +590,8 @@ class Dice:
                         rng=rng
                     )
                     all_rolls.append((tens_roll, ones_roll))
+                    if budget is not None:
+                        budget.spend()
                     trace["faces"].append((tens_roll, ones_roll))
                     trace["sources"].append("reroll")
 
@@ -477,6 +605,8 @@ class Dice:
                     ):
                         value = DiceRoller.roll_standard_die(sides, rng=rng)
                         all_rolls.append(value)
+                        if budget is not None:
+                            budget.spend()
                         trace["faces"].append(value)
                         trace["sources"].append("explosion")
                         current_total += value
@@ -546,7 +676,7 @@ class Dice:
 
     @classmethod
     def _roll_single_dice_expression_from_string(
-        cls, dice_expr: str, rng=None
+        cls, dice_expr: str, rng=None, budget=None
     ) -> RollResult:
         """Roll a single dice expression from a string like '2d6kh1'."""
         # Validate the dice expression for common issues
@@ -556,7 +686,9 @@ class Dice:
         match = cls._dice_re.match(dice_expr)
         if not match:
             raise ValueError(f"Invalid dice expression: {dice_expr}")
-        return cls._roll_single_dice_expression(dice_expr, match, rng=rng)
+        return cls._roll_single_dice_expression(
+            dice_expr, match, rng=rng, budget=budget
+        )
 
     @classmethod
     def roll_with_precedence(
@@ -603,6 +735,11 @@ class Dice:
             result.expression = display_expr
             return result
 
+        # Count the dice the expression names before rolling any of them, then
+        # carry a runtime budget for the ones rerolls and explosions add.
+        DiceExpressionValidator.validate_total_dice(expr)
+        budget = _RollBudget(MAX_TOTAL_DICE, display_expr)
+
         # Check if we should use the new parser or fall back to original
         needs_precedence_parsing = ExpressionProcessor.should_use_precedence_parsing(
             expr
@@ -613,7 +750,7 @@ class Dice:
 
         # If we don't need precedence parsing, use the simpler original method
         if not needs_precedence_parsing:
-            result = cls._roll_original_method(expr, modifiers, rng=rng)
+            result = cls._roll_original_method(expr, modifiers, rng=rng, budget=budget)
             result.expression = display_expr
             return result
 
@@ -624,14 +761,14 @@ class Dice:
         DiceExpressionValidator.validate_expression_input(expr)
 
         try:
-            result = cls._parse_with_precedence(expr, modifiers, rng=rng)
+            result = cls._parse_with_precedence(expr, modifiers, rng=rng, budget=budget)
         except (SyntaxError, AttributeError, TypeError, ParseError) as e:
             logger.log_step(
                 "FALLBACK",
                 f"Parser error: {e}, falling back to original method",
             )
             # Fall back to the original parsing method only for parsing errors
-            result = cls._roll_original_method(expr, modifiers, rng=rng)
+            result = cls._roll_original_method(expr, modifiers, rng=rng, budget=budget)
 
         result.expression = display_expr
         return result
@@ -685,6 +822,13 @@ class Dice:
         """
         from .debug_logger import get_debug_logger, set_debug_mode
 
+        if isinstance(expr, str) and len(expr) > MAX_EXPRESSION_LENGTH:
+            raise ParseError(
+                "Expression is {} characters; the maximum is {}".format(
+                    len(expr), MAX_EXPRESSION_LENGTH
+                )
+            )
+
         # Set debug mode for this roll
         set_debug_mode(debug, logger)
         debug_logger = get_debug_logger()
@@ -732,6 +876,7 @@ class Dice:
         expr: str,
         modifiers: Optional[Dict[str, Union[int, str]]],
         rng=None,
+        budget=None,
     ) -> "RollResultSet":
         """Parse expression using the precedence parser."""
         from .debug_logger import get_debug_logger
@@ -771,7 +916,9 @@ class Dice:
 
             @staticmethod
             def _roll_single_dice_expression_from_string(dice_expr):
-                return cls._roll_single_dice_expression_from_string(dice_expr, rng=rng)
+                return cls._roll_single_dice_expression_from_string(
+                    dice_expr, rng=rng, budget=budget
+                )
 
         result = parsed_expr.evaluate(_DiceProxy())
 
@@ -979,6 +1126,13 @@ class DiceExpressionValidator:
         if not expr or expr.isspace():
             raise ParseError(f"Empty or whitespace-only expression: {repr(expr)}")
 
+        if len(expr) > MAX_EXPRESSION_LENGTH:
+            raise ParseError(
+                "Expression is {} characters; the maximum is {}".format(
+                    len(expr), MAX_EXPRESSION_LENGTH
+                )
+            )
+
         # Check for any dice-like patterns
         if not re.search(r"\d*d\d*[fF%]?", expr):
             if re.match(r"^[\d\+\-\*\/\sx\×\÷\(\)\s]+$", expr):
@@ -1019,6 +1173,37 @@ class DiceExpressionValidator:
                 raise ParseError(
                     "Multiple explode conditions not allowed in dice "
                     + f"expression: {dice_pattern}"
+                )
+
+    @staticmethod
+    def validate_total_dice(expr: str) -> None:
+        """Reject an expression whose dice counts sum past MAX_TOTAL_DICE.
+
+        Called after shorthand expansion so that ``FUDGE`` and friends are
+        counted as the dice they become, and before any die is rolled so that
+        an oversized request costs a regex scan rather than a gigabyte.
+
+        Args:
+            expr: The normalized, shorthand-expanded expression.
+
+        Raises:
+            ParseError: If the dice counts in ``expr`` sum past the bound.
+        """
+        total = 0
+        for count in re.findall(r"(\d+)d(?:\d+|[fF]|%)", expr):
+            try:
+                total += int(count)
+            except ValueError:
+                raise ParseError(
+                    "Dice count in '{}' is too large; the maximum total is {}".format(
+                        expr, MAX_TOTAL_DICE
+                    )
+                )
+            if total > MAX_TOTAL_DICE:
+                raise ParseError(
+                    "Expression '{}' rolls more than {} dice in total".format(
+                        expr, MAX_TOTAL_DICE
+                    )
                 )
 
     @staticmethod
