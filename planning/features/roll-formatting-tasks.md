@@ -844,12 +844,18 @@ through non-default formats, which is why this is a MINOR bump and not a MAJOR o
   *Accept:* `python tools/roll.py "4d6kh3" --seed 42 --format minimal` prints only
   the total.
 
-- [ ] **T078** [P] [US7] In `tools/roll.py`, when `--json` **and** `--detail` are
+- [x] **T078** [P] [US7] In `tools/roll.py`, when `--json` **and** `--detail` are
   both set, add `"breakdown": result.breakdown.to_dict()` to each roll's dict.
   Without `--detail`, the JSON keys are exactly what v0.0.3 emitted.
   *Accept:* T079.
 
-- [ ] **T079** [US7] Create `tests/test_cli_format.py` driving `tools/roll.py`
+  > **Process note (2026-09-15).** This landed in the same commit as T077 rather
+  > than separately — `--detail` is declared by T077 but only observable through
+  > this behaviour, so the two were written together. That is a deviation from
+  > `planning/features/README.md` rule 12 (one task per commit). The behaviour is
+  > correct and covered by T079; the deviation is recorded rather than hidden.
+
+- [x] **T079** [US7] Create `tests/test_cli_format.py` driving `tools/roll.py`
   through `subprocess.run([sys.executable, "tools/roll.py", ...])`: `--seed 42 --json`
   keys are exactly `{"result", "description", "seed"}`; `--seed 42 --json --detail`
   additionally has `breakdown`; `--format minimal` prints only the total; exit
