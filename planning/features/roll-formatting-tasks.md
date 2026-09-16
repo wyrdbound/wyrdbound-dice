@@ -890,7 +890,7 @@ through non-default formats, which is why this is a MINOR bump and not a MAJOR o
   through `DefaultFormatter`.
   *Accept:* the architecture block matches the tree on disk.
 
-- [ ] **T083** Add docstrings to every public class, method and function added by
+- [x] **T083** Add docstrings to every public class, method and function added by
   this feature that lacks one.
   *Accept:* `ruff check src/ tests/ tools/` clean.
 
