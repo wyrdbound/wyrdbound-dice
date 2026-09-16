@@ -837,7 +837,7 @@ through non-default formats, which is why this is a MINOR bump and not a MAJOR o
 
 ## Phase 8 — CLI, docs, and the gate
 
-- [ ] **T077** [P] [US7] In `tools/roll.py`, add `--format` with
+- [x] **T077** [P] [US7] In `tools/roll.py`, add `--format` with
   `choices=["standard", "compact", "minimal", "verbose"]` defaulting to
   `"standard"`, and `--detail` as `store_true`. Map the choice to the preset via a
   module-level dict and use `result.format(preset)` for text output.

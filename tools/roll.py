@@ -24,6 +24,14 @@ sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
 from wyrdbound_dice import Dice, DivisionByZeroError, InfiniteConditionError, ParseError
 from wyrdbound_dice.debug_logger import StringLogger
+from wyrdbound_dice.formatting import RollFormat
+
+FORMAT_PRESETS = {
+    "standard": RollFormat.STANDARD,
+    "compact": RollFormat.COMPACT,
+    "minimal": RollFormat.MINIMAL,
+    "verbose": RollFormat.VERBOSE,
+}
 
 parser = argparse.ArgumentParser(
     description="Roll dice expressions using WyrdBound Dice"
@@ -47,8 +55,21 @@ parser.add_argument(
     metavar="N",
     help="Integer seed for reproducible rolls (e.g. --seed 42)",
 )
+parser.add_argument(
+    "--format",
+    choices=["standard", "compact", "minimal", "verbose"],
+    default="standard",
+    help="Named output style for text rolls",
+)
+parser.add_argument(
+    "--detail",
+    action="store_true",
+    help="Include the structured breakdown under --json",
+)
 
 args = parser.parse_args()
+
+preset = FORMAT_PRESETS[args.format]
 
 # Build rng from seed if provided; a fresh Random(seed) is used per-run so
 # --count N with --seed produces a deterministic sequence across all N rolls.
@@ -72,6 +93,8 @@ try:
         if args.json:
             # Collect results for JSON output
             roll_data = {"result": result.total, "description": str(result)}
+            if args.detail:
+                roll_data["breakdown"] = result.breakdown.to_dict()
             if debug_output:
                 roll_data["debug"] = debug_output
             results.append(roll_data)
@@ -79,7 +102,7 @@ try:
             # Regular text output
             if args.count > 1:
                 print(f"\n--- Roll {i + 1} ---")
-            print(result)
+            print(result.format(preset))
 
     # Output JSON if requested
     if args.json:
