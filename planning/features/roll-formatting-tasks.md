@@ -665,7 +665,7 @@ task here, not only at the end.
   assignments to `_override_description`.
   *Accept:* `grep -rn "_override_description" src/` returns nothing.
 
-- [ ] **T058** [US1] Delete the dead `_has_leading_zero_minus` branch from
+- [x] **T058** [US1] Delete the dead `_has_leading_zero_minus` branch from
   `RollResultSet._build_formula_parts` (§9.2). Confirm with
   `grep -rn "_has_leading_zero_minus" src/ tests/ tools/` **before** deleting.
   *Accept:* the grep returns nothing afterwards; snapshots green.
