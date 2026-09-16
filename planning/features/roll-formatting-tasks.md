@@ -757,10 +757,15 @@ task here, not only at the end.
 
 > **Gate.** T065–T067 all fail.
 
-- [ ] **T068** [US3] Assign the four presets as class attributes on `RollFormat`
+- [x] **T068** [US3] Assign the four presets as class attributes on `RollFormat`
   after the class body, exactly as §5 gives them. Switch T061's `RollFormat()` to
   `RollFormat.STANDARD`.
   *Accept:* T065 and T066 pass; snapshots green.
+
+  > **Note (maintainer decision, 2026-09-15).** The four presets are assigned and
+  > T065 passes; snapshots are green. T066 additionally calls `result.format()`,
+  > which lands at T070, so that one assertion stays red until then. That is a
+  > forward reference and does not block T068.
 
 - [ ] **T069** [US5] Add module-private `_DEFAULT_FORMAT: Optional[RollFormat] = None`
   plus `set_default_format(fmt)` and `get_default_format()`, the latter returning
