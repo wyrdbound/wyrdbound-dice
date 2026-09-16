@@ -210,6 +210,27 @@ class RollResultSet:
 
         return DefaultFormatter(RollFormat.STANDARD).format(self.breakdown)
 
+    def format(self, fmt=None) -> str:
+        """Render this roll with a format, a formatter, or the module default.
+
+        Args:
+            fmt: ``None`` uses the module default (``RollFormat.STANDARD``
+                unless changed); a :class:`~wyrdbound_dice.formatting.RollFormat`
+                is rendered by a fresh ``DefaultFormatter``; any other object
+                carrying a ``format`` method is used directly.
+
+        Returns:
+            The rendered string. Never raises for a successfully evaluated
+            result, and never rolls a die.
+        """
+        from .formatting import DefaultFormatter, RollFormat, get_default_format
+
+        if fmt is None:
+            fmt = get_default_format()
+        if isinstance(fmt, RollFormat):
+            return DefaultFormatter(fmt).format(self.breakdown)
+        return fmt.format(self.breakdown)
+
 
 class Dice:
     """Main dice rolling class with support for complex expressions

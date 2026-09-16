@@ -244,6 +244,19 @@ def test_presets_render():
     assert str(result) == "8 = 8 (4d6kh3: 4, 1, 2, 2)"
     assert result.format(RollFormat.STANDARD) == str(result)
     assert result.format(RollFormat.MINIMAL) == "8"
+
+
+@pytest.mark.xfail(
+    reason="Dropped.MARKED rendering lands in T075; T075 removes this marker",
+    strict=True,
+)
+def test_verbose_preset_marks_dropped_dice():
+    import random
+
+    from wyrdbound_dice import Dice
+    from wyrdbound_dice.formatting import RollFormat
+
+    result = Dice.roll("4d6kh3", rng=random.Random(42))
     assert result.format(RollFormat.VERBOSE) != str(result)
 
 

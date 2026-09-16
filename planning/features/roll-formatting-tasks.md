@@ -774,11 +774,16 @@ task here, not only at the end.
   is intended to be set once at application startup.
   *Accept:* the first and last assertions of T067 pass.
 
-- [ ] **T070** [US5] Add `RollResultSet.format(fmt=None)`: `None` →
+- [x] **T070** [US5] Add `RollResultSet.format(fmt=None)`: `None` →
   `get_default_format()`; a `RollFormat` → `DefaultFormatter(fmt).format(self.breakdown)`;
   anything else carrying a `format` attribute → `fmt.format(self.breakdown)`.
   Never raises for a successfully-evaluated result; never rolls a die.
   *Accept:* T066 and T067 pass in full.
+
+  > **Note (maintainer decision, 2026-09-15).** T067 passes in full. T066's
+  > `VERBOSE` assertion needs `Dropped.MARKED` (T075), so it was split into its
+  > own strict-`xfail` test, `test_verbose_preset_marks_dropped_dice`; T075
+  > removes the marker.
 
 - [ ] **T071** [P] [US5] Add `set_default_format` and `get_default_format` to the
   imports and `__all__` in `src/wyrdbound_dice/__init__.py`.
@@ -817,9 +822,10 @@ through non-default formats, which is why this is a MINOR bump and not a MAJOR o
   **still renders every `"explosion"` face**, because they all contribute to the
   value. Document that asymmetry in the method docstring — it is the kind of rule
   that looks like a bug six months later.
-  *Accept:* T073 and T074 pass, and the strict `xfail` marker on
-  `test_layout_does_not_reparse_rendered_braces` (added with T037) is removed so
-  the test passes for real.
+  *Accept:* T073 and T074 pass, and the strict `xfail` markers on
+  `test_layout_does_not_reparse_rendered_braces` (added with T037) and
+  `test_verbose_preset_marks_dropped_dice` (split out of T066 at T070) are
+  removed so both tests pass for real.
 
 - [ ] **T076** [US4] Run `python -m pytest tests/ -q` and `black`/`isort`/`ruff`.
   *Accept:* snapshots **still green** — `SHOWN` and `show_rerolls=True` are the
