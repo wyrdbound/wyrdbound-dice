@@ -102,6 +102,20 @@ def test_layout_does_not_reparse_rendered_braces():
     assert "~" not in output
 
 
+def test_expression_placeholder_renders_the_original_expression():
+    import dataclasses
+    import random
+
+    from wyrdbound_dice import Dice
+    from wyrdbound_dice.formatting import RollFormat
+
+    fmt = dataclasses.replace(RollFormat.STANDARD, layout="{expression}: {total}")
+    for expression in ["2d6 + 3", "4d6kh3", "GOODFLUX", "FUDGE"]:
+        result = Dice.roll(expression, rng=random.Random(42))
+        rendered = result.format(fmt)
+        assert rendered.startswith(expression + ": "), rendered
+
+
 def test_precedence_parenthesisation():
     from wyrdbound_dice.breakdown import BinaryOp, Literal
     from wyrdbound_dice.formatting import DefaultFormatter

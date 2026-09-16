@@ -125,9 +125,11 @@ class RollResultSet:
         modifiers: List[RollModifier] = None,
         dice_class=None,
         rng=None,
+        expression: str = "",
     ):
         self.results = results
         self.modifiers = modifiers or []
+        self.expression = expression
         self._override_total: Optional[int] = None
         self._root: Optional["Node"] = None
 
@@ -183,7 +185,7 @@ class RollResultSet:
         return RollBreakdown(
             root=root,
             total=self.total,
-            expression="",
+            expression=self.expression,
             modifiers=modifiers,
         )
 
@@ -579,6 +581,10 @@ class Dice:
         expr = ExpressionProcessor.normalize_unicode(expr)
         logger.log_expression("NORMALIZED", expr)
 
+        # The expression reported to callers is the user's input, normalized for
+        # Unicode but before shorthand expansion or negative-dice rewriting.
+        display_expr = expr
+
         # Process shorthands first
         original_expr = expr
         expr = ExpressionProcessor.process_shorthands(expr)
@@ -588,10 +594,14 @@ class Dice:
         # Handle special flux cases
         if "GOODFLUX_SPECIAL" in expr:
             logger.log_step("SPECIAL_CASE", "Handling GOODFLUX")
-            return cls._handle_goodflux_roll(rng=rng)
+            result = cls._handle_goodflux_roll(rng=rng)
+            result.expression = display_expr
+            return result
         elif "BADFLUX_SPECIAL" in expr:
             logger.log_step("SPECIAL_CASE", "Handling BADFLUX")
-            return cls._handle_badflux_roll(rng=rng)
+            result = cls._handle_badflux_roll(rng=rng)
+            result.expression = display_expr
+            return result
 
         # Check if we should use the new parser or fall back to original
         needs_precedence_parsing = ExpressionProcessor.should_use_precedence_parsing(
@@ -603,7 +613,9 @@ class Dice:
 
         # If we don't need precedence parsing, use the simpler original method
         if not needs_precedence_parsing:
-            return cls._roll_original_method(expr, modifiers, rng=rng)
+            result = cls._roll_original_method(expr, modifiers, rng=rng)
+            result.expression = display_expr
+            return result
 
         # Handle negative dice expressions for precedence parser
         expr = ExpressionProcessor.process_negative_dice(expr)
@@ -612,14 +624,17 @@ class Dice:
         DiceExpressionValidator.validate_expression_input(expr)
 
         try:
-            return cls._parse_with_precedence(expr, modifiers, rng=rng)
+            result = cls._parse_with_precedence(expr, modifiers, rng=rng)
         except (SyntaxError, AttributeError, TypeError, ParseError) as e:
             logger.log_step(
                 "FALLBACK",
                 f"Parser error: {e}, falling back to original method",
             )
             # Fall back to the original parsing method only for parsing errors
-            return cls._roll_original_method(expr, modifiers, rng=rng)
+            result = cls._roll_original_method(expr, modifiers, rng=rng)
+
+        result.expression = display_expr
+        return result
 
     @classmethod
     def roll(
