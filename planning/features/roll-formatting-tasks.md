@@ -801,7 +801,7 @@ task here, not only at the end.
 **Purpose:** the first tasks that change what a user can see — reachable only
 through non-default formats, which is why this is a MINOR bump and not a MAJOR one.
 
-- [ ] **T073** [P] [US4] Write failing dropped-display tests against
+- [x] **T073** [P] [US4] Write failing dropped-display tests against
   `keep_group()`: `Dropped.SHOWN` renders all four dice (default, unchanged);
   `Dropped.HIDDEN` renders only the three kept; `Dropped.MARKED` renders the
   dropped die as `~1~` and the kept dice unmarked; `dropped_marker="[{value}]"`
