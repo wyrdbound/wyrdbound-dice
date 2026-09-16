@@ -595,6 +595,143 @@ for t in threads: t.start()
 for t in threads: t.join()
 ```
 
+## Formatting Roll Output
+
+A roll's parts are available as data, and its text rendering is configurable.
+`str(result)` always shows the standard rendering; `result.format(...)` renders
+it any other way without re-rolling.
+
+### Named styles
+
+```python
+import random
+from wyrdbound_dice import Dice, RollFormat
+
+result = Dice.roll("4d6kh3", rng=random.Random(42))
+
+print(str(result))                              # 8 = 8 (4d6kh3: 4, 1, 2, 2)
+print(result.format(RollFormat.STANDARD))       # 8 = 8 (4d6kh3: 4, 1, 2, 2)
+print(result.format(RollFormat.MINIMAL))        # 8
+print(result.format(RollFormat.COMPACT))        # 8 = 8 (4d6kh3:4,2,2)
+print(result.format(RollFormat.VERBOSE))        # 8 = 8 (4d6kh3: 4, ~1~, 2, 2)
+```
+
+`VERBOSE` marks dice that were dropped with `~...~`, so you can see exactly which
+die the keep/drop chain removed.
+
+### Overriding individual fields
+
+`RollFormat` is a frozen dataclass; use `dataclasses.replace` to derive a new one.
+
+```python
+import dataclasses
+from wyrdbound_dice import RollFormat
+
+no_notation = dataclasses.replace(
+    RollFormat.STANDARD, die_separator=" ", show_notation=False
+)
+print(result.format(no_notation))               # 8 = 8 (4 1 2 2)
+```
+
+Fields include `show_notation`, `dropped` (`Dropped.SHOWN` / `HIDDEN` / `MARKED`),
+`show_rerolls`, `modifier_depth`, the separators, `multiply_symbol`,
+`divide_symbol`, `dropped_marker`, `fudge_symbols` and `percentile`.
+
+### The `layout` template
+
+`layout` arranges the three top-level components — `{total}`, `{breakdown}` and
+`{expression}` — and only those. It is validated when the format is constructed,
+so a bad layout fails where it was written.
+
+```python
+import dataclasses
+from wyrdbound_dice import RollFormat
+
+expr_first = dataclasses.replace(RollFormat.STANDARD, layout="{expression}: {total}")
+print(result.format(expr_first))                # 4d6kh3: 8
+
+just_total = dataclasses.replace(RollFormat.STANDARD, layout="{total}")
+print(result.format(just_total))                # 8
+
+RollFormat(layout="{total} {bogus}")            # raises ValueError
+```
+
+### Setting one style application-wide
+
+```python
+from wyrdbound_dice import RollFormat, set_default_format, get_default_format
+
+set_default_format(RollFormat.COMPACT)
+print(result.format())          # uses COMPACT
+print(str(result))              # unchanged: 8 = 8 (4d6kh3: 4, 1, 2, 2)
+
+set_default_format(None)        # back to STANDARD
+```
+
+The default affects only `result.format()` with no argument. It never changes
+`str(result)`, and is meant to be set once at startup.
+
+### The structured breakdown
+
+`result.breakdown` is a frozen `RollBreakdown` — the tree, the per-die faces and
+their provenance, and the modifiers. `to_dict()` is directly JSON-serialisable.
+
+```python
+breakdown = result.breakdown
+print(breakdown.total)                          # 8
+
+import json
+print(json.dumps(breakdown.to_dict())[:60])     # {"root": {"type": "dice", "group": {"num": 4, ...
+```
+
+Each die records every face it rolled and where each came from:
+
+```python
+group = result.results[0].breakdown
+for die in group.dice:
+    print(die.value, die.faces, die.sources, die.kept)
+# 4 (4,) ('roll',) True
+# 1 (1,) ('roll',) False
+# 2 (2,) ('roll',) True
+# 2 (2,) ('roll',) True
+```
+
+### Custom formatters
+
+`DefaultFormatter` is subclassable; override any `format_*` hook. A `Formatter`
+is any object with a compatible `format(breakdown)` method.
+
+```python
+from wyrdbound_dice import DefaultFormatter, Formatter
+
+class HashFormatter(DefaultFormatter):
+    def format_die(self, die, group):
+        return "#"
+
+print(HashFormatter().format(result.breakdown))  # 8 = 8 (4d6kh3: #, #, #, #)
+
+class DuckFormatter:
+    def format(self, breakdown):
+        return f"total={breakdown.total}"
+
+duck = DuckFormatter()
+assert isinstance(duck, Formatter)
+print(result.format(duck))                       # total=8
+```
+
+### CLI flags
+
+```bash
+python tools/roll.py "4d6kh3" --seed 42                      # standard
+python tools/roll.py "4d6kh3" --seed 42 --format minimal     # 8
+python tools/roll.py "4d6kh3" --seed 42 --format verbose     # marks dropped dice
+python tools/roll.py "4d6kh3" --seed 42 --json --detail      # adds a "breakdown" key
+```
+
+`--format` accepts `standard`, `compact`, `minimal` and `verbose`. `--json`
+without `--detail` emits exactly the same keys as before (`result`,
+`description`, and `seed` when given); `--detail` adds `breakdown`.
+
 ## Development
 
 ### Setting Up Development Environment

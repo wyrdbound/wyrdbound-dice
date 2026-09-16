@@ -869,7 +869,7 @@ through non-default formats, which is why this is a MINOR bump and not a MAJOR o
   code 0 in each case.
   *Accept:* `python -m pytest tests/test_cli_format.py -q`.
 
-- [ ] **T080** [P] [US7] Add a "Formatting Roll Output" section to `README.md`
+- [x] **T080** [P] [US7] Add a "Formatting Roll Output" section to `README.md`
   after "RNG Injection": presets, `result.format()`, field overrides with
   `dataclasses.replace`, the `layout` template with its three placeholders and its
   construction-time validation, `set_default_format`, the structured breakdown
