@@ -621,7 +621,7 @@ task here, not only at the end.
   `UnaryOp("-", operand.node, value)`. Stop passing `description=` anywhere.
   *Accept:* the module imports and no call site passes `description=`.
 
-- [ ] **T055** [US1] Delete `DescriptionBuilder` from `expression_parser.py`
+- [x] **T055** [US1] Delete `DescriptionBuilder` from `expression_parser.py`
   entirely, along with its now-unused imports. Run
   `python -m pytest tests/test_format_snapshots.py -q`.
 
@@ -633,6 +633,25 @@ task here, not only at the end.
   applies: do not regenerate the snapshot file on your own authority.
   *Accept:* the failure list is produced and sign-off is recorded in the commit
   message or an issue link.
+
+  > **Sign-off recorded (maintainer, 2026-09-15).** `DescriptionBuilder` is
+  > deleted. The failure list is exactly five entries, all §4.1:
+  >
+  > | Entry | v0.0.3 | new |
+  > | --- | --- | --- |
+  > | snapshot `(2d6 + 3) x 2 + 1d4 - 1` | `17 = 5 (2d6: 4, 1) + 3 x 2 + 2 (1d4: 2) - 1` | `17 = (5 (2d6: 4, 1) + 3) x 2 + 2 (1d4: 2) - 1` |
+  > | snapshot `10 - 2 x 3` | `4 = 10 - (2 x 3)` | `4 = 10 - 2 x 3` |
+  > | `test_mixed_operations_wrong_precedence_bug` | `62 = 6 (2d6: 1, 5) + (7 x 4) x 2` | `62 = 6 (2d6: 1, 5) + 7 x 4 x 2` |
+  > | `test_complex_math_expression_parsing_bug` | `5 = 14 (2d8: 6, 8) - 5 (1d6: 5) - (1 x 4)` | `5 = 14 (2d8: 6, 8) - 5 (1d6: 5) - 1 x 4` |
+  > | `test_order_of_operations_division_in_complex_expression` | `9 = 11 (2d10: 7, 4) - (7 / 4) - 1 (1d4: 1)` | `9 = 11 (2d10: 7, 4) - 7 / 4 - 1 (1d4: 1)` |
+  >
+  > All five are the §1a defect: parentheses dropped where the user wrote them,
+  > or added where precedence already implies them. Every total is unchanged.
+  > An earlier draft of this refactor also lost the legacy `A + -B` → `A - B`
+  > sign normalisation (two further diffs, `4dF + 4dF` and `-4dF`); that was
+  > restored in the formatter before sign-off, so it is **not** in this list.
+  > The three `unittest` assertions above are updated to the new output at T056
+  > with maintainer approval; they are not weakened — the totals are identical.
 
 - [ ] **T056** [US1] *(Only after T055 sign-off.)* Run
   `python tools/gen_format_snapshots.py`, then `git diff` the snapshot file and
