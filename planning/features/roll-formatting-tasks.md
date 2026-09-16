@@ -747,7 +747,7 @@ task here, not only at the end.
   `result.format(RollFormat.VERBOSE) != str(result)`.
   *Accept:* fails with `AttributeError`.
 
-- [ ] **T067** [P] [US5] Write failing module-default tests, with a `yield`
+- [x] **T067** [P] [US5] Write failing module-default tests, with a `yield`
   fixture calling `set_default_format(None)` on teardown so no test leaks state:
   unset → `get_default_format() == RollFormat.STANDARD`; after
   `set_default_format(RollFormat.COMPACT)`, `result.format()` equals
