@@ -1,7 +1,8 @@
 # Roll Formatting — the breakdown, the formatter, and the byte-identical gate
 
-**Status:** Phase 7 complete (T073–T076 done; 292 passing, 0 xfail; checkpoint 7
-patch bump to 0.0.10). Phase 8 next — the final phase.
+**Status:** Complete. All phases (T001–T086) done; 296 passing, 0 xfail. Released
+as v0.1.0 (minor bump — `STANDARD` output is unchanged; new display is opt-in
+except the signed-off §4.1 parenthesis fix).
 **Source design:** `planning/features/roll-formatting.md` (v0.1; §N references
 below are into that document). `AGENTS.md` — the constitution summary and the
 Verification Contract — is binding on every task here.
@@ -916,12 +917,15 @@ through non-default formats, which is why this is a MINOR bump and not a MAJOR o
   > at T056 with the same sign-off). No other pre-existing test file differs.
   > 296 passed, 0 xfail; coverage 89%.
 
-- [ ] **T086** Manual CLI check (`AGENTS.md` review checklist): run
+- [x] **T086** Manual CLI check (`AGENTS.md` review checklist): run
   `python tools/roll.py "4d6kh3" --seed 42`, `… --format minimal`,
   `… --format verbose`, `… --json --detail`, and
   `python tools/roll.py "GOODFLUX" --seed 42`. Bump the **minor** version in
   `pyproject.toml` and `src/wyrdbound_dice/__init__.py:__version__`.
   *Accept:* every command's output is sensible and the two version strings match.
+
+  > **Done (2026-09-15).** All five commands exit 0 with the expected output;
+  > version bumped `0.0.10` → `0.1.0` in both places, matching.
 
 **Checkpoint 8 — the list is done.**
 

@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## v0.1.0 (2026-09-15)
+
 ### Added
 
 - `--format {standard,compact,minimal,verbose}` and `--detail` flags on `tools/roll.py`: the former picks a named text style, the latter adds a `breakdown` key to `--json` output; `--json` without `--detail` emits the same keys as before
