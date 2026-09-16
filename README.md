@@ -732,6 +732,56 @@ python tools/roll.py "4d6kh3" --seed 42 --json --detail      # adds a "breakdown
 without `--detail` emits exactly the same keys as before (`result`,
 `description`, and `seed` when given); `--detail` adds `breakdown`.
 
+## Input Limits
+
+If you accept dice expressions from anyone other than yourself — a Discord bot,
+a VTT, a web form — read this section. Rolling dice is unbounded work by nature,
+and these limits are the library's **only** protection against a hostile
+expression. They are deliberately generous: every one sits far above anything a
+tabletop system asks for.
+
+| Limit | Value | Bounds |
+| --- | --- | --- |
+| `MAX_EXPRESSION_LENGTH` | 1,000 characters | The input string itself. Normalization and validation scan it with several regexes, so long inputs cost more than linearly. |
+| `MAX_DICE_COUNT` | 10,000 | Dice in a single term, e.g. the `9999` in `9999d6`. |
+| `MAX_TOTAL_DICE` | 20,000 | Dice across the **whole** expression. Per-term caps alone leave the sum unbounded: `9999d6+9999d6+…` packed to the length limit is 1.43 million dice. |
+| `MAX_DIE_SIDES` | 1,000,000 | The size of one die. Python integers are unbounded, so `1d99999999999999999999` otherwise "rolls" a twenty-digit number. |
+
+All four raise `ParseError`. Import them from `wyrdbound_dice.dice` if you want
+to surface the ceilings in your own error messages.
+
+`MAX_TOTAL_DICE` is also enforced **at runtime**, not just counted up front,
+because rerolls and explosions add dice as they go. The infinite-condition
+validator rejects conditions that match *every* face (`1d6e>=1`), but a
+condition matching all but one face is not infinite and is not rejected:
+`1d1000000e>=2` names a single die and rolls it hundreds of thousands of times.
+When a roll exhausts the budget it raises `InfiniteConditionError`.
+
+```python
+from wyrdbound_dice import Dice
+from wyrdbound_dice.errors import InfiniteConditionError, ParseError
+
+try:
+    result = Dice.roll(user_supplied_expression)
+except (ParseError, InfiniteConditionError) as exc:
+    # Too long, too many dice, too many sides, or a runaway explode condition
+    return f"Sorry, I can't roll that: {exc}"
+```
+
+### What these limits do not cover
+
+- **Repeated calls.** One roll is now bounded work; a thousand of them is not.
+  Rate limiting, request timeouts, a bounded worker pool, and a per-worker
+  memory cap belong in your service, not here.
+- **Caller-supplied modifiers.** Each entry in the `modifiers` dict is rolled by
+  its own `Dice.roll()` call and therefore gets its own budget. If you let users
+  supply modifiers as well as the expression, bound the size of that dict
+  yourself.
+- **Memory per die.** A roll retains per-die provenance (`dice_traces`) for the
+  structured breakdown, at roughly 400 bytes per die against 8 bytes for
+  `all_rolls`. At the limits above that is a few megabytes; it is the reason the
+  aggregate bound is 20,000 rather than something much larger.
+
 ## Development
 
 ### Setting Up Development Environment
