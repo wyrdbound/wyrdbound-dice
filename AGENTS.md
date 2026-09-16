@@ -166,17 +166,21 @@ The gate runs from the repo root: `pytest && ruff check src/ tests/ tools/`.
 src/wyrdbound_dice/
 ├── __init__.py          # public API exports
 ├── dice.py              # Dice class and rolling logic
+├── breakdown.py         # structured record of a roll (what happened)
+├── formatting.py        # RollFormat + DefaultFormatter (how it reads)
 ├── expression_lexer.py  # tokenization
 ├── expression_parser.py # parsing with precedence
 ├── expression_token.py  # token types
-├── roll_result.py       # RollResult data structure
+├── roll_result.py       # RollResult data structure and per-die provenance
 ├── debug_logger.py      # debug logging infrastructure
 └── errors.py            # custom exceptions
 ```
 
 Layering: `dice.py` orchestrates; lexer → parser → evaluation is one-directional;
 `tools/` and `tests/` may import anything. The core package imports only the
-standard library.
+standard library. All roll rendering flows through `DefaultFormatter`, which
+folds over a `RollBreakdown`; no other module builds a roll string, and
+`__str__` always renders `RollFormat.STANDARD` (never the module default).
 
 ## Project Structure
 
