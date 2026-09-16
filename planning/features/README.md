@@ -91,4 +91,10 @@ constitution wins for *what* the code must be.
 
 | Feature | Design | Tasks | Status |
 | --- | --- | --- | --- |
-| Roll formatting | [`roll-formatting.md`](roll-formatting.md) | [`roll-formatting-tasks.md`](roll-formatting-tasks.md) | Complete. Released v0.1.0. Move to `done/`. |
+| — | — | — | No active feature. |
+
+## Completed features
+
+| Feature | Design | Tasks | Released |
+| --- | --- | --- | --- |
+| Roll formatting | [`done/roll-formatting.md`](done/roll-formatting.md) | [`done/roll-formatting-tasks.md`](done/roll-formatting-tasks.md) | v0.1.0 |
