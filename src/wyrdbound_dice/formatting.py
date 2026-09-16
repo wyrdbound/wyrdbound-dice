@@ -118,6 +118,28 @@ RollFormat.COMPACT = RollFormat(
 )
 RollFormat.VERBOSE = RollFormat(dropped=Dropped.MARKED)
 
+_DEFAULT_FORMAT = None
+
+
+def set_default_format(fmt) -> None:
+    """Set the module default format used by ``RollResultSet.format()``.
+
+    This is display state read only at render time. It does **not** affect
+    ``__str__``, which always renders ``RollFormat.STANDARD``. It is intended
+    to be set once at application startup: it is not synchronised and not
+    per-thread. Pass ``None`` to restore the standard format.
+
+    Args:
+        fmt: A :class:`RollFormat`, or ``None`` to unset.
+    """
+    global _DEFAULT_FORMAT
+    _DEFAULT_FORMAT = fmt
+
+
+def get_default_format() -> RollFormat:
+    """Return the module default format, or ``RollFormat.STANDARD`` if unset."""
+    return _DEFAULT_FORMAT if _DEFAULT_FORMAT is not None else RollFormat.STANDARD
+
 
 @runtime_checkable
 class Formatter(Protocol):
