@@ -735,7 +735,7 @@ task here, not only at the end.
 
 ## Phase 6 — Presets and the module default
 
-- [ ] **T065** [P] [US3] Write failing `test_presets_exist` and
+- [x] **T065** [P] [US3] Write failing `test_presets_exist` and
   `test_standard_equals_default`: `RollFormat.STANDARD`, `.COMPACT`, `.MINIMAL`,
   `.VERBOSE` exist and are `RollFormat` instances; `RollFormat.STANDARD == RollFormat()`.
   *Accept:* fails with `AttributeError`.

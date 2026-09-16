@@ -216,6 +216,24 @@ def test_formatter_protocol_and_subclass():
     assert isinstance(Duck(), Formatter)
 
 
+def test_presets_exist():
+    from wyrdbound_dice.formatting import RollFormat
+
+    for preset in [
+        RollFormat.STANDARD,
+        RollFormat.COMPACT,
+        RollFormat.MINIMAL,
+        RollFormat.VERBOSE,
+    ]:
+        assert isinstance(preset, RollFormat)
+
+
+def test_standard_equals_default():
+    from wyrdbound_dice.formatting import RollFormat
+
+    assert RollFormat.STANDARD == RollFormat()
+
+
 def simple_group():
     """A plain 2d6 group: dice 6 and 2, both kept, subtotal 8."""
     return DiceGroup(
