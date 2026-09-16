@@ -659,7 +659,7 @@ task here, not only at the end.
   `python -m pytest tests/ -q`.
   *Accept:* the suite is green and the diff is saved for T081.
 
-- [ ] **T057** [US1] In `dice.py`, add `self._root: Optional[Node] = None` to
+- [x] **T057** [US1] In `dice.py`, add `self._root: Optional[Node] = None` to
   `RollResultSet.__init__` and delete `self._override_description`. In
   `_parse_with_precedence`, set `result_set._root = result.node` and delete both
   assignments to `_override_description`.

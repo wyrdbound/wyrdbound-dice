@@ -2,6 +2,7 @@ import random
 import re
 from typing import Callable, Dict, List, Optional, Tuple, Union
 
+from .breakdown import Node
 from .errors import DivisionByZeroError, InfiniteConditionError, ParseError
 from .expression_lexer import ExpressionLexer
 from .expression_parser import ExpressionParser
@@ -128,7 +129,7 @@ class RollResultSet:
         self.results = results
         self.modifiers = modifiers or []
         self._override_total: Optional[int] = None
-        self._override_description: Optional[str] = None
+        self._root: Optional["Node"] = None
 
         # Roll any dice modifiers, propagating rng for full reproducibility
         for modifier in self.modifiers:
@@ -154,8 +155,15 @@ class RollResultSet:
 
     def __str__(self) -> str:
         """Return a formatted string representation of the roll result."""
-        if self._override_description is not None:
-            return f"{self.total} = {self._override_description}"
+        if self._root is not None:
+            from .formatting import DefaultFormatter, RollFormat
+
+            body = DefaultFormatter(RollFormat(layout="{breakdown}")).format_node(
+                self._root
+            )
+            if self.modifiers:
+                body += " " + " ".join(str(mod) for mod in self.modifiers)
+            return "{} = {}".format(self.total, body)
 
         parts = self._build_formula_parts()
         formula = " ".join(parts)
@@ -754,14 +762,8 @@ class Dice:
             final_total,
         )
 
-        # Build description that includes modifiers
-        if mods:
-            modifier_strs = [str(mod) for mod in mods]
-            result_set._override_description = (
-                result.description + " " + " ".join(modifier_strs)
-            )
-        else:
-            result_set._override_description = result.description
+        # Record the evaluated tree; rendering happens through the formatter.
+        result_set._root = result.node
 
         return result_set
 
