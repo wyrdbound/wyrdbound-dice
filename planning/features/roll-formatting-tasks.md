@@ -1,7 +1,7 @@
 # Roll Formatting — the breakdown, the formatter, and the byte-identical gate
 
-**Status:** Phase 6 complete (T065–T072 done; 288 passing, 2 xfail pending T075;
-checkpoint 6 patch bump to 0.0.9). Phase 7 next.
+**Status:** Phase 7 complete (T073–T076 done; 292 passing, 0 xfail; checkpoint 7
+patch bump to 0.0.10). Phase 8 next — the final phase.
 **Source design:** `planning/features/roll-formatting.md` (v0.1; §N references
 below are into that document). `AGENTS.md` — the constitution summary and the
 Verification Contract — is binding on every task here.
@@ -827,7 +827,7 @@ through non-default formats, which is why this is a MINOR bump and not a MAJOR o
   `test_verbose_preset_marks_dropped_dice` (split out of T066 at T070) are
   removed so both tests pass for real.
 
-- [ ] **T076** [US4] Run `python -m pytest tests/ -q` and `black`/`isort`/`ruff`.
+- [x] **T076** [US4] Run `python -m pytest tests/ -q` and `black`/`isort`/`ruff`.
   *Accept:* snapshots **still green** — `SHOWN` and `show_rerolls=True` are the
   defaults, so STANDARD output is untouched.
 

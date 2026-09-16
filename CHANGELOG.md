@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Dropped-dice display options: `RollFormat(dropped=...)` shows, hides (`HIDDEN`), or marks (`MARKED` with a configurable `dropped_marker`) dice that were dropped, and `show_rerolls=False` renders only a rerolled die's final face while always keeping explosion faces
 - `RollFormat` presets (`STANDARD`, `MINIMAL`, `COMPACT`, `VERBOSE`), `RollResultSet.format(fmt=None)` for rendering a roll many ways, and `set_default_format()` / `get_default_format()` for an application-wide default that never affects `str(result)`
 - `RollFormat`, a frozen options object holding every display choice (`layout` template, notation, dropped-dice handling, reroll display, modifier depth, separators, glyphs, Fudge symbols, percentile style) with construction-time layout validation
 - `DefaultFormatter` and the `Formatter` protocol: a subclassable renderer that folds over a roll breakdown, with `Dropped` and `Percentile` enums, all exported from the package root
