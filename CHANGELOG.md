@@ -18,8 +18,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- All rendering now flows through a single `DefaultFormatter` over the structured breakdown; the per-class renderers (`RollResultSet._build_formula_parts`, `RollResult._format_rolls_display`, `_build_cross_dice_string`, `_build_math_operation_string` and `FudgeDiceFormatter`) are gone, and the two Flux `__str__` overrides are replaced by `to_node`
 - Retired Spec Kit: removed `.specify/` and `.pi/speckit.*` artifacts; the project constitution now lives at `planning/constitution.md` and feature specs, plans, and task lists moved to `planning/features/`
 - Rewrote `AGENTS.md` around the constitution principles, the verification contract, and general working principles
+
+### Fixed
+
+- Precedence-correct parenthesisation in roll descriptions: parentheses the user wrote are no longer dropped, and redundant parentheses are no longer added. `(2d6 + 3) x 2 + 1d4 - 1` now renders `17 = (5 (2d6: 4, 1) + 3) x 2 + 2 (1d4: 2) - 1` (was `17 = 5 (2d6: 4, 1) + 3 x 2 + 2 (1d4: 2) - 1`); `10 - 2 x 3` now renders `4 = 10 - 2 x 3` (was `4 = 10 - (2 x 3)`). All totals are unchanged
 
 ## v0.0.3 (2026-05-04)
 

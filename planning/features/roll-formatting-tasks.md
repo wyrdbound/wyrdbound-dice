@@ -1,8 +1,7 @@
 # Roll Formatting — the breakdown, the formatter, and the byte-identical gate
 
-**Status:** Phase 4 complete (T031–T052 done; 283 passing, 2 xfail — `T028` pending
-T059/T060 and `T037` pending T075; checkpoint 4 patch bump to 0.0.7). Phase 5
-next.
+**Status:** Phase 5 complete (T053–T064 done; 284 passing, 1 xfail pending T075;
+checkpoint 5 patch bump to 0.0.8). Phase 6 next.
 **Source design:** `planning/features/roll-formatting.md` (v0.1; §N references
 below are into that document). `AGENTS.md` — the constitution summary and the
 Verification Contract — is binding on every task here.
@@ -727,7 +726,7 @@ task here, not only at the end.
   `BADFLUX` renders `-3 = 1 (1d6: 1) - 4 (1d6: 4)`.
   *Accept:* both corpus entries match.
 
-- [ ] **T064** [US1] Run `python -m pytest tests/ -q` and `black`/`isort`/`ruff`.
+- [x] **T064** [US1] Run `python -m pytest tests/ -q` and `black`/`isort`/`ruff`.
   *Accept:* everything green; six renderers are now one.
 
 **Checkpoint 5.** Per-phase gate. Patch bump.
