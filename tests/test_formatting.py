@@ -260,6 +260,27 @@ def test_verbose_preset_marks_dropped_dice():
     assert result.format(RollFormat.VERBOSE) != str(result)
 
 
+def test_dropped_display_modes():
+    from wyrdbound_dice.formatting import DefaultFormatter, Dropped, RollFormat
+
+    group = keep_group()
+
+    shown = DefaultFormatter(RollFormat(dropped=Dropped.SHOWN)).format_group(group)
+    assert "1" in shown
+    assert shown == "13 (4d6kh3: 1, 2, 5, 6)"
+
+    hidden = DefaultFormatter(RollFormat(dropped=Dropped.HIDDEN)).format_group(group)
+    assert hidden == "13 (4d6kh3: 2, 5, 6)"
+
+    marked = DefaultFormatter(RollFormat(dropped=Dropped.MARKED)).format_group(group)
+    assert marked == "13 (4d6kh3: ~1~, 2, 5, 6)"
+
+    custom = DefaultFormatter(
+        RollFormat(dropped=Dropped.MARKED, dropped_marker="[{value}]")
+    ).format_group(group)
+    assert "[1]" in custom
+
+
 @pytest.fixture
 def clean_default_format():
     yield
