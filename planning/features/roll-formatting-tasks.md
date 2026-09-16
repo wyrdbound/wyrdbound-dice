@@ -767,7 +767,7 @@ task here, not only at the end.
   > which lands at T070, so that one assertion stays red until then. That is a
   > forward reference and does not block T068.
 
-- [ ] **T069** [US5] Add module-private `_DEFAULT_FORMAT: Optional[RollFormat] = None`
+- [x] **T069** [US5] Add module-private `_DEFAULT_FORMAT: Optional[RollFormat] = None`
   plus `set_default_format(fmt)` and `get_default_format()`, the latter returning
   `RollFormat.STANDARD` when unset. Docstrings must state that this is display
   state read only at render time, that it does not affect `__str__`, and that it
