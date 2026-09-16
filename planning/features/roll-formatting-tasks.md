@@ -670,7 +670,7 @@ task here, not only at the end.
   `grep -rn "_has_leading_zero_minus" src/ tests/ tools/` **before** deleting.
   *Accept:* the grep returns nothing afterwards; snapshots green.
 
-- [ ] **T059** [US2] Add a `breakdown` property to `RollResultSet` returning a
+- [x] **T059** [US2] Add a `breakdown` property to `RollResultSet` returning a
   `RollBreakdown`. Use `self._root` when set. When it is `None` — the legacy
   `_roll_original_method` path — build the root by left-folding `self.results`:
   start from `results[0].to_node()`, then append each subsequent result as
@@ -680,7 +680,11 @@ task here, not only at the end.
   `nested=m.dice_result.breakdown` when `m.is_dice`.
   *Accept:* T060.
 
-- [ ] **T060** [US2] Remove the `xfail` marker added at T028.
+  > **Merged with T060 (maintainer decision, 2026-09-15).** T028's strict
+  > `xfail` turns into an `XPASS` failure the moment T059 lands, so T059 cannot
+  > be green with the marker still present. Both landed in one commit.
+
+- [x] **T060** [US2] Remove the `xfail` marker added at T028.
   *Accept:* `test_to_dict_is_json_serialisable` passes.
 
 - [ ] **T061** [US1] Reimplement `RollResultSet.__str__` as

@@ -2,7 +2,7 @@ import random
 import re
 from typing import Callable, Dict, List, Optional, Tuple, Union
 
-from .breakdown import Node
+from .breakdown import Node, RollBreakdown
 from .errors import DivisionByZeroError, InfiniteConditionError, ParseError
 from .expression_lexer import ExpressionLexer
 from .expression_parser import ExpressionParser
@@ -152,6 +152,57 @@ class RollResultSet:
         if self._override_total is not None:
             return self._override_total
         return self.subtotal + sum(modifier.value for modifier in self.modifiers)
+
+    @property
+    def breakdown(self) -> "RollBreakdown":
+        """Return this result set as a structured :class:`RollBreakdown`.
+
+        Uses the evaluated tree when present. On the legacy path -- where no
+        tree was recorded -- the root is rebuilt by left-folding the individual
+        results, joining them with ``+`` or ``-`` according to sign.
+        """
+        from .breakdown import ModifierBreakdown
+
+        root = self._root
+        if root is None:
+            root = self._fold_legacy_results()
+
+        modifiers = tuple(
+            ModifierBreakdown(
+                name=modifier.description or "",
+                value=modifier.value,
+                nested=(
+                    modifier.dice_result.breakdown
+                    if modifier.is_dice and modifier.dice_result is not None
+                    else None
+                ),
+            )
+            for modifier in self.modifiers
+        )
+
+        return RollBreakdown(
+            root=root,
+            total=self.total,
+            expression="",
+            modifiers=modifiers,
+        )
+
+    def _fold_legacy_results(self) -> "Node":
+        """Rebuild a root node by folding the individual dice results."""
+        from .breakdown import BinaryOp, Literal
+
+        nodes = [result.to_node() for result in self.results]
+        if not nodes:
+            return Literal(0)
+
+        acc = nodes[0]
+        for node, result in zip(nodes[1:], self.results[1:]):
+            value = (sum(result.kept) * result.multiply) // result.divide
+            if value < 0:
+                acc = BinaryOp(acc, "-", node, result.subtotal)
+            else:
+                acc = BinaryOp(acc, "+", node, result.subtotal)
+        return acc
 
     def __str__(self) -> str:
         """Return a formatted string representation of the roll result."""
