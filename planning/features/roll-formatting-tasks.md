@@ -740,7 +740,7 @@ task here, not only at the end.
   `.VERBOSE` exist and are `RollFormat` instances; `RollFormat.STANDARD == RollFormat()`.
   *Accept:* fails with `AttributeError`.
 
-- [ ] **T066** [P] [US3] Write failing `test_presets_render`: roll `"4d6kh3"` at
+- [x] **T066** [P] [US3] Write failing `test_presets_render`: roll `"4d6kh3"` at
   seed 42 (corpus value `8 = 8 (4d6kh3: 4, 1, 2, 2)`); assert
   `result.format(RollFormat.STANDARD) == str(result)`,
   `result.format(RollFormat.MINIMAL) == "8"`, and
