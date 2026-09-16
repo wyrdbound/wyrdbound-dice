@@ -247,6 +247,35 @@ def test_presets_render():
     assert result.format(RollFormat.VERBOSE) != str(result)
 
 
+@pytest.fixture
+def clean_default_format():
+    yield
+    from wyrdbound_dice.formatting import set_default_format
+
+    set_default_format(None)
+
+
+def test_module_default(clean_default_format):
+    import random
+
+    from wyrdbound_dice import Dice
+    from wyrdbound_dice.formatting import (
+        RollFormat,
+        get_default_format,
+        set_default_format,
+    )
+
+    assert get_default_format() == RollFormat.STANDARD
+
+    result = Dice.roll("4d6kh3", rng=random.Random(42))
+    set_default_format(RollFormat.COMPACT)
+    assert result.format() == result.format(RollFormat.COMPACT)
+    assert str(result) == "8 = 8 (4d6kh3: 4, 1, 2, 2)"
+
+    set_default_format(None)
+    assert get_default_format() == RollFormat.STANDARD
+
+
 def simple_group():
     """A plain 2d6 group: dice 6 and 2, both kept, subtotal 8."""
     return DiceGroup(
