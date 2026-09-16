@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## v0.1.0 (2026-09-16)
+
 ### Security
 
 - `RollFormat.layout` and `RollFormat.dropped_marker` are no longer rendered with `str.format`. Both are now validated at construction and substituted by a single-pass scanner that accepts only a bare `{total}`/`{breakdown}`/`{expression}` (or `{value}`) plus the `{{` and `}}` escapes. Previously a caller-supplied template could reach through a component with attribute access (`{total.__class__.__mro__}`) or allocate unbounded memory with a format spec (`{value:>100000000}` produced 100 MB per dropped die)
@@ -19,8 +21,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The release workflow publishes through PyPI Trusted Publishing (OIDC, `id-token: write`, `environment: pypi`) rather than a long-lived `PYPI_API_TOKEN` secret. **Action required before the next release**: configure the publisher on PyPI for workflow `release.yml` and environment `pypi`, then delete the `PYPI_API_TOKEN` secret
 - Documented the four input limits in README under "Input Limits", including what they do not cover (repeated calls, caller-supplied modifiers, per-die memory)
 - `tools/graph.py` now HTML-escapes the dice expression and the example rolls before interpolating them into the generated statistics page. The tool opens that page in a browser, so an expression such as `2d6<script>...</script>` previously executed script in a `file://` origin
-
-## v0.1.0 (2026-09-15)
 
 ### Added
 

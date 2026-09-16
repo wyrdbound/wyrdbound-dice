@@ -89,7 +89,8 @@ Wyrdbound Dice supports an extensive range of dice rolling mechanics used across
 pip install wyrdbound-dice
 ```
 
-> **Note**: This package is currently in development and not yet published to PyPI. For now, please use the development installation method below.
+> **Note**: This package is experimental and its API may still change between
+> releases. See [CHANGELOG.md](CHANGELOG.md) for what moved.
 
 ### For Development
 
