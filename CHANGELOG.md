@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Security
+
+- `RollFormat.layout` and `RollFormat.dropped_marker` are no longer rendered with `str.format`. Both are now validated at construction and substituted by a single-pass scanner that accepts only a bare `{total}`/`{breakdown}`/`{expression}` (or `{value}`) plus the `{{` and `}}` escapes. Previously a caller-supplied template could reach through a component with attribute access (`{total.__class__.__mro__}`) or allocate unbounded memory with a format spec (`{value:>100000000}` produced 100 MB per dropped die)
+- `RollFormat.dropped_marker` and `RollFormat.fudge_symbols` are validated at construction. An unknown marker field or a `fudge_symbols` tuple of the wrong length previously raised `KeyError`/`IndexError` from inside rendering, contradicting the documented guarantee that formatting a successfully-evaluated roll never raises
+- Added `MAX_TOTAL_DICE` (20,000), `MAX_DICE_COUNT` (10,000), `MAX_DIE_SIDES` (1,000,000) and `MAX_EXPRESSION_LENGTH` (1,000), each raising `ParseError`. `MAX_TOTAL_DICE` bounds the whole expression rather than a single term, counted from the shorthand-expanded text before any die is rolled: per-term caps alone left `9999d6+9999d6+...` packed to the length limit at 1.43 million dice, roughly ten seconds of CPU and 650 MB of peak memory for one 1,000-byte input. Before these bounds `1000000000d6` did not return, a 2,000-digit dice count hung the process, and a 20,000-character expression spent over a second in validation before rolling a die — reachable by anyone who can supply an expression string
+- `MAX_TOTAL_DICE` is enforced at runtime as well as counted before rolling. The infinite-condition validator only rejects conditions matching *every* face, so a nearly-always-true one slipped past it: `1d1000000e>=2` named a single die and rolled it ~235,000 times, and sixty such terms in one 1,000-byte expression did not finish. A roll that exhausts the budget now raises `InfiniteConditionError`
+- Documented the four input limits in README under "Input Limits", including what they do not cover (repeated calls, caller-supplied modifiers, per-die memory)
+- `tools/graph.py` now HTML-escapes the dice expression and the example rolls before interpolating them into the generated statistics page. The tool opens that page in a browser, so an expression such as `2d6<script>...</script>` previously executed script in a `file://` origin
+
 ## v0.1.0 (2026-09-15)
 
 ### Added
