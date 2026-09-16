@@ -900,13 +900,21 @@ through non-default formats, which is why this is a MINOR bump and not a MAJOR o
   `python3.8 -c "import sys; sys.path.insert(0, 'src'); import wyrdbound_dice"`.
   *Accept:* the grep is empty.
 
-- [ ] **T085** Final gate: `python -m pytest tests/ -q --cov=wyrdbound_dice`, then
+- [x] **T085** Final gate: `python -m pytest tests/ -q --cov=wyrdbound_dice`, then
   `black src/ tests/ tools/`, `isort src/ tests/ tools/`,
   `ruff check src/ tests/ tools/`. Confirm no file under `tests/` differs from its
   state at T007 except the new test files — and `tests/data/format_snapshots.json`
   only if T056 ran with sign-off.
   *Accept:* everything green; `git diff --stat` over `tests/` shows only expected
   files.
+
+  > **Audit result (2026-09-15).** `git diff --stat 19fe5d2 HEAD -- tests/` shows
+  > five files: the three new test modules (`test_breakdown.py`,
+  > `test_formatting.py`, `test_cli_format.py`),
+  > `tests/data/format_snapshots.json` (regenerated at T056 with sign-off, 4
+  > lines), and `tests/test_expression_parsing.py` (the three assertions updated
+  > at T056 with the same sign-off). No other pre-existing test file differs.
+  > 296 passed, 0 xfail; coverage 89%.
 
 - [ ] **T086** Manual CLI check (`AGENTS.md` review checklist): run
   `python tools/roll.py "4d6kh3" --seed 42`, `… --format minimal`,
