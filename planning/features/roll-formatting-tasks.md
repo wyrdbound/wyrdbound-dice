@@ -894,7 +894,7 @@ through non-default formats, which is why this is a MINOR bump and not a MAJOR o
   this feature that lacks one.
   *Accept:* `ruff check src/ tests/ tools/` clean.
 
-- [ ] **T084** Verify the Python 3.8 floor:
+- [x] **T084** Verify the Python 3.8 floor:
   `grep -rn "list\[\|dict\[\|tuple\[\|set\[\| | None\|slots=True" src/wyrdbound_dice/`
   returns nothing. If `python3.8` is available, run
   `python3.8 -c "import sys; sys.path.insert(0, 'src'); import wyrdbound_dice"`.
