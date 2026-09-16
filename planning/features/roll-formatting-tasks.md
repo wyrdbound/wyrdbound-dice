@@ -653,7 +653,7 @@ task here, not only at the end.
   > The three `unittest` assertions above are updated to the new output at T056
   > with maintainer approval; they are not weakened — the totals are identical.
 
-- [ ] **T056** [US1] *(Only after T055 sign-off.)* Run
+- [x] **T056** [US1] *(Only after T055 sign-off.)* Run
   `python tools/gen_format_snapshots.py`, then `git diff` the snapshot file and
   keep the diff — **T081** pastes it into `CHANGELOG.md`. Re-run
   `python -m pytest tests/ -q`.

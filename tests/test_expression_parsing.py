@@ -10,9 +10,7 @@ class TestExpressionParsing(TestDiceBase):
         """Division now applies to immediate operand with proper precedence (FIXED!)."""
         self.mock_randint.side_effect = [7, 4, 1]
         r = Dice.roll("2d10 - 7 / 4 - 1d4")
-        self.assertTotalAndDescription(
-            r, 9, "9 = 11 (2d10: 7, 4) - (7 / 4) - 1 (1d4: 1)"
-        )
+        self.assertTotalAndDescription(r, 9, "9 = 11 (2d10: 7, 4) - 7 / 4 - 1 (1d4: 1)")
 
     def test_order_of_operations_multiplication_and_division_chain(self):
         """Multiple multiplication/division operations now handled correctly (FIXED!)."""
@@ -38,9 +36,7 @@ class TestExpressionParsing(TestDiceBase):
         """Complex expressions with multiple operations now parsed correctly (FIXED!)."""
         self.mock_randint.side_effect = [6, 8, 5]
         r = Dice.roll("2d8 - 1d6 - 1 x 4")
-        self.assertTotalAndDescription(
-            r, 5, "5 = 14 (2d8: 6, 8) - 5 (1d6: 5) - (1 x 4)"
-        )
+        self.assertTotalAndDescription(r, 5, "5 = 14 (2d8: 6, 8) - 5 (1d6: 5) - 1 x 4")
 
     def test_chained_multiplication_bug(self):
         """Multiple multiplication operations in sequence now handled correctly (FIXED!)."""
@@ -68,4 +64,4 @@ class TestMathematicalPrecedence(TestDiceBase):
         """Mixed operations now follow mathematical precedence rules correctly."""
         self.mock_randint.side_effect = [1, 5]
         r = Dice.roll("2d6 + 7 x 4 x 2")
-        self.assertTotalAndDescription(r, 62, "62 = 6 (2d6: 1, 5) + (7 x 4) x 2")
+        self.assertTotalAndDescription(r, 62, "62 = 6 (2d6: 1, 5) + 7 x 4 x 2")
