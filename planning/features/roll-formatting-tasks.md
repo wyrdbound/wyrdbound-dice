@@ -815,7 +815,7 @@ through non-default formats, which is why this is a MINOR bump and not a MAJOR o
 
 > **Gate.** T073 and T074 fail.
 
-- [ ] **T075** [US4] Extend `format_die` and `format_group` to honour `dropped`
+- [x] **T075** [US4] Extend `format_die` and `format_group` to honour `dropped`
   and `show_rerolls`. `HIDDEN` omits a die entirely when `die.kept` is False.
   `MARKED` wraps that die's rendered text with `dropped_marker.format(value=<rendered>)`.
   `show_rerolls=False` renders only the die's final face for a rerolled die, but
