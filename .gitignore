@@ -112,6 +112,12 @@ ipython_config.py
 #   https://pdm.fming.dev/#use-with-ide
 .pdm.toml
 
+# uv
+#   This project is pip/setuptools based; CI installs with `pip install -e ".[dev]"`.
+#   uv.lock only pins a local dev environment and is ignored for libraries.
+#   Commit it only if the project adopts uv for its dev/CI workflow.
+uv.lock
+
 # PEP 582; used by e.g. github.com/David-OConnor/pyflow and github.com/pdm-project/pdm
 __pypackages__/
 
