@@ -52,16 +52,20 @@ and a new `validate()`; no fallback; `--check` on the CLI.
   pure refactor: debug log lines keep their order.
   *Accept:* the suite passes unchanged (T003 still failing).
 
-- [ ] **T005** In `src/wyrdbound_dice/dice.py` (and
-  `src/wyrdbound_dice/expression_lexer.py` if the grammar gate needs the lexer
-  to accept a form the original method accepts), add the pre-flight of §3 as
+- [x] **T005** Write `tests/test_shorthand_combinations.py` first (§1d: every
+  shorthand expands, `FUDGE + BOON` rolls both, flux only when alone). Then in
+  `src/wyrdbound_dice/dice.py` and `src/wyrdbound_dice/expression_lexer.py`
+  (the lexer must accept every form the original method accepted — §1e), add
+  the pre-flight of §3 as
   `Dice._preflight(expr)`: steps 1–6, raising on the first failure. A flux
   shorthand must be the whole expression. Every DICE token must be matched by
   `_dice_re` in full. `roll_with_precedence` runs the pre-flight, then
   evaluates by today's path; remove the `except … _roll_original_method`
   fallback (D2).
-  *Accept:* T003 passes; the full suite, including the format snapshots,
-  passes.
+  *Accept:* T003 and the shorthand tests pass; the full suite, including the
+  format snapshots, passes.
+  *Note:* §1d and §1e were found while doing this task and folded into it; the
+  plan was amended in the same commit.
 
 **Checkpoint 1.** `python -m pytest tests/ -q --cov=wyrdbound_dice` passes.
 

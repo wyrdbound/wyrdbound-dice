@@ -56,6 +56,22 @@ silent — and the constitution's "validate and sanitize all user input".
 `process_shorthands` returns the flux marker if `GOODFLUX` or `BADFLUX`
 appears **anywhere**, so `GOODFLUX + 3` and `GOODFLUX banana` roll plain flux.
 
+### (d) Two different shorthands keep only the last
+
+Each shorthand was expanded into a fresh copy of the *uppercased original*, so
+`FUDGE + BOON` became `FUDGE + 3d6kh2` — the fallback then happened to rescue
+it by expanding again — and any shorthand uppercased the rest of the
+expression (`FUDGE + 1d6` → `4dF + 1D6`). Found while writing T005.
+
+### (e) The lexer never learned forms the fallback covered for
+
+Also found in T005, once the fallback was gone: the precedence lexer rejected
+percentile sides (`1d%`), drop modifiers (`4d6dh1`), and the whitespace the
+dice-term grammar allows inside keep/drop (`4d6 dh 3`, `2d20 dl 1`); and a term
+ending right after `r` or `k` (`1d6r`, `2d6k`) raised `TypeError` from
+`None in "=<>"`. All of these reached the original method through the
+fallback, so they rolled — or, for `1d6r`, silently rolled `1d6`.
+
 ## 2. What already exists
 
 - `DiceExpressionValidator.validate_expression_input` — regex checks for
@@ -74,7 +90,9 @@ appears **anywhere**, so `GOODFLUX + 3` and `GOODFLUX banana` roll plain flux.
 not need a die result runs, in order, before anything is rolled:
 
 1. length limit; Unicode normalisation;
-2. shorthand expansion — a flux shorthand must be the whole expression;
+2. shorthand expansion — every shorthand, as a whole word, case-insensitive,
+   leaving the rest of the expression as written; a flux shorthand must be the
+   whole expression;
 3. the total-dice pre-flight;
 4. negative-dice rewriting and `validate_expression_input`;
 5. **the grammar gate**: the whole expression is tokenised and parsed by the

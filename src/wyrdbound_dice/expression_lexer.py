@@ -69,8 +69,10 @@ class DiceExpressionReader:
             self.lexer.advance()
 
     def _read_dice_sides(self) -> None:
-        """Read dice sides (number or 'F' for fudge)."""
+        """Read dice sides: a number, 'F' for fudge, or '%' for percentile."""
         if self.lexer.current_char and self.lexer.current_char.lower() == "f":
+            self.lexer.advance()
+        elif self.lexer.current_char == "%":
             self.lexer.advance()
         else:
             while (
@@ -81,25 +83,51 @@ class DiceExpressionReader:
 
     def _read_dice_modifiers(self) -> None:
         """
-        Read optional dice-specific modifiers:
-        keep (k), reroll (r), explode (e).
+        Read optional dice-specific modifiers: keep (kh/kl), drop (dh/dl),
+        reroll (r) and explode (e).
+
+        Keep and drop may be preceded by whitespace and separated from their
+        count by whitespace (``4d6 dh 3``), as the dice term grammar allows.
+        Whitespace is consumed only when a modifier follows it, so ``2d6 + 3``
+        still ends the term before the space.
         """
-        while self.lexer.current_char is not None:
-            if self.lexer.current_char == "k":
-                self._read_keep_modifier()
-            elif self.lexer.current_char == "r":
+        while True:
+            start = self.lexer.pos
+            self._skip_whitespace()
+            char = self.lexer.current_char
+            if char == "k":
+                self._read_keep_drop_modifier()
+            elif char == "d" and self.lexer.peek() in ("h", "l"):
+                self._read_keep_drop_modifier()
+            elif self.lexer.pos == start and char == "r":
                 self._read_reroll_modifier()
-            elif self.lexer.current_char == "e":
+            elif self.lexer.pos == start and char == "e":
                 self._read_explode_modifier()
             else:
-                # Stop at any other character (including math operators)
+                # Not a modifier: give back any whitespace we skipped.
+                self._rewind(start)
                 break
 
-    def _read_keep_modifier(self) -> None:
-        """Read keep modifier: kh2, kl1, etc."""
-        self.lexer.advance()
-        if self.lexer.current_char in "hl":
+    def _skip_whitespace(self) -> None:
+        while self.lexer.current_char is not None and self.lexer.current_char.isspace():
             self.lexer.advance()
+
+    def _rewind(self, pos: int) -> None:
+        self.lexer.pos = pos
+        self.lexer.current_char = (
+            self.lexer.expr[pos] if pos < len(self.lexer.expr) else None
+        )
+
+    def _read_keep_drop_modifier(self) -> None:
+        """Read a keep or drop modifier: kh2, kl1, k3, dh1, dl, dh 3."""
+        self.lexer.advance()
+        if self.lexer.current_char is not None and self.lexer.current_char in "hl":
+            self.lexer.advance()
+        count_start = self.lexer.pos
+        self._skip_whitespace()
+        if self.lexer.current_char is None or not self.lexer.current_char.isdigit():
+            self._rewind(count_start)
+            return
         while self.lexer.current_char is not None and self.lexer.current_char.isdigit():
             self.lexer.advance()
 
@@ -112,9 +140,8 @@ class DiceExpressionReader:
         ):
             self.lexer.advance()
         # Read comparison operator
-        if self.lexer.current_char in "=<>":
-            while self.lexer.current_char in "=<>":
-                self.lexer.advance()
+        while self.lexer.current_char is not None and self.lexer.current_char in "=<>":
+            self.lexer.advance()
         # Read target number
         while self.lexer.current_char is not None and self.lexer.current_char.isdigit():
             self.lexer.advance()
