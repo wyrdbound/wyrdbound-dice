@@ -1,6 +1,6 @@
 # Expression Validation — tasks
 
-**Status:** In progress — Phase 3 (Checkpoint 1 passed at 0.2.0).
+**Status:** Complete. T001–T009 done; Checkpoints 1 (0.2.0) and 2 (0.3.0) passed.
 **Source design:** `planning/features/expression-validation.md` (§N references
 below are into that document). `planning/features/README.md` — the global rules
 for the executing agent — is binding on every task here.
@@ -96,8 +96,9 @@ afterwards in its own commit.)*
 - [x] **T007** Add `Dice.validate(expr) -> None` in
   `src/wyrdbound_dice/dice.py` — the pre-flight and nothing else — and a
   module-level `validate` in `src/wyrdbound_dice/__init__.py`, exported beside
-  `roll`. Add the dice-free-zero-divisor check to the pre-flight (§4). Docstrings state the contract of §4, including that
-  `DivisionByZeroError` is a rolling error.
+  `roll`. Add the dice-free-zero-divisor check to the pre-flight (§4).
+  Docstrings state the contract of §4, including which divisions only a roll
+  can find.
   *Accept:* T006 passes.
 
 - [x] **T008** Add `--check` to `tools/roll.py` (Article II): validate instead
@@ -106,12 +107,12 @@ afterwards in its own commit.)*
   tests to `tests/test_cli_format.py` for both outcomes in both modes.
   *Accept:* the new CLI tests pass.
 
-**Checkpoint 2.** Per-checkpoint definition of done; version `0.3.0`.
-
-## Phase 4 — Release
-
-- [ ] **T009** `README.md`: a "Validating expressions" section (§4).
-  `CHANGELOG.md` under `[Unreleased]`: Added (`validate`, `--check`). Set this
-  list's status to Complete. (The fixes, D1, and the version bumps are
-  recorded at their checkpoints.)
+- [x] **T009** `README.md`: `Dice.validate` in the API reference and `--check`
+  in the roll tool (§4). `CHANGELOG.md` under `[Unreleased]`: Added
+  (`validate`, `--check`) and the pre-flight zero-divisor change. Bump to
+  `0.3.0`. Set this list's status to Complete.
   *Accept:* the full gate passes.
+  *(Originally a separate Phase 4 after Checkpoint 2, which contradicted the
+  per-checkpoint definition of done; moved into Phase 3.)*
+
+**Checkpoint 2.** Per-checkpoint definition of done; version `0.3.0`. ✅

@@ -1,6 +1,6 @@
 # Expression Validation — one grammar, checked before any die is rolled
 
-**Status:** In progress. Tasks in `expression-validation-tasks.md`.
+**Status:** Complete; unreleased (0.3.0). Tasks in `expression-validation-tasks.md`.
 **Asked for by:** Wyrdbound (`planning/features/02-spec-findings.md` F27 in the
 wyrdbound repository): a system loader must reject a malformed dice expression
 at load, not on the first roll mid-session, and must do so without drawing

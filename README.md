@@ -182,6 +182,32 @@ The main entry point for dice rolling.
 - `modifiers` (dict, optional): Named modifiers as `{name: value}` where value can be int or dice expression string
 - Returns: `RollResultSet` object
 
+**`Dice.validate(expression)`** — also `wyrdbound_dice.validate(expression)`
+
+Checks an expression without rolling it. It runs exactly the checks `roll`
+runs before rolling, and nothing else, so an expression that validates is one
+`roll` accepts. No dice are rolled and no randomness is drawn — use it wherever
+an expression arrives before it is needed, such as a game-system loader or a
+form field.
+
+- Returns: `None`
+- Raises `ParseError` for a malformed expression, text the grammar does not
+  describe, or a broken input limit; `InfiniteConditionError` for a reroll or
+  explode condition that matches every face; `DivisionByZeroError` for a
+  divisor that contains no dice and is zero (`1d6 / 0`). A divisor with dice,
+  like `1d6 / (1d2 - 1)`, is zero only on some rolls and can only be found by
+  rolling.
+
+```python
+from wyrdbound_dice import ParseError, validate
+
+validate("4d6kh3 + 2")        # returns None
+try:
+    validate("1d20+{{ bonus }}")
+except ParseError as e:
+    print(e)  # Invalid character '{' at position 5
+```
+
 #### `RollResultSet`
 
 Contains the results of a dice roll.
@@ -229,6 +255,10 @@ python tools/roll.py "1d20" --json
 
 # JSON output (multiple rolls)
 python tools/roll.py "1d6" --count 3 --json
+
+# Validate without rolling
+python tools/roll.py "4d6kh3 + 2" --check          # prints "valid", exit 0
+python tools/roll.py "2d6 banana" --check --json   # {"valid": false, "error": "..."}, exit 1
 ```
 
 **Options:**
@@ -236,6 +266,9 @@ python tools/roll.py "1d6" --count 3 --json
 - `-v, --verbose`: Show detailed breakdown
 - `-n, --count N`: Roll N times
 - `--json`: Output results as JSON
+- `--check`: Validate the expression without rolling it. Prints `valid` (exit
+  0), or the error on stderr (exit 1); with `--json`, `{"valid": true}` or
+  `{"valid": false, "error": "..."}`
 
 **JSON Output Format:**
 

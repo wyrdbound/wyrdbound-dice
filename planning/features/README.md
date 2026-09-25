@@ -91,7 +91,7 @@ constitution wins for *what* the code must be.
 
 | Feature | Design | Tasks | Status |
 | --- | --- | --- | --- |
-| Expression validation | [`expression-validation.md`](expression-validation.md) | [`expression-validation-tasks.md`](expression-validation-tasks.md) | In progress |
+| Expression validation | [`expression-validation.md`](expression-validation.md) | [`expression-validation-tasks.md`](expression-validation-tasks.md) | Complete — unreleased (0.3.0) |
 
 ## Completed features
 

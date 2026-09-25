@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `Dice.validate(expression)` and `wyrdbound_dice.validate(expression)` check an expression without rolling it. They run exactly the checks `roll` runs before rolling, and nothing else, so an expression that validates is one `roll` accepts; no dice are rolled and no randomness is drawn. They raise `ParseError`, `InfiniteConditionError`, or `DivisionByZeroError` for a divisor that contains no dice and is zero
+- `--check` on `tools/roll.py`: validate instead of rolling, with `--json` support
+
 ### Fixed
 
 - Arithmetic on a dice count of two or more digits. The lexer decided "dice or number" by peeking one character, so `10d6` lexed as the number `10` and an invalid `d`, and the expression fell back to a method that sums dice and drops everything else: `10d6 - 10d6` totalled 80 instead of 0 and `10d6 + 3` totalled 40 instead of 43
@@ -19,6 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **Breaking:** dice separated only by whitespace are an error. `3d6 5d8` summed both terms; nothing documented it and it is indistinguishable from a missing operator. Write `3d6 + 5d8`
 - Every expression is checked against one grammar before any die is rolled, and there is no fallback parser. Output for every expression that was valid is unchanged
+- A divisor that contains no dice and is zero (`1d6 / 0`) raises `DivisionByZeroError` before any die is rolled, rather than after
 
 ## v0.1.0 (2026-09-16)
 

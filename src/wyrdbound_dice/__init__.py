@@ -54,7 +54,7 @@ from .formatting import (
 )
 from .roll_result import RollResult
 
-__version__ = "0.2.0"
+__version__ = "0.3.0"
 __author__ = "The Wyrd One"
 __email__ = "wyrdbound@proton.me"
 __description__ = "A comprehensive dice rolling library for tabletop RPGs"
