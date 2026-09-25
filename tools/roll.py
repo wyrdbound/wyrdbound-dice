@@ -11,6 +11,7 @@ Examples:
   roll.py "2d6 + 3" --debug      # Show debug logging
   roll.py "1d20" --seed 42       # Reproducible roll
   roll.py "1d6" -n 3 --seed 42   # Reproducible batch
+  roll.py "4d6kh3" --check       # Validate without rolling
 """
 
 import argparse
@@ -66,8 +67,25 @@ parser.add_argument(
     action="store_true",
     help="Include the structured breakdown under --json",
 )
+parser.add_argument(
+    "--check",
+    action="store_true",
+    help="Validate the expression without rolling it (exit 0 if valid, 1 if not)",
+)
 
 args = parser.parse_args()
+
+if args.check:
+    try:
+        Dice.validate(args.expression)
+    except (ParseError, DivisionByZeroError, InfiniteConditionError) as e:
+        if args.json:
+            print(json.dumps({"valid": False, "error": str(e)}, indent=2))
+        else:
+            print(f"Dice Error: {e}", file=sys.stderr)
+        exit(1)
+    print(json.dumps({"valid": True}, indent=2) if args.json else "valid")
+    exit(0)
 
 preset = FORMAT_PRESETS[args.format]
 

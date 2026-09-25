@@ -100,7 +100,7 @@ afterwards in its own commit.)*
   `DivisionByZeroError` is a rolling error.
   *Accept:* T006 passes.
 
-- [ ] **T008** Add `--check` to `tools/roll.py` (Article II): validate instead
+- [x] **T008** Add `--check` to `tools/roll.py` (Article II): validate instead
   of rolling; text output `valid` / exit 0, or the error on stderr / exit 1;
   under `--json`, `{"valid": true}` or `{"valid": false, "error": "…"}`. Add
   tests to `tests/test_cli_format.py` for both outcomes in both modes.

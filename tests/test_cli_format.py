@@ -32,3 +32,31 @@ def test_format_minimal_prints_only_total():
     proc = run_cli("4d6kh3", "--seed", "42", "--format", "minimal")
     assert proc.returncode == 0
     assert proc.stdout.strip() == "8"
+
+
+def test_check_valid_expression_text():
+    proc = run_cli("4d6kh3 + 2", "--check")
+    assert proc.returncode == 0
+    assert proc.stdout.strip() == "valid"
+    assert proc.stderr == ""
+
+
+def test_check_invalid_expression_text():
+    proc = run_cli("1d20+{{ x }}", "--check")
+    assert proc.returncode == 1
+    assert proc.stdout == ""
+    assert "Invalid character" in proc.stderr
+
+
+def test_check_valid_expression_json():
+    proc = run_cli("4d6kh3 + 2", "--check", "--json")
+    assert proc.returncode == 0
+    assert json.loads(proc.stdout) == {"valid": True}
+
+
+def test_check_invalid_expression_json():
+    proc = run_cli("1d6r<=6", "--check", "--json")
+    assert proc.returncode == 1
+    payload = json.loads(proc.stdout)
+    assert payload["valid"] is False
+    assert "Infinite reroll condition" in payload["error"]
