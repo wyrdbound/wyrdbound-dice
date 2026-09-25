@@ -1,6 +1,6 @@
 # Expression Validation — tasks
 
-**Status:** Not started.
+**Status:** In progress — Phase 1.
 **Source design:** `planning/features/expression-validation.md` (§N references
 below are into that document). `planning/features/README.md` — the global rules
 for the executing agent — is binding on every task here.
@@ -23,7 +23,7 @@ and a new `validate()`; no fallback; `--check` on the CLI.
 
 ## Phase 1 — Multi-digit dice counts (§1a)
 
-- [ ] **T001** Write `tests/test_multi_digit_dice_counts.py` (TDD). With an rng
+- [x] **T001** Write `tests/test_multi_digit_dice_counts.py` (TDD). With an rng
   whose `random()` returns `0.5` (every d6 shows 4), assert
   `10d6 - 10d6 == 0`, `10d6 + 3 == 43`, `12d6 - 2 == 46` and
   `100d6 + 1d6 == 404`; and that `ExpressionLexer("10d6")` yields a single
