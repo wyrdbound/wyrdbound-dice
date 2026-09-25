@@ -1,6 +1,6 @@
 # Expression Validation — tasks
 
-**Status:** In progress — Phase 1.
+**Status:** In progress — Phase 2.
 **Source design:** `planning/features/expression-validation.md` (§N references
 below are into that document). `planning/features/README.md` — the global rules
 for the executing agent — is binding on every task here.
@@ -38,7 +38,7 @@ and a new `validate()`; no fallback; `--check` on the CLI.
 
 ## Phase 2 — One grammar for every expression (§1b, §1c, §3)
 
-- [ ] **T003** Write `tests/test_expression_rejection.py` (TDD). `Dice.roll`
+- [x] **T003** Write `tests/test_expression_rejection.py` (TDD). `Dice.roll`
   raises `ParseError` for each of `2d6 banana`, `1d20+{{ x }}`, `2d6+3 # note`,
   `1d6 + 1d6 + zz`, `3d6 5d8` (D1), `GOODFLUX + 3` and `GOODFLUX banana`.
   `GOODFLUX`, `BADFLUX` and `3d6 + 5d8` still roll.
