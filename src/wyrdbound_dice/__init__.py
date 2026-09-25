@@ -82,6 +82,23 @@ def roll(expression, modifiers=None, debug=False, debug_logger=None, rng=None):
     return Dice.roll(expression, modifiers, debug, debug_logger, rng)
 
 
+def validate(expression):
+    """Check a dice expression without rolling it.
+
+    Runs the checks ``roll`` runs before rolling, and nothing else, drawing no
+    randomness. See ``Dice.validate``.
+
+    Args:
+        expression (str): The dice expression to check
+
+    Raises:
+        ParseError: The expression is malformed or breaks an input limit.
+        InfiniteConditionError: A reroll or explode condition matches every face.
+        DivisionByZeroError: A divisor containing no dice is zero.
+    """
+    Dice.validate(expression)
+
+
 __all__ = [
     "Dice",
     "RollResult",
@@ -94,6 +111,7 @@ __all__ = [
     "StringLogger",
     "DebugLogger",
     "roll",
+    "validate",
     "RollBreakdown",
     "DiceGroup",
     "Die",

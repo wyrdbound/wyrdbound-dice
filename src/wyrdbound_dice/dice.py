@@ -5,7 +5,13 @@ from typing import Callable, Dict, List, NamedTuple, Optional, Tuple, Union
 from .breakdown import Node, RollBreakdown
 from .errors import DivisionByZeroError, InfiniteConditionError, ParseError
 from .expression_lexer import ExpressionLexer
-from .expression_parser import ExpressionParser
+from .expression_parser import (
+    BinaryOperation,
+    DiceExpression,
+    ExpressionParser,
+    ParsedExpression,
+    UnaryOperation,
+)
 from .expression_token import Token, TokenType
 from .roll_result import RollResult
 
@@ -335,6 +341,33 @@ def _tokenize(expr: str) -> List[Token]:
     while tokens[-1].type != TokenType.EOF:
         tokens.append(lexer.get_next_token())
     return tokens
+
+
+def _check_constant_divisors(node: ParsedExpression) -> None:
+    """Raise if a divisor that contains no dice is zero.
+
+    Such a division fails on every roll, so it is found before rolling. A
+    divisor with dice, like ``1d2 - 1``, is zero only on some rolls and is left
+    to the roll. Evaluating a dice-free subtree draws no randomness.
+    """
+    if isinstance(node, BinaryOperation):
+        _check_constant_divisors(node.left)
+        _check_constant_divisors(node.right)
+        if node.operator == TokenType.DIVIDE and not _has_dice(node.right):
+            if node.right.evaluate(Dice).value == 0:
+                raise DivisionByZeroError()
+    elif isinstance(node, UnaryOperation):
+        _check_constant_divisors(node.operand)
+
+
+def _has_dice(node: ParsedExpression) -> bool:
+    if isinstance(node, DiceExpression):
+        return True
+    if isinstance(node, BinaryOperation):
+        return _has_dice(node.left) or _has_dice(node.right)
+    if isinstance(node, UnaryOperation):
+        return _has_dice(node.operand)
+    return False
 
 
 class _DiceTerm(NamedTuple):
@@ -815,7 +848,7 @@ class Dice:
         DiceExpressionValidator.validate_expression_input(rewritten)
 
         tokens = _tokenize(rewritten)
-        ExpressionParser(tokens).parse()
+        _check_constant_divisors(ExpressionParser(tokens).parse())
         for token in tokens:
             if token.type != TokenType.DICE:
                 continue
@@ -826,6 +859,30 @@ class Dice:
                 )
             cls._parse_dice_term(token.value, match)
         return _Preflight(display, expanded)
+
+    @classmethod
+    def validate(cls, expr: str) -> None:
+        """Check a dice expression without rolling it.
+
+        Runs exactly the checks ``roll`` runs before rolling, and nothing else:
+        if this returns, ``roll(expr)`` will not raise ``ParseError`` or
+        ``InfiniteConditionError``. No dice are rolled and no randomness is
+        drawn, so it is safe where randomness must be accounted for — a system
+        loader, a form field, a replayed session.
+
+        Args:
+            expr: The dice expression, exactly as it would be passed to ``roll``.
+
+        Raises:
+            ParseError: The expression is malformed, contains text the grammar
+                does not describe, or breaks an input limit.
+            InfiniteConditionError: A reroll or explode condition matches every
+                face.
+            DivisionByZeroError: A divisor that contains no dice is zero
+                (``1d6 / 0``), so every roll would fail. A divisor with dice
+                (``1d6 / (1d2 - 1)``) can only be judged by rolling.
+        """
+        cls._preflight(expr)
 
     @classmethod
     def roll_with_precedence(

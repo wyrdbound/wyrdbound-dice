@@ -93,7 +93,7 @@ afterwards in its own commit.)*
   validate the whole corpus.
   *Gate:* fails with `AttributeError` (no `validate`).
 
-- [ ] **T007** Add `Dice.validate(expr) -> None` in
+- [x] **T007** Add `Dice.validate(expr) -> None` in
   `src/wyrdbound_dice/dice.py` — the pre-flight and nothing else — and a
   module-level `validate` in `src/wyrdbound_dice/__init__.py`, exported beside
   `roll`. Add the dice-free-zero-divisor check to the pre-flight (§4). Docstrings state the contract of §4, including that
