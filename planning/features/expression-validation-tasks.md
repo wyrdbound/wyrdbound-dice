@@ -1,6 +1,6 @@
 # Expression Validation — tasks
 
-**Status:** In progress — Phase 2.
+**Status:** In progress — Phase 3 (Checkpoint 1 passed at 0.2.0).
 **Source design:** `planning/features/expression-validation.md` (§N references
 below are into that document). `planning/features/README.md` — the global rules
 for the executing agent — is binding on every task here.
@@ -18,6 +18,17 @@ and a new `validate()`; no fallback; `--check` on the CLI.
 4. `python -m pytest tests/test_format_snapshots.py -q` is green after every
    task: output for valid expressions must not change (§3).
 5. The task's box is ticked in the same commit.
+
+### Per-checkpoint definition of done
+
+`planning/features/README.md` "Per-phase definition of done" applies at every
+checkpoint: coverage run, README and `CHANGELOG.md` `[Unreleased]` current for
+the phase, and the version bumped in both places. **Bump policy:** Checkpoint 1
+→ `0.2.0` (behaviour changes, including the breaking D1); Checkpoint 2 →
+`0.3.0` (new public API, `validate` and `--check`).
+*(This section was missing when the list was written; Checkpoint 1 was first
+passed without its CHANGELOG, README and version work, and completed
+afterwards in its own commit.)*
 
 ---
 
@@ -67,7 +78,7 @@ and a new `validate()`; no fallback; `--check` on the CLI.
   *Note:* §1d and §1e were found while doing this task and folded into it; the
   plan was amended in the same commit.
 
-**Checkpoint 1.** `python -m pytest tests/ -q --cov=wyrdbound_dice` passes.
+**Checkpoint 1.** Per-checkpoint definition of done; version `0.2.0`. ✅
 
 ## Phase 3 — `validate()` (§4)
 
@@ -93,15 +104,12 @@ and a new `validate()`; no fallback; `--check` on the CLI.
   tests to `tests/test_cli_format.py` for both outcomes in both modes.
   *Accept:* the new CLI tests pass.
 
-**Checkpoint 2.** Coverage run passes.
+**Checkpoint 2.** Per-checkpoint definition of done; version `0.3.0`.
 
 ## Phase 4 — Release
 
-- [ ] **T009** `README.md`: a "Validating expressions" section (§4), and a note
-  under the expression syntax that whitespace-separated dice need an operator
-  (D1). `CHANGELOG.md` under `[Unreleased]`: Added (`validate`, `--check`),
-  Fixed (§1a totals, §1b silent acceptance, §1c flux), and the D1 behaviour
-  change. Bump to `0.2.0` in `pyproject.toml` and `__init__.py:__version__`
-  (D4). Set this list's status to Complete and list the feature as active in
-  `planning/features/README.md`.
+- [ ] **T009** `README.md`: a "Validating expressions" section (§4).
+  `CHANGELOG.md` under `[Unreleased]`: Added (`validate`, `--check`). Set this
+  list's status to Complete. (The fixes, D1, and the version bumps are
+  recorded at their checkpoints.)
   *Accept:* the full gate passes.

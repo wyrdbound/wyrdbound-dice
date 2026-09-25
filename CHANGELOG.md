@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Arithmetic on a dice count of two or more digits. The lexer decided "dice or number" by peeking one character, so `10d6` lexed as the number `10` and an invalid `d`, and the expression fell back to a method that sums dice and drops everything else: `10d6 - 10d6` totalled 80 instead of 0 and `10d6 + 3` totalled 40 instead of 43
+- Text the grammar does not describe is a `ParseError` instead of being ignored. A parser error used to fall back to rolling every dice term it could find: `1d20+{{ x }}`, `2d6 banana`, `2d6+3 # note` and `1d6r` all rolled, silently dropping the rest
+- Two different shorthands in one expression both expand. `FUDGE + BOON` expanded to `FUDGE + 3d6kh2`, and any shorthand uppercased the rest of the expression; shorthands now expand as whole words in any case and leave the rest as written
+- `GOODFLUX` and `BADFLUX` must be the whole expression; `GOODFLUX + 3` rolled plain flux and dropped the `+ 3`
+- Percentile sides (`1d%`), drop modifiers (`4d6dh1`), spaced keep/drop (`4d6 dh 3`) and terms ending in `r` or `k` are parsed directly rather than only through the fallback, which also turned a `TypeError` into the `ParseError` it should always have been
+
+### Changed
+
+- **Breaking:** dice separated only by whitespace are an error. `3d6 5d8` summed both terms; nothing documented it and it is indistinguishable from a missing operator. Write `3d6 + 5d8`
+- Every expression is checked against one grammar before any die is rolled, and there is no fallback parser. Output for every expression that was valid is unchanged
+
 ## v0.1.0 (2026-09-16)
 
 ### Security

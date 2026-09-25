@@ -27,6 +27,9 @@ Wyrdbound Dice supports an extensive range of dice rolling mechanics used across
 - **Complex expressions**: `2d6 + 1d4 × 2 - 1`
 - **Proper precedence**: Mathematical order of operations (PEMDAS/BODMAS)
 - **Unicode operators**: Support for `×`, `÷`, `−`, and fullwidth characters
+- **Every term is joined by an operator**: `3d6 + 5d8`, not `3d6 5d8`. An
+  expression must be complete — any text the grammar does not describe is a
+  `ParseError`, never ignored
 
 ### Keep/Drop Mechanics
 
@@ -66,6 +69,10 @@ Wyrdbound Dice supports an extensive range of dice rolling mechanics used across
 - **GOODFLUX**: Always positive flux (highest 1d6 - lowest 1d6)
 - **BADFLUX**: Always negative flux (lowest 1d6 - highest 1d6)
 - **PERC / PERCENTILE**: `1d%`
+
+Shorthands combine with each other and with ordinary terms (`FUDGE + BOON`,
+`BOON + 2`), matched as whole words in any case. `GOODFLUX` and `BADFLUX` are
+not arithmetic and must be the whole expression.
 
 ### Named Modifiers
 

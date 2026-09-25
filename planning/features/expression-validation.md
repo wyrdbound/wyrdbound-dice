@@ -145,8 +145,9 @@ on stderr (or `{"valid": false, "error": "…"}` under `--json`).
   rejected but the original method accepted were ones with ignored text.
 - **D3 — `validate()` never rolls.** Not even with a synthetic source; every
   check is static.
-- **D4 — Minor bump to 0.2.0.** Input that rolled before now raises, and totals
-  change for multi-digit-count arithmetic.
+- **D4 — Minor bumps: 0.2.0, then 0.3.0.** Input that rolled before now raises, and totals
+  change for multi-digit-count arithmetic (0.2.0, Checkpoint 1); `validate` and
+  `--check` are new public API (0.3.0, Checkpoint 2).
 
 ## 7. What this is not
 
