@@ -1,6 +1,6 @@
 import random
 import re
-from typing import Callable, Dict, List, Optional, Tuple, Union
+from typing import Callable, Dict, List, NamedTuple, Optional, Tuple, Union
 
 from .breakdown import Node, RollBreakdown
 from .errors import DivisionByZeroError, InfiniteConditionError, ParseError
@@ -315,6 +315,26 @@ class RollResultSet:
         return fmt.format(self.breakdown)
 
 
+class _DiceTerm(NamedTuple):
+    """One dice term, parsed and checked, before any die is rolled."""
+
+    num: int
+    normalized_sides_str: str
+    is_fudge: bool
+    is_percentile: bool
+    sides: int
+    rc_str: Optional[str]
+    reroll_cmp: Optional[str]
+    target: Optional[int]
+    max_rerolls: Optional[int]
+    explode_cmp: Optional[str]
+    explode_target: Optional[int]
+    keep_operations: List[Tuple[str, int]]
+    drop_operations: List[Tuple[str, int]]
+    multiply: int
+    divide: int
+
+
 class Dice:
     """Main dice rolling class with support for complex expressions
     and various dice systems."""
@@ -453,10 +473,19 @@ class Dice:
         return result_set
 
     @classmethod
-    def _roll_single_dice_expression(
-        cls, expr: str, match, rng=None, budget=None
-    ) -> RollResult:
-        """Roll a single dice expression given a regex match."""
+    def _parse_dice_term(cls, expr: str, match) -> "_DiceTerm":
+        """Parse and check one dice term without rolling it.
+
+        Every check that needs no die result lives here: the count and size
+        limits, fudge-with-reroll, infinite reroll and explode conditions, and
+        keep/drop parsing. ``_roll_single_dice_expression`` calls it before
+        rolling, and the pre-flight calls it for every term in an expression.
+
+        Raises:
+            ParseError: The term breaks a limit or a rule.
+            InfiniteConditionError: A reroll or explode condition matches every
+                face.
+        """
         try:
             num = int(match.group("num"))
         except ValueError:
@@ -540,6 +569,61 @@ class Dice:
                 sides, explode_cmp, explode_target, expr
             )
 
+        # Parse multiple keep operations (combine from before and after reroll/explode)
+        keep_ops_1 = match.group("keep_ops_1") or ""
+        keep_ops_2 = match.group("keep_ops_2") or ""
+        keep_ops_str = keep_ops_1 + keep_ops_2
+        keep_operations = KeepOperationsParser.parse_keep_operations(keep_ops_str)
+
+        # Parse multiple drop operations (combine from before and after reroll/explode)
+        drop_ops_1 = match.group("drop_ops_1") or ""
+        drop_ops_2 = match.group("drop_ops_2") or ""
+        drop_ops_str = drop_ops_1 + drop_ops_2
+        drop_operations = DropOperationsParser.parse_drop_operations(drop_ops_str)
+
+        multiply = int(match.group("multiply")) if match.group("multiply") else 1
+        divide = int(match.group("divide")) if match.group("divide") else 1
+
+        return _DiceTerm(
+            num=num,
+            normalized_sides_str=normalized_sides_str,
+            is_fudge=is_fudge,
+            is_percentile=is_percentile,
+            sides=sides,
+            rc_str=rc_str,
+            reroll_cmp=reroll_cmp,
+            target=target,
+            max_rerolls=max_rerolls,
+            explode_cmp=explode_cmp,
+            explode_target=explode_target,
+            keep_operations=keep_operations,
+            drop_operations=drop_operations,
+            multiply=multiply,
+            divide=divide,
+        )
+
+    @classmethod
+    def _roll_single_dice_expression(
+        cls, expr: str, match, rng=None, budget=None
+    ) -> RollResult:
+        """Roll a single dice expression given a regex match."""
+        term = cls._parse_dice_term(expr, match)
+        num = term.num
+        normalized_sides_str = term.normalized_sides_str
+        is_fudge = term.is_fudge
+        is_percentile = term.is_percentile
+        sides = term.sides
+        rc_str = term.rc_str
+        reroll_cmp = term.reroll_cmp
+        target = term.target
+        max_rerolls = term.max_rerolls
+        explode_cmp = term.explode_cmp
+        explode_target = term.explode_target
+        keep_operations = term.keep_operations
+        drop_operations = term.drop_operations
+        multiply = term.multiply
+        divide = term.divide
+
         rolls: List[int] = []
         all_rolls: List[int] = []
         dice_traces: List[dict] = []
@@ -617,18 +701,6 @@ class Dice:
             trace["value"] = current_total
             dice_traces.append(trace)
 
-        # Parse multiple keep operations (combine from before and after reroll/explode)
-        keep_ops_1 = match.group("keep_ops_1") or ""
-        keep_ops_2 = match.group("keep_ops_2") or ""
-        keep_ops_str = keep_ops_1 + keep_ops_2
-        keep_operations = KeepOperationsParser.parse_keep_operations(keep_ops_str)
-
-        # Parse multiple drop operations (combine from before and after reroll/explode)
-        drop_ops_1 = match.group("drop_ops_1") or ""
-        drop_ops_2 = match.group("drop_ops_2") or ""
-        drop_ops_str = drop_ops_1 + drop_ops_2
-        drop_operations = DropOperationsParser.parse_drop_operations(drop_ops_str)
-
         # Debug logging for keep/drop operations
         from .debug_logger import get_debug_logger
 
@@ -649,9 +721,6 @@ class Dice:
         else:
             keep_type = None
             keep_n = None
-
-        multiply = int(match.group("multiply")) if match.group("multiply") else 1
-        divide = int(match.group("divide")) if match.group("divide") else 1
 
         return RollResult(
             num,
