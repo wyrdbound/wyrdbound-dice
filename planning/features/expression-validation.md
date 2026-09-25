@@ -119,9 +119,11 @@ wyrdbound_dice.validate(expr: str) -> None
 ```
 
 Raises `ParseError` or `InfiniteConditionError` with the same message `roll()`
-would. Draws no randomness and rolls no dice. `DivisionByZeroError` is not a
-validation error: whether `1d6 / (1d2 - 1)` divides by zero depends on the
-dice, so it can only occur when rolling.
+would. Draws no randomness and rolls no dice. It raises `DivisionByZeroError`
+only for a divisor that contains no dice and is zero (`1d6 / 0`,
+`2d6 / (3 - 3)`), which fails on every roll; the pre-flight checks this, so
+`roll()` raises it before rolling too. Whether `1d6 / (1d2 - 1)` divides by
+zero depends on the dice, so that can only be found by rolling.
 
 CLI (Article II): `tools/roll.py EXPR --check` validates instead of rolling —
 exit 0 and `valid` (or `{"valid": true}` under `--json`); exit 1 with the error

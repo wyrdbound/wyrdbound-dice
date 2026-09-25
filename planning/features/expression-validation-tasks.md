@@ -82,11 +82,13 @@ afterwards in its own commit.)*
 
 ## Phase 3 — `validate()` (§4)
 
-- [ ] **T006** Write `tests/test_validate.py` (TDD). `Dice.validate` and
+- [x] **T006** Write `tests/test_validate.py` (TDD). `Dice.validate` and
   `wyrdbound_dice.validate` return `None` for a corpus of valid expressions
   covering keep/drop, rerolls (`1d8r<5`), explosions, fudge, percentile,
   shorthands and arithmetic; raise the same exception type as `Dice.roll` for
-  the T003 cases and for `1d6r<=6` (`InfiniteConditionError`); and never draw
+  the T003 cases, for `1d6r<=6` (`InfiniteConditionError`) and for a
+  dice-free zero divisor, `1d6 / 0` (`DivisionByZeroError`, §4); accept
+  `1d6 / (1d2 - 1)`; and never draw
   randomness — patch `random.random` and `random.randint` to raise, and
   validate the whole corpus.
   *Gate:* fails with `AttributeError` (no `validate`).
@@ -94,7 +96,7 @@ afterwards in its own commit.)*
 - [ ] **T007** Add `Dice.validate(expr) -> None` in
   `src/wyrdbound_dice/dice.py` — the pre-flight and nothing else — and a
   module-level `validate` in `src/wyrdbound_dice/__init__.py`, exported beside
-  `roll`. Docstrings state the contract of §4, including that
+  `roll`. Add the dice-free-zero-divisor check to the pre-flight (§4). Docstrings state the contract of §4, including that
   `DivisionByZeroError` is a rolling error.
   *Accept:* T006 passes.
 
