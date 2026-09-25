@@ -14,7 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Arithmetic on a dice count of two or more digits. The lexer decided "dice or number" by peeking one character, so `10d6` lexed as the number `10` and an invalid `d`, and the expression fell back to a method that sums dice and drops everything else: `10d6 - 10d6` totalled 80 instead of 0 and `10d6 + 3` totalled 40 instead of 43
+- Arithmetic on a dice count of two or more digits. The lexer decided "dice or number" by peeking one character, so `10d6` lexed as the number `10` and an invalid `d`, and the expression fell back to a method that sums every dice term and drops everything else. Subtraction became addition — `10d6 - 10d6` always landed between 20 and 120 instead of between -50 and 50 — and constants were ignored, so `10d6 + 3` was just `10d6`. (With every die showing 4, the regression tests see 80 instead of 0, and 40 instead of 43.)
 - Text the grammar does not describe is a `ParseError` instead of being ignored. A parser error used to fall back to rolling every dice term it could find: `1d20+{{ x }}`, `2d6 banana`, `2d6+3 # note` and `1d6r` all rolled, silently dropping the rest
 - Two different shorthands in one expression both expand. `FUDGE + BOON` expanded to `FUDGE + 3d6kh2`, and any shorthand uppercased the rest of the expression; shorthands now expand as whole words in any case and leave the rest as written
 - `GOODFLUX` and `BADFLUX` must be the whole expression; `GOODFLUX + 3` rolled plain flux and dropped the `+ 3`
