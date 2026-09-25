@@ -199,14 +199,22 @@ class ExpressionLexer:
 
     def _handle_digit_token(self) -> Token:
         """Handle digit tokens (numbers or dice expressions)."""
-        # Check if this is a dice expression (number followed by 'd')
-        if self.peek() == "d":
+        # A run of digits followed by 'd' is a dice term, however many digits
+        # the count has. Peeking one character misread "10d6" as the number 10.
+        if self._digits_then_d():
             dice_expr = self.read_dice_expression()
             return Token(TokenType.DICE, dice_expr, self.pos - len(dice_expr))
         else:
             # Regular number
             number = self.read_number()
             return Token(TokenType.NUMBER, number, self.pos - len(str(number)))
+
+    def _digits_then_d(self) -> bool:
+        """True when the digit run starting here is immediately followed by 'd'."""
+        end = self.pos
+        while end < len(self.expr) and self.expr[end].isdigit():
+            end += 1
+        return end < len(self.expr) and self.expr[end] == "d"
 
     def _handle_operator_token(self) -> Optional[Token]:
         """Handle operator and special character tokens."""
