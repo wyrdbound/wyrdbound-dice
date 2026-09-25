@@ -30,7 +30,7 @@ and a new `validate()`; no fallback; `--check` on the CLI.
   `DICE` token `"10d6"`.
   *Gate:* the arithmetic tests fail with wrong totals (80, 40, …).
 
-- [ ] **T002** In `src/wyrdbound_dice/expression_lexer.py`, make
+- [x] **T002** In `src/wyrdbound_dice/expression_lexer.py`, make
   `_handle_digit_token` treat a run of digits followed by `d` as a dice term,
   whatever the number of digits — not only when the character after the first
   digit is `d`.
