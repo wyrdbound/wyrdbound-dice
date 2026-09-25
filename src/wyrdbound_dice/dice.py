@@ -6,7 +6,7 @@ from .breakdown import Node, RollBreakdown
 from .errors import DivisionByZeroError, InfiniteConditionError, ParseError
 from .expression_lexer import ExpressionLexer
 from .expression_parser import ExpressionParser
-from .expression_token import TokenType
+from .expression_token import Token, TokenType
 from .roll_result import RollResult
 
 # Constants
@@ -24,6 +24,12 @@ SHORTHAND_EXPANSIONS = {
     "PERC": "1d%",
     "PERCENTILE": "1d%",
 }
+
+# Longest first, so PERCENTILE is not read as PERC followed by ENTILE.
+_SHORTHAND_RE = re.compile(
+    r"\b(" + "|".join(sorted(SHORTHAND_EXPANSIONS, key=len, reverse=True)) + r")\b",
+    re.IGNORECASE,
+)
 
 # Comparison operators for dice conditions
 COMPARISON_OPERATORS = {
@@ -313,6 +319,22 @@ class RollResultSet:
         if isinstance(fmt, RollFormat):
             return DefaultFormatter(fmt).format(self.breakdown)
         return fmt.format(self.breakdown)
+
+
+class _Preflight(NamedTuple):
+    """An expression that passed the pre-flight: as written, and expanded."""
+
+    display: str
+    expanded: str
+
+
+def _tokenize(expr: str) -> List[Token]:
+    """Lex a whole expression, ending with the EOF token."""
+    lexer = ExpressionLexer(expr)
+    tokens = [lexer.get_next_token()]
+    while tokens[-1].type != TokenType.EOF:
+        tokens.append(lexer.get_next_token())
+    return tokens
 
 
 class _DiceTerm(NamedTuple):
@@ -760,6 +782,52 @@ class Dice:
         )
 
     @classmethod
+    def _preflight(cls, expr: str) -> "_Preflight":
+        """Run every check that needs no die result, and raise on the first.
+
+        ``roll`` runs this before rolling and ``validate`` runs nothing else,
+        so an expression that passes here is one ``roll`` accepts. In order:
+        the length limit; Unicode normalisation; shorthand expansion (flux must
+        stand alone); the total-dice count; negative-dice rewriting and the
+        malformed-pattern checks; the grammar — the whole expression must parse;
+        and every dice term, matched in full and checked as ``roll`` checks it.
+
+        Raises:
+            ParseError: The expression is malformed or breaks a limit.
+            InfiniteConditionError: A reroll or explode condition matches every
+                face.
+        """
+        if not isinstance(expr, str):
+            raise ParseError(f"Expression must be a string, got {type(expr).__name__}")
+        if len(expr) > MAX_EXPRESSION_LENGTH:
+            raise ParseError(
+                "Expression is {} characters; the maximum is {}".format(
+                    len(expr), MAX_EXPRESSION_LENGTH
+                )
+            )
+        display = ExpressionProcessor.normalize_unicode(expr)
+        expanded = ExpressionProcessor.process_shorthands(display)
+        if expanded in ("GOODFLUX_SPECIAL", "BADFLUX_SPECIAL"):
+            return _Preflight(display, expanded)
+
+        DiceExpressionValidator.validate_total_dice(expanded)
+        rewritten = ExpressionProcessor.process_negative_dice(expanded)
+        DiceExpressionValidator.validate_expression_input(rewritten)
+
+        tokens = _tokenize(rewritten)
+        ExpressionParser(tokens).parse()
+        for token in tokens:
+            if token.type != TokenType.DICE:
+                continue
+            match = cls._dice_re.match(token.value)
+            if match is None or match.end() != len(token.value):
+                raise ParseError(
+                    f"Unrecognised dice term '{token.value}' in: {display}"
+                )
+            cls._parse_dice_term(token.value, match)
+        return _Preflight(display, expanded)
+
+    @classmethod
     def roll_with_precedence(
         cls,
         expr: str,
@@ -778,19 +846,12 @@ class Dice:
 
         logger.log_step("PROCESSING", "Starting expression processing")
 
-        # Normalize Unicode characters first
-        expr = ExpressionProcessor.normalize_unicode(expr)
-        logger.log_expression("NORMALIZED", expr)
-
-        # The expression reported to callers is the user's input, normalized for
-        # Unicode but before shorthand expansion or negative-dice rewriting.
-        display_expr = expr
-
-        # Process shorthands first
-        original_expr = expr
-        expr = ExpressionProcessor.process_shorthands(expr)
-        if expr != original_expr:
-            logger.log_step("SHORTHAND_EXPANSION", f"'{original_expr}' -> '{expr}'")
+        checked = cls._preflight(expr)
+        logger.log_expression("NORMALIZED", checked.display)
+        display_expr = checked.display
+        expr = checked.expanded
+        if expr != display_expr:
+            logger.log_step("SHORTHAND_EXPANSION", f"'{display_expr}' -> '{expr}'")
 
         # Handle special flux cases
         if "GOODFLUX_SPECIAL" in expr:
@@ -804,9 +865,8 @@ class Dice:
             result.expression = display_expr
             return result
 
-        # Count the dice the expression names before rolling any of them, then
-        # carry a runtime budget for the ones rerolls and explosions add.
-        DiceExpressionValidator.validate_total_dice(expr)
+        # The pre-flight counted the dice the expression names; the budget
+        # covers the ones rerolls and explosions add as they go.
         budget = _RollBudget(MAX_TOTAL_DICE, display_expr)
 
         # Check if we should use the new parser or fall back to original
@@ -829,15 +889,8 @@ class Dice:
         # Validate input for both parser paths
         DiceExpressionValidator.validate_expression_input(expr)
 
-        try:
-            result = cls._parse_with_precedence(expr, modifiers, rng=rng, budget=budget)
-        except (SyntaxError, AttributeError, TypeError, ParseError) as e:
-            logger.log_step(
-                "FALLBACK",
-                f"Parser error: {e}, falling back to original method",
-            )
-            # Fall back to the original parsing method only for parsing errors
-            result = cls._roll_original_method(expr, modifiers, rng=rng, budget=budget)
+        # No fallback: the pre-flight has already parsed this expression.
+        result = cls._parse_with_precedence(expr, modifiers, rng=rng, budget=budget)
 
         result.expression = display_expr
         return result
@@ -1427,24 +1480,21 @@ class ExpressionProcessor:
 
     @staticmethod
     def process_shorthands(expr: str) -> str:
-        """
-        Process shorthand dice expressions and convert them to
-        standard notation.
-        """
-        expr_upper = expr.upper()
+        """Expand named shorthands to standard notation.
 
-        # Check for special flux expressions first
-        if "GOODFLUX" in expr_upper:
+        Every shorthand is expanded where it appears, as a whole word and
+        ignoring case; the rest of the expression is left exactly as written.
+        ``GOODFLUX`` and ``BADFLUX`` are not arithmetic — they must be the whole
+        expression, and return their special markers.
+        """
+        whole = expr.strip().upper()
+        if whole == "GOODFLUX":
             return "GOODFLUX_SPECIAL"
-        elif "BADFLUX" in expr_upper:
+        if whole == "BADFLUX":
             return "BADFLUX_SPECIAL"
-
-        # Replace standard shorthands with their expanded forms
-        for shorthand, expansion in SHORTHAND_EXPANSIONS.items():
-            if shorthand in expr_upper:
-                expr = expr_upper.replace(shorthand, expansion)
-
-        return expr
+        return _SHORTHAND_RE.sub(
+            lambda match: SHORTHAND_EXPANSIONS[match.group(0).upper()], expr
+        )
 
     @staticmethod
     def process_negative_dice(expr: str) -> str:
