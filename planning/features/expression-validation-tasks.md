@@ -44,7 +44,7 @@ and a new `validate()`; no fallback; `--check` on the CLI.
   `GOODFLUX`, `BADFLUX` and `3d6 + 5d8` still roll.
   *Gate:* the rejection cases fail with "DID NOT RAISE".
 
-- [ ] **T004** In `src/wyrdbound_dice/dice.py`, extract every check at the top
+- [x] **T004** In `src/wyrdbound_dice/dice.py`, extract every check at the top
   of `_roll_single_dice_expression` that needs no die result — count and size
   limits, fudge-with-reroll, the infinite reroll/explode conditions, keep/drop
   parsing — into a classmethod `_parse_dice_term(expr, match)` returning the
