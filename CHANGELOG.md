@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## v0.3.0 (2026-09-25)
+
 ### Added
 
 - `Dice.validate(expression)` and `wyrdbound_dice.validate(expression)` check an expression without rolling it. They run exactly the checks `roll` runs before rolling, and nothing else, so an expression that validates is one `roll` accepts; no dice are rolled and no randomness is drawn. They raise `ParseError`, `InfiniteConditionError`, or `DivisionByZeroError` for a divisor that contains no dice and is zero
@@ -34,7 +36,7 @@ These affect anyone upgrading from 0.0.3. Rendered output changes are listed
 under Fixed.
 
 - Bounded the work one expression can do, via `MAX_EXPRESSION_LENGTH` (1,000), `MAX_DICE_COUNT` (10,000), `MAX_DIE_SIDES` (1,000,000) and `MAX_TOTAL_DICE` (20,000), each raising `ParseError`. Anything accepting expressions from users was previously a one-line denial of service: `1000000000d6` never returned, a 2,000-digit dice count hung the process, a 20,000-character expression spent over a second in validation before rolling a die, and `9999d6+9999d6+…` packed to 1,000 characters rolled 1.43 million dice for roughly ten seconds of CPU and 650 MB of peak memory. `MAX_TOTAL_DICE` bounds the whole expression, not a single term. The limits are importable from `wyrdbound_dice.dice` and documented in README under "Input Limits"
-- `MAX_TOTAL_DICE` is also enforced at runtime, because rerolls and explosions add dice as they go. The infinite-condition validator only rejects conditions matching *every* face, so a nearly-always-true one passed it: `1d1000000e>=2` named a single die and rolled it ~235,000 times, and sixty such terms in one 1,000-byte expression did not finish. A roll that exhausts the budget now raises `InfiniteConditionError`
+- `MAX_TOTAL_DICE` is also enforced at runtime, because rerolls and explosions add dice as they go. The infinite-condition validator only rejects conditions matching _every_ face, so a nearly-always-true one passed it: `1d1000000e>=2` named a single die and rolled it ~235,000 times, and sixty such terms in one 1,000-byte expression did not finish. A roll that exhausts the budget now raises `InfiniteConditionError`
 - `tools/graph.py` HTML-escapes the dice expression and the example rolls before interpolating them into the statistics page it generates. The tool opens that page in a browser, so an expression such as `2d6<script>…</script>` previously executed script in a `file://` origin
 - Debug state is per-thread and restored in a `finally`. It was a single module global that `Dice.roll` set on entry and cleared on exit, so a roll that raised left debug enabled for everything after it, and two concurrent debug rolls shared one logger — one thread's output silently went to a logger the other owned
 - Debug records escape newlines and carriage returns in caller-supplied text, which could otherwise forge a whole log record, for example `1d6\nDEBUG: [COMPLETE] Final result: 999999`
