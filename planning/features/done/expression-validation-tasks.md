@@ -1,7 +1,7 @@
 # Expression Validation — tasks
 
 **Status:** Complete. T001–T009 done; Checkpoints 1 (0.2.0) and 2 (0.3.0) passed.
-**Source design:** `planning/features/expression-validation.md` (§N references
+**Source design:** `planning/features/done/expression-validation.md` (§N references
 below are into that document). `planning/features/README.md` — the global rules
 for the executing agent — is binding on every task here.
 **Scope:** fix multi-digit dice-count lexing; one pre-flight shared by `roll()`
