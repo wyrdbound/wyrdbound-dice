@@ -6,6 +6,7 @@ careless caller could supply through a bot command, a web form, or a config
 file, and every assertion pins the boundary that stops it.
 """
 
+import importlib.util
 import random
 import re
 import subprocess
@@ -281,10 +282,46 @@ def test_error_message_names_the_limit():
 # --------------------------------------------------------------------------
 
 
-def test_graph_tool_escapes_the_expression(tmp_path):
+GRAPH_PAYLOADS = ["2d6<script>alert(1)</script>", '2d6" onload="alert(1)']
+
+
+def _load_graph_tool():
+    """Import tools/graph.py in-process, drawing with a non-interactive backend."""
+    matplotlib = pytest.importorskip("matplotlib")
+    matplotlib.use("Agg")
+    spec = importlib.util.spec_from_file_location(
+        "graph_tool", REPO_ROOT / "tools" / "graph.py"
+    )
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def _render_stats_page(tmp_path, monkeypatch, payload):
+    """Render the stats page with an expression the lexer would reject.
+
+    The lexer refuses these payloads before the page is built, so the escaping
+    is driven directly: the example rolls come back as the payload too, which
+    covers both places the page interpolates text derived from the expression.
+    """
+    graph = _load_graph_tool()
+    data = graph.calculate_dice_statistics("2d6", 20)
+
+    class PayloadDice:
+        @staticmethod
+        def roll(expression):
+            return payload
+
+    monkeypatch.setattr(graph, "Dice", PayloadDice)
+    out = tmp_path / "stats.html"
+    graph.create_dice_graph(payload, data, str(out))
+    return out.read_text(encoding="utf-8")
+
+
+@pytest.mark.parametrize("payload", GRAPH_PAYLOADS)
+def test_graph_tool_rejects_markup_before_writing_a_page(tmp_path, payload):
     pytest.importorskip("matplotlib")
     out = tmp_path / "stats.html"
-    payload = "2d6<script>alert(1)</script>"
     proc = subprocess.run(
         [
             sys.executable,
@@ -300,32 +337,19 @@ def test_graph_tool_escapes_the_expression(tmp_path):
         text=True,
         cwd=str(REPO_ROOT),
     )
-    assert proc.returncode == 0, proc.stderr
-    html = out.read_text(encoding="utf-8")
+    assert proc.returncode != 0, proc.stdout
+    assert "Invalid character" in proc.stdout
+    assert not out.exists()
+
+
+def test_graph_tool_escapes_the_expression(tmp_path, monkeypatch):
+    html = _render_stats_page(tmp_path, monkeypatch, GRAPH_PAYLOADS[0])
     assert "<script>alert(1)</script>" not in html
     assert "&lt;script&gt;" in html
 
 
-def test_graph_tool_escapes_quotes_out_of_attributes(tmp_path):
-    pytest.importorskip("matplotlib")
-    out = tmp_path / "stats.html"
-    proc = subprocess.run(
-        [
-            sys.executable,
-            str(REPO_ROOT / "tools" / "graph.py"),
-            '2d6" onload="alert(1)',
-            "-n",
-            "20",
-            "-o",
-            str(out),
-            "--no-browser",
-        ],
-        capture_output=True,
-        text=True,
-        cwd=str(REPO_ROOT),
-    )
-    assert proc.returncode == 0, proc.stderr
-    html = out.read_text(encoding="utf-8")
+def test_graph_tool_escapes_quotes_out_of_attributes(tmp_path, monkeypatch):
+    html = _render_stats_page(tmp_path, monkeypatch, GRAPH_PAYLOADS[1])
     assert not re.search(r'onload\s*=\s*"alert', html)
 
 
