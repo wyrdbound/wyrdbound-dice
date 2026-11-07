@@ -81,7 +81,7 @@ All code must be debuggable and observable:
 - **Feature branches**: `feature/description` or `fix/description`
 - **Conventional commits REQUIRED**: Format `<type>[optional scope]: <description>`
   - Examples: `feat: add success counting for World of Darkness`, `fix(parser): resolve reroll chain edge case`, `chore: update dependencies`
-  - **Description MUST be lowercase**: the word immediately after `type: ` must begin with a lowercase letter
+  - **Description MUST be lowercase**: the word immediately after `type: ` must begin with a lowercase letter. A task commit leads with its task id instead, then a lowercase summary: `feat(V01): T003 — count successes in a dice pool`
   - **NO itemized lists**: Commit messages must be single high-level descriptions, not bullet lists of changes
   - Types: `feat`, `fix`, `chore`, `docs`, `test`, `refactor`, `perf`, `ci`, `build`, `style`
   - Breaking changes: Append `!` before colon or add `BREAKING CHANGE:` footer
@@ -163,11 +163,11 @@ This constitution supersedes all other development practices for wyrdbound-dice.
 **Compliance verification:**
 - All PRs must be reviewed against this constitution
 - Complexity must be justified against Core Principles
-- Feature plans, specs, and task lists live under `planning/features/`
+- The roadmap lives in `planning/scope.md`; feature plans and task lists live under `planning/features/`
 
 ---
 
 **Version**: 1.1.0  
 **Ratified**: 2026-05-03  
-**Last Amended**: 2026-11-07 (Article I: Python 3.12 is the floor)  
+**Last Amended**: 2026-11-07 (Article I: Python 3.12 is the floor; task commits lead with their task id)  
 **Project**: wyrdbound-dice v0.3.0

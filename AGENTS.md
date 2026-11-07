@@ -1,17 +1,19 @@
 # wyrdbound-dice Development Guidelines
 
-Last updated: 2026-09-15
+Last updated: 2026-11-07
 
 **Spec Kit is no longer used in this project.** Do not run or reference
-`/speckit.*` commands. The constitution and the feature plans are the governing
-documents; author and edit them directly.
+`/speckit.*` commands. Features are planned and built through Questgiver, from
+the roadmap in `planning/scope.md`; the constitution and the feature plans are
+the governing documents.
 
 ## Governing Documents
 
 | Document | Purpose |
 |---|---|
 | [`planning/constitution.md`](planning/constitution.md) | **Project constitution** — non-negotiable principles. Read first. |
-| [`planning/features/`](planning/features) | **Active build plan** — ordered features, specs, plans, and task lists. |
+| [`planning/scope.md`](planning/scope.md) | **The scope** — what the library is for, what's out, and the roadmap of features in build order. |
+| [`planning/features/`](planning/features) | **The build plan** — a feature file and a tasks file per feature, and the rules for every task in its `README.md`. |
 | [`README.md`](README.md) | User-facing documentation and API reference |
 | [`CHANGELOG.md`](CHANGELOG.md) | Release history; document all changes under "Unreleased" |
 
@@ -19,9 +21,10 @@ documents; author and edit them directly.
 
 Every task ends with the gate green. No exceptions.
 
-1. **Tests pass.** `pytest` is green from the repo root.
-2. **Lint and format are clean.** `ruff check src/ tests/ tools/` passes; new code
-   is formatted with `black --line-length=88` and `isort --profile=black`.
+1. **Tests pass.** `uv run --extra dev pytest` is green from the repo root.
+2. **Lint and format are clean.** `ruff check src/ tests/ tools/` passes, and
+   `black --check` and `isort --check-only` on `src/ tests/ tools/` report
+   nothing to change.
 3. **Docs kept in sync.** README updated for user-facing changes; CHANGELOG
    updated under "Unreleased"; docstrings on all public APIs.
 4. **A failing test blocks merge.** Never delete or weaken a test to make the
@@ -86,11 +89,14 @@ These articles are **non-negotiable**. When in doubt, the constitution wins.
 
 ### Development Workflow
 
-- **Branches**: `feature/description` or `fix/description`
+- **Branches**: `feature/description` or `fix/description`; Questgiver's lanes
+  use `feature/<key>-<slug>`
 - **Conventional commits REQUIRED**: `<type>[optional scope]: <description>`
   - Types: `feat`, `fix`, `chore`, `docs`, `test`, `refactor`, `perf`, `ci`,
     `build`, `style`
-  - Description after `type: ` MUST start lowercase
+  - Description after `type: ` MUST start lowercase. A task commit leads with
+    its task id: `feat(V01): T003 — count successes in a dice pool`
+    (`planning/features/README.md` rule 11)
   - Single high-level description — no itemized bullet lists
   - Breaking changes: `!` before the colon or a `BREAKING CHANGE:` footer
 - **PRs**: follow `.github/pull_request_template.md`
@@ -137,28 +143,37 @@ These apply to every task regardless of feature.
 ## Commands
 
 ```bash
-# Environment
-pip install -e ".[dev]"              # dev install
-pip install -e ".[dev,visualization]"  # + graph tool deps
+# Environment (uv; Python 3.12+)
+uv sync --extra dev                       # dev install
+uv sync --extra dev --extra visualization # + graph tool deps (runs the graph tests)
 
 # Gate
-pytest                               # run full suite
-pytest --cov=wyrdbound_dice          # with coverage
-ruff check src/ tests/ tools/        # lint
+uv run --extra dev pytest                          # full suite
+uv run --extra dev pytest --cov=wyrdbound_dice     # with coverage
+uv run --extra dev ruff check src/ tests/ tools/   # lint
+uv run --extra dev black --check src/ tests/ tools/
+uv run --extra dev isort --check-only src/ tests/ tools/
 
 # Format
-black src/ tests/ tools/             # format
-isort src/ tests/ tools/             # sort imports
+uv run --extra dev black src/ tests/ tools/
+uv run --extra dev isort src/ tests/ tools/
 
 # CLI tools
-python tools/roll.py "1d20 + 5"      # roll
-python tools/roll.py "2d6" --count 10
-python tools/roll.py "1d20" --json
-python tools/roll.py "2d6 + 3" --debug
-python tools/graph.py "2d6"          # probability distribution
+uv run python tools/roll.py "1d20 + 5"      # roll
+uv run python tools/roll.py "2d6" --count 10
+uv run python tools/roll.py "1d20" --json
+uv run python tools/roll.py "2d6 + 3" --debug
+uv run --extra visualization python tools/graph.py "2d6"   # probability distribution
 ```
 
-The gate runs from the repo root: `pytest && ruff check src/ tests/ tools/`.
+The gate runs from the repo root, and is exactly what Questgiver runs after each
+task:
+
+```bash
+uv run --extra dev pytest && uv run --extra dev ruff check src/ tests/ tools/ \
+  && uv run --extra dev black --check src/ tests/ tools/ \
+  && uv run --extra dev isort --check-only src/ tests/ tools/
+```
 
 ## Architecture
 
@@ -188,7 +203,8 @@ folds over a `RollBreakdown`; no other module builds a roll string, and
 src/                 # library code (wyrdbound_dice/)
 tests/               # test suite
 tools/               # CLI tools (roll.py, graph.py)
-planning/            # constitution + feature specs, plans, and tasks
+planning/            # constitution, scope and roadmap, feature plans and tasks
+.questgiver/         # the workshop image Questgiver's agents and checks run in
 ```
 
 <!-- MANUAL ADDITIONS START -->
