@@ -166,7 +166,7 @@ cython_debug/
 #  be added to the global gitignore or merged into this project gitignore.  For a PyCharm
 #  project, it is recommended to use the following settings for the project:
 #  - IDE: PyCharm
-#  - Project language level: Python 3.8+
+#  - Project language level: Python 3.12+
 #  - Project structure: Standard
 #  - Source folders: src/
 #  - Test folders: tests/

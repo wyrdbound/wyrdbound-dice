@@ -8,7 +8,7 @@ Every feature starts as a standalone, self-contained library component:
 - **Self-contained modules**: Each module must be independently testable and documented
 - **Clear purpose**: No organizational-only libraries; each component solves a specific dice-rolling problem
 - **Zero external dependencies**: Core library must remain dependency-free (optional deps for visualization/tools only)
-- **Python 3.8+ compatibility**: All code must work across Python 3.8-3.12+
+- **Python 3.12+**: All code must work on Python 3.12 and every later release; nothing older is supported
 
 ### II. CLI Interface Protocol
 
@@ -167,7 +167,7 @@ This constitution supersedes all other development practices for wyrdbound-dice.
 
 ---
 
-**Version**: 1.0.0  
+**Version**: 1.1.0  
 **Ratified**: 2026-05-03  
-**Last Amended**: 2026-05-03  
-**Project**: wyrdbound-dice v0.0.2
+**Last Amended**: 2026-11-07 (Article I: Python 3.12 is the floor)  
+**Project**: wyrdbound-dice v0.3.0

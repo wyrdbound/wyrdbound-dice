@@ -48,9 +48,10 @@ re-fixing lint at the end.
    forward reference you genuinely *cannot* satisfy, that is a **bug in the plan,
    not a choice for you to make**. Stop and say so; do not pull the later task
    forward, and do not weaken the acceptance criteria to compensate.
-10. **Python 3.8 is the floor** for everything under `src/`. `typing.Tuple`,
-    `typing.Optional`, `typing.Union` — no builtin generics, no `X | Y` unions,
-    no `dataclasses(slots=True)`.
+10. **Python 3.12 is the floor** for everything under `src/`. Builtin generics
+    (`list[int]`), `X | None` unions and other 3.12 syntax are allowed; existing
+    `typing.Optional`/`Tuple`/`Union` annotations are not rewritten unless a task
+    says so.
 11. **Bump the version** in `pyproject.toml` **and**
     `src/wyrdbound_dice/__init__.py:__version__` when a task changes behaviour,
     keeping the two in sync. Semantic versioning; each list states its own

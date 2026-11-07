@@ -5,7 +5,7 @@ A comprehensive dice rolling library for tabletop RPGs, designed to handle compl
 This library is designed for use in [wyrdbound](https://github.com/wyrdbound), a text-based RPG system that emphasizes narrative and player choice.
 
 [![CI](https://github.com/wyrdbound/wyrdbound-dice/actions/workflows/ci.yml/badge.svg)](https://github.com/wyrdbound/wyrdbound-dice/actions/workflows/ci.yml)
-[![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
+[![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
@@ -883,7 +883,7 @@ Contributions are welcome! Please feel free to submit a Pull Request. For major 
 
 This project uses GitHub Actions for CI/CD:
 
-- **Testing**: Automated tests across Python 3.8-3.12 on Ubuntu, Windows, and macOS
+- **Testing**: Automated tests across Python 3.12-3.14 on Ubuntu, Windows, and macOS
 - **Code Quality**: Black formatting, isort import sorting, and Ruff linting
 - **Package Validation**: Installation testing and CLI tool verification
 
