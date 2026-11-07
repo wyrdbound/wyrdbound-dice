@@ -97,4 +97,4 @@ the code must be.
 | Feature | Design | Tasks | Released |
 | --- | --- | --- | --- |
 | Roll formatting | [`done/roll-formatting.md`](done/roll-formatting.md) | [`done/roll-formatting-tasks.md`](done/roll-formatting-tasks.md) | v0.1.0 |
-| Expression validation | [`done/expression-validation.md`](done/expression-validation.md) | [`done/expression-validation-tasks.md`](done/expression-validation-tasks.md) | 0.3.0 (not yet tagged) |
+| Expression validation | [`done/expression-validation.md`](done/expression-validation.md) | [`done/expression-validation-tasks.md`](done/expression-validation-tasks.md) | v0.3.0 |
