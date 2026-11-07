@@ -38,7 +38,7 @@ These articles are **non-negotiable**. When in doubt, the constitution wins.
 1. **Article I — Library-First Design.** Every feature starts as a standalone,
    self-contained, independently testable module with a clear dice-rolling
    purpose. The core library has **zero external dependencies** (optional deps
-   only for visualization/tools) and must run on **Python 3.8–3.12+**.
+   only for visualization/tools) and must run on **Python 3.12+**.
 2. **Article II — CLI Interface Protocol.** Every library feature is reachable
    from the CLI: stdin/args → stdout, errors → stderr. Support both human-readable
    and `--json` output, `-v/--verbose`, `--count N`, and `--debug`.

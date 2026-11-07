@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **Breaking:** Python 3.12 is the minimum supported version (`requires-python = ">=3.12"`), and CI tests 3.12, 3.13 and 3.14. Python 3.8 and 3.9 are past end of life and 3.10 and 3.11 receive only security fixes, so carrying them cost compatibility constraints on every change for no supported user. The constitution's Article I is amended to match (constitution 1.1.0). Nothing in the library changes; users on older Pythons stay on 0.3.0
+
 ## v0.3.0 (2026-09-25)
 
 ### Added
