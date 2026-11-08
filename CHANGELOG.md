@@ -7,6 +7,23 @@ the entries before v0.4.0 were written by hand in
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) form. The project
 adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.0](https://github.com/wyrdbound/wyrdbound-dice/compare/v0.3.0...v0.4.0) (2026-11-08)
+
+
+### ⚠ BREAKING CHANGES
+
+* installs on Python older than 3.12 are refused; users on those versions stay on 0.3.0.
+
+### Documentation
+
+* add the scope and first roadmap for questgiver to build from ([3136dac](https://github.com/wyrdbound/wyrdbound-dice/commit/3136daca4aebd8e3928d691b35dd1cd3611c4a7e))
+* record expression validation as released in v0.3.0 ([053996f](https://github.com/wyrdbound/wyrdbound-dice/commit/053996f00f378b9ce1362c3d39b394cae2686754))
+
+
+### Build System
+
+* require python 3.12 or later ([ed113a9](https://github.com/wyrdbound/wyrdbound-dice/commit/ed113a964214db6fcf104b9d400a609b2fabb704))
+
 ## v0.3.0 (2026-09-25)
 
 ### Added
