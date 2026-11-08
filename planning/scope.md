@@ -38,7 +38,7 @@ mathematically exact, faithful to each game's published rules, observable.
 | D1 | Supported Python | 3.12 and later only (constitution 1.1.0). Older versions stay on 0.3.0. |
 | D2 | Runtime dependencies | None, ever, in `src/`. Exact probability (R2) is computed with the standard library; `matplotlib` stays an optional extra for `tools/graph.py` only. |
 | D3 | Rendering beyond plain text | Out. No ANSI, Markdown or Rich in the library; consumers style the structured breakdown themselves (`done/roll-formatting.md` §10). |
-| D4 | Changes to what an existing valid expression means | Only with a breaking-change entry in `CHANGELOG.md` and a version bump that says so. The format snapshots (`tests/test_format_snapshots.py`) pin rendered output; a feature that changes one says why in its plan. |
+| D4 | Changes to what an existing valid expression means | Only as a breaking change: a `!` commit with a `BREAKING CHANGE:` footer, which Release Please turns into a changelog entry and a version bump. The format snapshots (`tests/test_format_snapshots.py`) pin rendered output; a feature that changes one says why in its plan. |
 | D5 | Where notation comes from | Each game's published rules, and the notation Roll20 and Foundry use where the games don't define one. A plan that picks a notation cites its source. |
 
 ## 4. Out of scope
