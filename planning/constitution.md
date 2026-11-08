@@ -84,7 +84,8 @@ All code must be debuggable and observable:
   - **Description MUST be lowercase**: the word immediately after `type: ` must begin with a lowercase letter. A task commit leads with its task id instead, then a lowercase summary: `feat(V01): T003 — count successes in a dice pool`
   - **NO itemized lists**: Commit messages must be single high-level descriptions, not bullet lists of changes
   - Types: `feat`, `fix`, `chore`, `docs`, `test`, `refactor`, `perf`, `ci`, `build`, `style`
-  - Breaking changes: Append `!` before colon or add `BREAKING CHANGE:` footer
+  - Breaking changes: Append `!` before colon and add a `BREAKING CHANGE:` footer saying what breaks and what to do instead
+  - **Commit subjects are release notes**: Release Please writes `CHANGELOG.md` from `feat`, `fix`, `perf` and breaking commits, so their subjects must make sense to a library user
 - **PR templates**: Follow `.github/pull_request_template.md`
 
 ### Code Review Checklist
@@ -94,14 +95,13 @@ All code must be debuggable and observable:
 - [ ] No ruff violations
 - [ ] Docstrings added/updated
 - [ ] README updated if user-facing change
-- [ ] CHANGELOG.md updated
+- [ ] Commit subjects read as release notes
 - [ ] Manual testing with CLI tools
 
 ### Version Management
 - **Semantic versioning**: MAJOR.MINOR.PATCH
-- **pyproject.toml**: Update version before release
-- **__init__.py**: Keep `__version__` in sync
-- **CHANGELOG.md**: Document all changes under "Unreleased"
+- **Release Please owns versions and the changelog**: it bumps `pyproject.toml`, `__init__.py:__version__` and its manifest, and writes `CHANGELOG.md`, in a release PR; nobody bumps a version or edits the changelog by hand
+- **Releasing**: merging the release PR tags `vX.Y.Z`, creates the GitHub release and publishes to PyPI
 
 ## Technical Architecture
 
@@ -156,7 +156,7 @@ This constitution supersedes all other development practices for wyrdbound-dice.
 
 **Amendments require:**
 1. Discussion in GitHub issue or PR
-2. Rationale documented in CHANGELOG
+2. Rationale documented in the amending commit's body
 3. Migration plan for existing code (if breaking)
 4. Update to this constitution
 
@@ -167,7 +167,7 @@ This constitution supersedes all other development practices for wyrdbound-dice.
 
 ---
 
-**Version**: 1.1.0  
+**Version**: 1.2.0  
 **Ratified**: 2026-05-03  
-**Last Amended**: 2026-11-07 (Article I: Python 3.12 is the floor; task commits lead with their task id)  
+**Last Amended**: 2026-11-08 (Release Please owns versions and the changelog)  
 **Project**: wyrdbound-dice v0.3.0

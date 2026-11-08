@@ -15,7 +15,7 @@ the governing documents.
 | [`planning/scope.md`](planning/scope.md) | **The scope** — what the library is for, what's out, and the roadmap of features in build order. |
 | [`planning/features/`](planning/features) | **The build plan** — a feature file and a tasks file per feature, and the rules for every task in its `README.md`. |
 | [`README.md`](README.md) | User-facing documentation and API reference |
-| [`CHANGELOG.md`](CHANGELOG.md) | Release history; document all changes under "Unreleased" |
+| [`CHANGELOG.md`](CHANGELOG.md) | Release history, written by Release Please from commit messages; never edit it by hand |
 
 ## Verification Contract
 
@@ -25,8 +25,9 @@ Every task ends with the gate green. No exceptions.
 2. **Lint and format are clean.** `ruff check src/ tests/ tools/` passes, and
    `black --check` and `isort --check-only` on `src/ tests/ tools/` report
    nothing to change.
-3. **Docs kept in sync.** README updated for user-facing changes; CHANGELOG
-   updated under "Unreleased"; docstrings on all public APIs.
+3. **Docs kept in sync.** README updated for user-facing changes; docstrings on
+   all public APIs. The changelog comes from commit messages, so a user-visible
+   change says so in its commit subject (see Releases).
 4. **A failing test blocks merge.** Never delete or weaken a test to make the
    gate green.
 
@@ -98,13 +99,31 @@ These articles are **non-negotiable**. When in doubt, the constitution wins.
     its task id: `feat(V01): T003 — count successes in a dice pool`
     (`planning/features/README.md` rule 11)
   - Single high-level description — no itemized bullet lists
-  - Breaking changes: `!` before the colon or a `BREAKING CHANGE:` footer
-- **PRs**: follow `.github/pull_request_template.md`
+  - Breaking changes: `!` before the colon and a `BREAKING CHANGE:` footer that
+    says what breaks and what to do instead
+- **PRs**: follow `.github/pull_request_template.md`; merged by rebase, so each
+  commit lands on `main` as written
 - **Review checklist**: tests pass · new tests added · black/isort clean · no ruff
-  violations · docstrings updated · README updated if user-facing · CHANGELOG
-  updated · manual CLI testing done
-- **Versioning**: semver MAJOR.MINOR.PATCH; keep `pyproject.toml` and
-  `__init__.py:__version__` in sync
+  violations · docstrings updated · README updated if user-facing · commit
+  subjects read as release notes · manual CLI testing done
+- **Versioning**: semver MAJOR.MINOR.PATCH, set only by Release Please (see
+  Releases); never bump `pyproject.toml` or `__init__.py:__version__` by hand
+
+### Releases
+
+Release Please runs on every push to `main`
+(`.github/workflows/release-please.yml`) and keeps one release PR open,
+`chore(main): release X.Y.Z`. It picks the version from the commits since the
+last release (before 1.0: `feat` and breaking changes bump the minor, `fix` and
+`perf` the patch), bumps `pyproject.toml`, `src/wyrdbound_dice/__init__.py`
+and `.release-please-manifest.json`, and writes the `CHANGELOG.md` entry from
+the `feat`, `fix`, `perf` and breaking commits. Other types are left out.
+
+To release, merge the release PR. Release Please then tags `vX.Y.Z`, creates
+the GitHub release, and dispatches `.github/workflows/release.yml`, which tests
+the tag, checks it matches the package version, and publishes to PyPI after
+approval of the `pypi` environment. Never create a release or tag by hand;
+`release.yml` can be re-run for an existing tag with **Run workflow**.
 
 ### Governance
 
@@ -112,7 +131,7 @@ This constitution supersedes all other development practices for
 wyrdbound-dice. Amendments require:
 
 1. Discussion in a GitHub issue or PR
-2. Rationale documented in CHANGELOG
+2. Rationale documented in the amending commit's body
 3. A migration plan for existing code (if breaking)
 4. An update to `planning/constitution.md`
 

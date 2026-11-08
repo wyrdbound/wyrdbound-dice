@@ -58,14 +58,18 @@ The rules below are **binding on every task**.
    (`list[int]`), `X | None` unions and other 3.12 syntax are allowed; existing
    `typing.Optional`/`Tuple`/`Union` annotations are not rewritten unless a task
    says so.
-10. **Bump the version once per feature**, in its last task, in `pyproject.toml`
-    **and** `src/wyrdbound_dice/__init__.py:__version__`, keeping the two in
-    sync. Semantic versioning; the feature file says which part moves.
+10. **Never bump the version or edit `CHANGELOG.md`.** Release Please does both
+    from the commits on `main` (`AGENTS.md`, Releases). A breaking change says so
+    with `!` and a `BREAKING CHANGE:` footer saying what breaks and what to do
+    instead.
 11. **One commit per task**: `<type>(<key>): <task id> — <summary>`, for example
     `feat(V01): T003 — count successes in a dice pool`. The type is one of
     `feat`, `fix`, `chore`, `docs`, `test`, `refactor`, `perf`, `ci`, `build` or
     `style`; the summary starts lowercase and carries no itemized bullet list.
-    The body says how each `*Accept:*` item was verified.
+    The body says how each `*Accept:*` item was verified. `feat`, `fix` and
+    `perf` subjects become changelog lines, so write them for a library user;
+    work that changes nothing a user sees is `test`, `refactor`, `docs` or
+    `chore`.
 12. **Never tick a task's box.** Questgiver checks a task off after its own check
     passes.
 
@@ -77,9 +81,9 @@ Its last task, additionally:
 
 - `uv run --extra dev pytest --cov=wyrdbound_dice` passes.
 - Docstrings exist on every public class, method and function the feature added.
-- `README.md` is updated for any user-facing change, and `CHANGELOG.md` has an
-  entry under `[Unreleased]`.
-- The version is bumped in both places named in rule 10.
+- `README.md` is updated for any user-facing change.
+- The feature's user-visible commits are `feat`, `fix` or `perf`, so Release
+  Please lists them in the next release's changelog (rule 10).
 
 ---
 
